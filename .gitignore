@@ -1,6 +1,6 @@
 # Downloaded papers (large, and their licenses vary); the knowledge base keeps notes and citations
-papers/
+/papers/
 # Experiment run outputs; summaries are committed under each experiment
-runs/
+/runs/
 .venv*/
 .kb-cache/
