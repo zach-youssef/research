@@ -5,6 +5,7 @@
 
 | id | year | title | tags | status | TL;DR |
 |---|---|---|---|---|---|
+| he2021masked | 2021 | Masked Autoencoders Are Scalable Vision Learners | self-supervised, representation-learning, vision-transformer, masked-image-modeling, pretraining, transfer-learning | read | MAE masks 75% of random ViT patches, encodes only the visible 25% and reconstructs pixels with a small decoder; this cuts pretraining time 3× or more, and an ImageNet-1K-only ViT-H reaches 87.8% fine-tuned; transfer beats supervised pretraining on COCO and ADE20K and prior bests on iNat/Places. |
 | serrano2024crossdomain | 2024 | Knowledge Transfer for Cross-Domain Reinforcement Learning: A Systematic Review | reinforcement-learning, transfer-learning, cross-domain, imitation-learning, survey | read | Survey of 53 methods that transfer knowledge between single-agent RL tasks whose state and/or action spaces differ, sorted by knowledge origin, source count and transfer form (Table II) and compared on data needs and similarity assumptions (Table III); lists open problems (Sec. VI). |
 
 ## Experiments
