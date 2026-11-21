@@ -15,13 +15,21 @@ kb/topics/<topic>.md   optional hand-written syntheses across papers
 
 `<firstauthor><year><keyword>`, all lowercase ASCII, matching `^[a-z]+[0-9]{4}[a-z0-9]+$`:
 - `firstauthor`: the first author's family name, with diacritics folded and spaces, hyphens and
-  apostrophes dropped (`Müller-Brockmann` → `mullerbrockmann`);
-- `year`: the year of the version read (the venue's year, or the arXiv year for a preprint);
+  apostrophes dropped (`Müller-Brockmann` → `mullerbrockmann`). A group author listed first is
+  the first author, whole (`SIMA Team` → `simateam2024instructable`), and stays first in
+  `authors`;
+- `year`: follows the note's own `venue` (frontmatter, below): when `venue` names a
+  publication (a conference, journal or workshop), its year, even when the arXiv version was
+  read; otherwise (`arXiv preprint`, a blog post) the year of the version read, for arXiv the
+  date of that version in the abstract page's submission history, not the first version's. So
+  look up the venue before choosing the id; a paper published after the note was written keeps
+  its id;
 - `keyword`: the most distinctive word of the title, not necessarily the first
   (`kerbl2023gaussian`, `bridson2007poisson`).
 
 If an id is taken, pick a different keyword. An id never changes once it's on `main`: other
-notes, experiments and results refer to it.
+notes, experiments and results refer to it. An id in a brief is a suggestion: the reader derives
+the id from the version it reads, by these rules, and reports any difference.
 
 ## Note format
 
@@ -179,6 +187,23 @@ single `.`.
 - A claim is something the paper asserts and an experiment could check: a bound, a measured
   result, a property of the method. Background and definitions go in `Method`.
 
+Reference examples (`kb.py check` rejects the right-hand column):
+
+| Write | Not |
+|---|---|
+| `(Sec. 3, p. 3)`: parts separated by commas | `(Sec. 3; p. 3)`: no `;` anywhere in the group |
+| `(p. 16, p. 19)`: two pages that aren't adjacent | `(pp. 16, 19)` |
+| `(Fig. 3a, Fig. 3b)`, `(Sec. 3, Sec. 4)`: one singular keyword per part | `(Figs. 3a-b)`, `(Fig. 3a-b)`, `(Secs. 3-4)` |
+| `Theorem 2 bounds … (Sec. 3.3, p. 7)`: name the theorem in the text | `(Theorem 2)`, `(Thm. 2)`, `(Lemma 1)`: not keywords |
+| `(p. 7)` for a section the paper doesn't number | `(Sec. Related Work)` |
+
+A range between numbered labels is one part (`Sec. 5.1.3-5.1.4`, `Eq. 16-18`); a range of
+lowercase sub-labels isn't (`Fig. 3a-b`).
+
+**Sources without pages** (web pages and other sources with no PDF): the reader numbers the source's
+sections in reading order (`Sec. 1`, `Sec. 2`, …, sub-items such as FAQ entries cited by the
+section and named in the text), writes that numbering under `## Method`, and cites `Sec. N`.
+
 ### Implementation notes
 
 What an implementation needs that the paper leaves out or leaves vague, one per line, each with
@@ -201,6 +226,12 @@ Relations, from this paper's point of view: `extends` (builds on and improves it
 its method or results as a component), `contradicts` (reports results or claims that conflict
 with it), `related` (anything else worth following). Reverse links aren't written by hand:
 `kb.py show` lists backlinks.
+
+**Notes written in parallel.** Notes from one batch are on separate branches, and a link must
+resolve when its note is checked, so link only notes already on `main` (or on your branch).
+Mention an unmerged sibling in plain text (`Kurin et al. 2021, kurin2021cage, not on main yet`).
+One direction is enough, since backlinks show the other: once both are merged, a follow-up
+commit adds the link and its `Related` line to one of them.
 
 ### Generated blocks
 
