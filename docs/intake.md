@@ -45,21 +45,48 @@ version it describes.
 Until it exists, download by hand into the layout above and fill the frontmatter from the
 paper's landing page. Prefer the arXiv or the authors' version when the publisher's is
 paywalled, and record which one was read in `url`. Requests made by hand follow the same rules:
-use `curl -A research-kb-reader/0.1` (a fetch tool that can't set the User-Agent is fine as long
-as nothing identifying is added), no identity, and 3 s between calls to arXiv.
+use `curl -L -A research-kb-reader/0.1` (a fetch tool that can't set the User-Agent is fine as
+long as nothing identifying is added), no identity, and 3 s between calls to arXiv.
+- Query the export API over **https** (`https://export.arxiv.org/api/query?id_list=<id>`): plain
+  http returned nothing. `-L` follows arXiv's redirects.
+- Compare the API's title with the title printed on the PDF; versions get retitled. The note's
+  `title` is the printed one, and a mismatch means the metadata may describe another version.
 
 ## Reading
 
 - **Read tool first.** Read the PDF with the `pages` parameter, at most 20 pages per call, so
-  figures, tables and equations are seen as printed.
+  figures, tables and equations are seen as printed. Read renders PDFs with poppler
+  (`pdftoppm`); where poppler isn't installed it can't take PDFs at all, so use the PDFKit
+  fallback below.
+- **Page counts.** Trust the renderer's count (Read's, or PDFKit's): `file` reports wrong
+  counts, and `mdls`'s `kMDItemNumberOfPages` can be `(null)`.
 - **Big or scanned PDFs.** When Read can't take the PDF (the 117 MB 3DGS PDF was too big) or a
   page has no text layer, `tools/pdf_pages.swift` (not written yet; it uses macOS PDFKit, so it
   needs no install) writes `pages/pN.txt` for every page and, on request, `pages/pN.png`. Read
   the PNGs to see the page, and Grep the text to find where something is said. PDFKit's text
   for math and multi-column layouts is rough: check equations and numbers against the page
   image before writing them into a note.
+- **Small labels in charts** that are drawn as graphics (no text layer) are unreadable at the
+  normal render size: render the page at 4× and crop the region with
+  `sips -c <height> <width> --cropOffset <y> <x> in.png --out crop.png` (macOS `sips` takes the
+  offset Y first, then X). Crops are working files: keep them under `papers/<id>/pages/`, never
+  commit them.
 - Read appendices and the supplementary material the brief points to; the reader's report says
   what it didn't read.
+
+### Web sources
+
+Some sources are web pages, not papers (a launch post, a project page). Save the HTML and its
+extracted text under `papers/<id>/` (for example `launch.html`, `launch.txt`), leave
+`pdf_sha256` empty, and record in a comment at the top of the note which pages were read and
+when they were fetched. Pages built with site generators often hide text from a plain text
+dump:
+- Framer sites keep collapsed content (FAQ answers, tabs) in the page's embedded JSON as text
+  nodes; extract those too.
+- Chart point labels are often only in SVG `<title>` elements or `aria-label` attributes.
+
+How such a note numbers its sections for claim references is in `docs/knowledge-base.md`
+("Claims").
 
 ## Licensing
 
