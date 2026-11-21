@@ -78,6 +78,10 @@ What is disclosed (very little about the model itself):
   game state given as a text data structure, not images. Wikiracing (Sec. 9): choose the next
   Wikipedia link from hundreds to thousands per step, scored in two stages above 255 options.
   Both are videos; the reader saw only the text around them.
+- **Claim labels used below:** "asserted" = stated without evidence shown; "vendor-measured" =
+  TypeSafe's own numbers, not reproduced by anyone else; "by construction" = follows from the API
+  contract; "video (not viewed)" = the post embeds a recording of this, which the reader did not
+  watch, so only the recording's existence is backed and every detail comes from the post's text.
 
 Reference map (headings of the launch post numbered in page order, h1 to h4; most have a
 "Nuance" box): Sec. 1 "Introducing System One Models & Jev" (title and intro text); Sec. 2
@@ -98,10 +102,6 @@ typesafe.ai (home). The launch post is launch.html/.txt.
 
 ## Claims
 
-Labels: "asserted" = stated without evidence shown; "vendor-measured" = TypeSafe's own numbers,
-not reproduced by anyone else; "by construction" = follows from the API contract; "video
-(not viewed)" = the post embeds a recording of this, which the reader did not watch, so only the
-recording's existence is backed and every detail comes from the post's text.
 - C1: Asserted: Jev reaches intelligence similar to existing LLMs on "System One tasks" while being two orders of magnitude faster and more efficient (Sec. 1)
 - C2: Asserted: end-to-end response time is 70-500 ms for Jev versus 3-329 s for frontier LLMs, 40x-200x faster at the same intelligence for "System One shaped queries"; their published evals run from laptops on the US West Coast, where the service is based (Sec. 2, Sec. 3)
 - C3: Price: $0.042 per million input tokens ($42 per billion), output tokens free; the post says it cannot prove the price isn't subsidized (Sec. 2, Sec. 3, Sec. 15)
