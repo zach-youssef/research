@@ -128,6 +128,8 @@ language models that broad training data is what drives generality (p. 2).
 ## Related
 
 - related [[lee2022multigame]]: also one model across many games, but Atari-only with a shared 18-action space, offline RL-style return conditioning instead of language instructions.
+- related [[reed2022generalist]]: also one set of weights across many environments, but Gato mixes modalities and control tasks and takes no free-form language instructions; SIMA fixes one pixels-and-text in, keyboard-and-mouse out interface.
+- related [[baker2022video]]: also behaviour-clones a transformer on human keyboard-and-mouse play from pixels, but in Minecraft only and from IDM-labelled video; SIMA uses recorded human play with language labels across many games.
 - related [[serrano2024crossdomain]]: survey of cross-domain RL transfer; SIMA sidesteps state/action mapping by giving every environment a human-like pixels-in, keyboard-and-mouse-out interface.
 - related [[vaswani2017attention]]: SIMA's state and policy are built from transformers (cross-attention plus Transformer-XL memory).
 

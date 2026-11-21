@@ -166,6 +166,8 @@ typesafe.ai (home). The launch post is launch.html/.txt.
 
 - related [[schulman2017proximal]]: RL policy optimization; RLCD is undisclosed RL post-training, so PPO-style training of a typed-action policy is the obvious stand-in
 - related [[vaswani2017attention]]: likely backbone family for a state-in, typed-decisions-out model, though Jev's architecture is undisclosed
+- related [[reed2022generalist]]: Gato's tokenised actions are one answer to a single policy over mixed action spaces; Jev instead declares typed answers (Choice, Score, yes/no) per request and returns calibrated probabilities.
+- related [[baker2022video]]: VPT is a game policy with a native keyboard-and-mouse action space in a "joint hierarchical" head (one categorical over key combinations plus a camera head), a contrast to Jev's typed heads over a text state.
 - related [[serrano2024crossdomain]]: Jev's text state and per-request action sets are one way to cross domains without a shared state or action space
 
 ## Experiments

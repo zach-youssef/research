@@ -112,7 +112,8 @@ first work to focus concretely on morphological transfer (p. 2, Sec. 5.2, p. 9).
 
 - related [[serrano2024crossdomain]]: the survey files it as [74] under reward shaping (Sec. V-A3, p. 11 there) and cites it for decoupling high- and low-level behaviour (Sec. VI-C, p. 15 there).
 - related [[devin2016modular]]: an earlier split of policies into shared task and per-robot modules, cited here as transfer-oriented architecture work (Sec. 5.1, p. 8).
-- Not yet merged (plain text): zhang2020correspondence and zakka2021xirl also transfer across morphologies, by learned correspondence or embodiment-invariant rewards.
+- related [[zhang2020correspondence]]: also moves a policy across mismatched domains, but by learning observation and action maps from unpaired transitions, where this paper keeps the high level and retrains only the low level.
+- related [[zakka2021xirl]]: also transfers across morphologies with a learned reward, an embodiment-invariant embedding distance from videos, where this paper's reward is a discriminator on goal reaching.
 
 ## Experiments
 

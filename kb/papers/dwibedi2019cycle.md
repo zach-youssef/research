@@ -117,6 +117,7 @@ that learns the representation itself from unaligned videos of the same process.
 ## Related
 
 - related [[serrano2024crossdomain]]: the survey cites XIRL ([53]), which reuses TCC across embodiments as a reward.
+- related [[zakka2021xirl]]: reuses TCC, trained on videos of several embodiments, as a reward for cross-embodiment imitation, an application this paper does not test.
 - related [[he2021masked]]: another self-supervised visual pretraining objective, per image rather than across aligned videos.
 
 ## Experiments

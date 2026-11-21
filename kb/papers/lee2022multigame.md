@@ -113,6 +113,8 @@ inference (Sec. 2, p. 3).
 ## Related
 
 - uses [[vaswani2017attention]]: the model is a GPT-2-style decoder-only Transformer.
+- extends [[chen2021decision]]: scales the Decision Transformer to one 200M-parameter model over 41 Atari games with image-patch tokens, mixed-quality data and expert action inference.
+- related [[reed2022generalist]]: the concurrent Gato; it trains only on near-optimal data across many more modalities and needs expert-trajectory prompts, where this paper uses non-expert data and return conditioning (Sec. 2, p. 3).
 - related [[serrano2024crossdomain]]: survey of cross-domain RL transfer; this paper's transfer is between games with shared state and action spaces.
 - related [[schulman2017proximal]]: online policy-gradient alternative; the paper argues offline sequence modeling is more "data-absorbent" than online RL in the multi-game setting (Sec. 5, p. 10).
 
