@@ -34,15 +34,24 @@ present and in this order. `templates/paper-note.md` is the starting point, and
 | `## TL;DR` | At most 3 non-empty source lines (wrap at about 100 columns): what the paper does and its main result. It feeds `INDEX.md`. |
 | `## Problem` | What problem it solves, and what was lacking before. |
 | `## Method` | How it works, with references (`Eq. 5, Sec. 4, p. 4`). |
-| `## Claims` | The paper's testable claims, one per line, with stable ids (below). |
+| `## Assumptions` | The conditions the claims rest on, stated or inferred, one per line, with stable ids (below). |
+| `## Claims` | The paper's testable claims, one per line, with stable ids and the assumptions each uses (below). |
 | `## Implementation notes` | What an implementation needs that the paper doesn't state, each with its source. |
 | `## Limitations / open questions` | Limitations the paper admits, and the reader's open questions (marked as such). |
 | `## Related` | Links to other notes, each with a relation. |
 | `## Experiments` | Generated block: the experiments that test this paper's claims. |
 
 A section with nothing to say holds `- none`. A `skimmed` note may hold `- not read yet` in
-`Problem`, `Method`, `Implementation notes` and `Limitations / open questions`; `TL;DR` and
-`Claims` are always filled in.
+`Problem`, `Method`, `Assumptions`, `Implementation notes` and `Limitations / open questions`;
+`TL;DR` and `Claims` are always filled in. When `Assumptions` holds `- not read yet`, the claims
+carry no assumption lists: their conditions are unrecorded, not absent, so nothing may treat
+those claims as unconditional. A later full reading fills the section in and adds the lists.
+
+**Transition.** The notes written before `## Assumptions` existed don't have it yet; a separate
+backfill task adds it. Until that backfill is merged on `main`, `kb.py check` warns about a note
+without the section (and then its claims carry no assumption lists) instead of failing. The
+commit that merges the backfill turns the warning into a failure and deletes this paragraph.
+New notes always have the section.
 
 Keep notes under about 250 lines (`kb.py check` warns above that): the KB is searched, not read
 end to end. Paraphrase; quote only short passages where the wording matters, in double quotes
@@ -68,7 +77,8 @@ Between `---` lines at the top of the file. Every key is present in every note, 
 | `read` | Date of the last reading, `YYYY-MM-DD`. |
 
 Statuses:
-- `skimmed`: TL;DR and the main claims only; the other sections may say `- not read yet`.
+- `skimmed`: TL;DR and the main claims only; the other sections may say `- not read yet`
+  (`Assumptions` included, and then the claims carry no assumption lists).
 - `read`: the whole paper was read; every section is filled in and every claim is referenced.
   This is what a reader task produces.
 - `verified`: a `read` note at least one of whose claims (not withdrawn) has a `supports`
@@ -100,13 +110,56 @@ YAML library (and the same subset is used by experiment plans, `docs/experiments
   trimmed, and an item containing a comma is double-quoted; `[]` is the empty list;
 - there are no comments: `#` is an ordinary character (`example2000jittered#C1`).
 
+### Assumptions
+
+The conditions the paper's claims hold under, one per line under `## Assumptions`, so that a
+synthesis combining claims from several papers can check that their conditions are compatible
+(see "Topics"):
+```
+- A1: <the condition> (<reference>)
+- A2: <the condition> (reader's inference)
+- A3: <the condition> (reader's inference, <reference>)
+```
+- **What counts.** Anything a claim needs that a different setting could break: the setting
+  (discrete actions, full observability, deterministic dynamics), the data (a label distribution
+  shared by source and target, the scale of the training data, a single embodiment), and the
+  theory's conditions (DANN's bound is useful only when the ideal joint error β is low). Every
+  such condition goes here and is listed on the claims that rely on it, even when the claim
+  text repeats it (a claim saying "for a fixed dimension" still lists `A1: the dimension is
+  fixed`): a synthesis sees only the lists. Write the condition so it can be checked against
+  another paper's: say what holds, not why it matters. Details of one experiment (a learning
+  rate, a seed count) belong in the claim or in `Implementation notes`, not here.
+- **Stated or inferred.** A condition the paper states takes a reference, with the claim
+  grammar below. One the paper doesn't state but its claims evidently rely on (every benchmark
+  it uses has discrete actions; the theorem's proof needs a finite hypothesis class) is marked
+  `(reader's inference)`, optionally followed by a comma and the reference that shows it
+  (`(reader's inference, Sec. 5, p. 13)`). Mark an inference as one even when you are sure of
+  it: only stated conditions are the paper's.
+- **Ids** follow the claim rules: `A1`, `A2`, … in the order assigned, never renumbered, reused
+  or deleted once on `main`; a re-read adds new ones after the last id; one that turns out wrong
+  in the note is kept and marked `- A2 [withdrawn: <why>]: …`. Full ids are `<paper id>#A<n>`.
+- **None.** When no claim rests on a condition another setting could break, the section holds
+  `- none` and every claim's list is `[]`.
+- **Not implementation notes.** An implementation note with `source: assumption` is the
+  reader's guess at a value the paper leaves out; an entry here is a condition the paper's
+  results depend on.
+
 ### Claims
 
 One claim per line under `## Claims`:
 ```
-- C1: <the claim, paraphrased with its numbers and conditions> (<reference>)
+- C1: <the claim, paraphrased with its numbers and conditions> [<assumption ids>] (<reference>)
 ```
-The line ends with the reference group, optionally followed by a single `.`.
+The line ends with the assumption list and the reference group, optionally followed by a
+single `.`.
+- **The assumption list** is the bracketed group just before the reference group: the ids from
+  `## Assumptions` that this claim relies on, comma-separated in id order (`[A1, A3]`), or `[]`
+  when it rests on no condition another setting could break. Every claim that isn't withdrawn
+  has one, so a missing list is an error rather than an unrecorded "none"; on a withdrawn claim
+  it is optional, since withdrawn claims are neither tested nor combined. Each id must be
+  defined in the note, and a claim that isn't withdrawn must not use a withdrawn assumption.
+  Claims carry no lists when the note has no `## Assumptions` (the transition above) or a
+  skimmed note's section holds `- not read yet`.
 - **Ids** are `C1`, `C2`, … in the order assigned. Once a note is on `main`, an id is never
   renumbered, reused or deleted; a re-read adds new claims after the last id. A claim that turns
   out wrong in the note (not in the paper) is kept and marked `- C4 [withdrawn: <why>]: …`;
@@ -137,8 +190,9 @@ A value with `source: assumption` is the reader's guess and is labelled as one.
 
 ### Links and Related
 
-`[[id]]` links a paper note, and `[[id#C2]]` one of its claims. Links can appear in any
-hand-written section; every link must resolve to an existing note (and claim), which
+`[[id]]` links a paper note, `[[id#C2]]` one of its claims and `[[id#A1]]` one of its
+assumptions. Links can appear in any hand-written section; every link must resolve to an
+existing note (and claim or assumption), which
 `kb.py check` enforces. `## Related` lists the notes this one is related to, one per line:
 ```
 - <relation> [[id]]: <one line on how>
@@ -205,9 +259,12 @@ except that its id needn't match the file name and its links needn't resolve; `k
 `tools/kb` (entry point `kb.py` at the repo root) is stdlib-only Python for 3.9 and later. It is
 not written yet; until it is, follow these formats by hand. Planned commands:
 - `kb.py check`: validates the frontmatter, ids, links, claim references and their stability
-  (against `origin/main`), note length, the `verified` rule, experiment plans and results
-  (including their input fingerprints, `docs/experiments.md`), and that generated content is
-  current;
+  (against `origin/main`), the assumptions (unique ids in order, stable against `origin/main`
+  like claim ids; every claim that isn't withdrawn has a list, unless the section is missing or
+  `- not read yet`; lists name only defined ids, and none withdrawn unless the claim is; a note
+  without the section warns during the transition, "Note format"), note length, the
+  `verified` rule, experiment plans and results (including their input fingerprints,
+  `docs/experiments.md`), and that generated content is current;
 - `kb.py index [--check]`: regenerates `INDEX.md` and the `Experiments` blocks; `--check` exits
   non-zero when they are stale;
 - `kb.py new paper <id>`, `kb.py new experiment <slug>`: scaffold from `templates/`;

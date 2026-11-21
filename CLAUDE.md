@@ -23,7 +23,8 @@ Rules that apply everywhere:
   git-ignored `papers/<id>/`.
 - `kb/INDEX.md` and the notes' `Experiments` blocks are generated: run `kb.py index`, never
   edit them by hand, and resolve rebase conflicts in them by regenerating.
-- Claim ids (`<paper id>#C<n>`) are never renumbered, reused or deleted once on `main`.
+- Claim and assumption ids (`<paper id>#C<n>`, `#A<n>`) are never renumbered, reused or deleted
+  once on `main`.
 - Branches: `paper-<id>` (or `papers-<topic>`) for notes, `exp-<slug>` for experiments.
 - Tools target Python 3.9 (the system `python3`) with the standard library only; experiments
   pin their own dependencies.

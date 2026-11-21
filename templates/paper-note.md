@@ -27,9 +27,14 @@ read: <YYYY-MM-DD>
 
 <How it works, with references, e.g. (Eq. 5, Sec. 4, p. 4).>
 
+## Assumptions
+
+- A1: <a condition the claims rest on, as the paper states it> (<Sec. N, p. N>)
+- A2: <a condition the paper doesn't state but its claims rely on> (reader's inference)
+
 ## Claims
 
-- C1: <the claim, paraphrased with its numbers and conditions> (<Sec. N, p. N>)
+- C1: <the claim, paraphrased with its numbers and conditions> [<A1, A2, or empty>] (<Sec. N, p. N>)
 
 ## Implementation notes
 

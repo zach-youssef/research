@@ -36,12 +36,18 @@ linearly with the number of points.
   neighbourhood is rejected (Alg. 1, p. 2).
 - The acceptance test is the squared distance against r² (Eq. 2, Sec. 2, p. 2).
 
+## Assumptions
+
+- A1: The dimension is fixed, so a cell's neighbourhood has a constant number of cells (Sec. 3, p. 3).
+- A2: The domain is the unit square in 2D (Sec. 4, p. 4).
+- A3: Candidates in different cells are drawn independently (reader's inference, Alg. 1, p. 2).
+
 ## Claims
 
-- C1: Run time is linear in the number of grid cells, for a fixed dimension (Sec. 3, p. 3).
-- C2: Every pair of accepted points is at least r apart (Sec. 3, Eq. 3, p. 3).
+- C1: Run time is linear in the number of grid cells, for a fixed dimension [A1] (Sec. 3, p. 3).
+- C2: Every pair of accepted points is at least r apart [] (Sec. 3, Eq. 3, p. 3).
 - C3 [withdrawn: the paper reports 0.6 of dart throwing's count, not 0.9; see C4]: Accepts about 0.9 as many points as dart throwing (Table 1, p. 4).
-- C4: Accepts 0.6 ± 0.05 times as many points as dart throwing, over 10 runs in 2D (Table 1, p. 4).
+- C4: Accepts 0.6 ± 0.05 times as many points as dart throwing, over 10 runs [A2, A3] (Table 1, p. 4).
 
 ## Implementation notes
 
