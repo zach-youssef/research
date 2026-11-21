@@ -36,14 +36,17 @@ version it describes.
 `tools/fetch_paper.py` (not written yet) will:
 - take an arXiv id, a URL or a local PDF; download (or copy) it to `papers/<id>/paper.pdf` and
   record `pdf_sha256`;
-- look up arXiv metadata through the export.arxiv.org API, with a User-Agent and at least 3 s
-  between calls, as arXiv's API terms ask;
+- look up arXiv metadata through the export.arxiv.org API, with the User-Agent
+  `research-kb-reader/0.1` and at least 3 s between calls, as arXiv's API terms ask. Never put
+  the user's name, email or other identity in a request's headers or URL;
 - scaffold the note with `kb.py new paper` and fill in the frontmatter;
 - with `--search "<query>"`, list candidates (id, year, title, authors) and download nothing.
 
 Until it exists, download by hand into the layout above and fill the frontmatter from the
 paper's landing page. Prefer the arXiv or the authors' version when the publisher's is
-paywalled, and record which one was read in `url`.
+paywalled, and record which one was read in `url`. Requests made by hand follow the same rules:
+use `curl -A research-kb-reader/0.1` (a fetch tool that can't set the User-Agent is fine as long
+as nothing identifying is added), no identity, and 3 s between calls to arXiv.
 
 ## Reading
 

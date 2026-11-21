@@ -115,8 +115,11 @@ The line ends with the reference group, optionally followed by a single `.`.
   notes use them; within a note, `C1` is enough.
 - **The reference** is the last parenthesized group on the line (it contains no parentheses
   itself; the claim text before it may) and holds at least a page or a section. Its parts are
-  separated by commas, from: `p. N`, `pp. N–M` (or `N-M`), `Sec. N` or `Sec. N.M`, `Eq. N`, `Fig. N`, `Table N`,
-  `Alg. N`, `App. X`. `kb.py check` rejects a claim without one.
+  separated by commas, from: `p. N`, `pp. N–M` (or `N-M`), `Sec. X`, `Eq. X`, `Fig. X`, `Table X`,
+  `Alg. X`, `App. X`. `kb.py check` rejects a claim without one. Page numbers `N` and `M` are
+  digits. A label `X` is written as the paper prints it: arabic or Roman numerals and capital
+  letters, joined by `.` or `-`, with an optional lowercase sub-label (`Sec. 3.2.1`,
+  `Sec. VI-E`, `Sec. III-C7`, `Table III`, `Table 1c`, `Fig. 9a`, `App. A.2`).
 - **Page numbers** are PDF pages counted from 1, the numbers the Read tool's `pages` parameter
   takes, not the page numbers printed on the paper; a reviewer must be able to open the page
   directly.
