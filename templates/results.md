@@ -15,6 +15,12 @@ Experiment `<YYYY-MM-DD>-<slug>`, run on <YYYY-MM-DD> at research `<short sha>` 
 |---|---|---|---|---|
 | <name> | <value> | <unit> | <n> | <[low, high] at level, or blank> |
 
+## Checks
+
+<One line per check in src/checks/, or the single line `- none (<why no check applies>)`:>
+
+- <src/checks module> (<kind>): <what it checks>; <outcome>
+
 ## Deviations from the plan
 
 - <what was done differently and why, or none>

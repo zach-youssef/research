@@ -10,8 +10,10 @@ record a verdict for every claim it tests.
    and `approved:` empty.
 2. **Approve:** the user approves the plan, or asks for changes. The first commit after that
    fills `approved:`, sets `status: approved`, and makes only the changes the user asked for.
-   From then on the hypothesis, claims, criteria, tolerances and metrics don't change.
-3. **Run:** implement in `src/`, commit, then run from the clean tree.
+   From then on the hypothesis, claims, assumptions, criteria, tolerances and metrics don't
+   change.
+3. **Run:** implement in `src/`, with the correctness checks that apply (below), commit, then
+   run from the clean tree.
 4. **Record:** write `results.json` and `results.md` from the run's output, set
    `status: done`, set `status: verified` on the `read` paper notes that gain a
    qualifying latest verdict from a non-exploratory run (the rule is in `docs/knowledge-base.md`,
@@ -27,6 +29,7 @@ stays in the repo.
 experiments/<YYYY-MM-DD>-<slug>/
   plan.md            the approved plan (format below)
   src/               the experiment's code
+  src/checks/        correctness checks, run by run.sh before anything else (below)
   run.sh             entry point: ./run.sh (full run) and ./run.sh --smoke
   requirements.txt   pinned dependencies, one name==version per line (may be empty)
   results.json       machine-readable results (schema below)
@@ -52,6 +55,7 @@ No notebooks: they diff, review and run in CI badly. Plain Python modules in `sr
 | `id` | The experiment id; equals the directory name. |
 | `title` | One line. |
 | `claims` | Inline list of the full claim ids under test: `[example2000jittered#C1, example2000jittered#C2]`. Each must exist and, while the plan is `proposed` or `approved`, must not be withdrawn (`done` and `abandoned` plans keep their claims as history). |
+| `assumptions` | Inline list of the full assumption ids the experiment relies on (`docs/knowledge-base.md`, "Assumptions"): every assumption the tested claims use, plus any other note's that the setup relies on (a method borrowed from another paper brings its conditions). Same existence and withdrawal rules as `claims`; while the plan is `proposed` or `approved`, `kb.py check` also fails when it misses an assumption a tested claim uses (a claim's list may grow when its paper is re-read, and `done` and `abandoned` plans keep theirs as history). `[]` when there are none. `## Method` says how the setup meets each one, or which one it deliberately breaks and why. |
 | `status` | `proposed`, `approved`, `done` or `abandoned`. |
 | `gpu` | `yes` or `no`: whether any step uses the GPU. |
 | `budget_wall_min` | Wall-clock budget in minutes for all runs, smoke runs included. |
@@ -66,7 +70,7 @@ order:
 |---|---|
 | `## Hypothesis` | What we expect and why, in a few lines, citing the claims. |
 | `## Success criteria` | Fixed before the run. One criterion line per claim in `claims`, then one tolerance line per metric the criteria name (formats below). |
-| `## Method` | Inputs, parameters, seeds, repetitions, what is measured and how; domain-repo code needed, if any; anything vendored, with its URL, commit and license. |
+| `## Method` | Inputs, parameters, seeds, repetitions, what is measured and how; how the setup meets the listed assumptions; the correctness checks (below); domain-repo code needed, if any; anything vendored, with its URL, commit and license. |
 | `## Budget` | How the budget numbers were estimated. |
 
 A criterion maps every outcome to a verdict:
@@ -142,9 +146,10 @@ results must be rerun.
 ## results.md
 
 `templates/results.md` is the starting point. Sections, in this order: `## Verdicts` and
-`## Metrics` (tables repeating `results.json`, with the same numbers), `## Deviations from the
-plan` (what was done differently and why), `## Figures`, `## Reproduce` (the command, the
-expected wall clock, and the tolerances restated from the plan), and `## Notes`
+`## Metrics` (tables repeating `results.json`, with the same numbers), `## Checks` (the
+correctness checks, below), `## Deviations from the plan` (what was done differently and why),
+`## Figures`, `## Reproduce` (the command, the expected wall clock, and the tolerances restated
+from the plan), and `## Notes`
 (anything surprising, experiments worth running next). It doesn't repeat the plan.
 
 ## Reproducibility
@@ -176,6 +181,37 @@ expected wall clock, and the tolerances restated from the plan), and `## Notes`
 - Experiments that need domain code (ZGAL in vulkan_test, vulkan_splatting) get it on a working
   branch in that repo, through that repo's normal review and merge. The experiment runs against
   the merged commit and records its sha in `commits`.
+
+## Correctness checks
+
+Mechanical checks catch the errors a reviewer reading code misses. Where they apply, an
+experiment includes them:
+- **SymPy** for a derivation the experiment depends on (a closed-form gradient, a bound, an
+  expected value the criteria compare against): the check derives or simplifies it and asserts
+  it equals the formula the code uses.
+- **Finite-difference gradient checks** for every custom loss and custom gradient op (a
+  gradient reversal layer, a hand-written backward): compare the analytic gradient with central
+  differences in float64, on small random inputs.
+- **Property-based tests (Hypothesis)** for every invariance the experiment or a tested claim
+  states (a set encoder is permutation-invariant, a state embedding ignores entity order).
+- **Z3** for discrete properties (an action-space mapping between games is total and
+  unambiguous, a tokenisation round-trips).
+- **Lean** only for a genuinely new theoretical statement, never to re-prove a paper's
+  theorem, and only when `## Method` in `plan.md` states the theorem and asks for it, so the
+  user's approval of the plan covers it.
+
+The checks live in `src/checks/` (so `inputs` fingerprints them), one module per check, with
+their tools pinned with `==` in `requirements.txt` (`sympy`, `hypothesis`, `z3-solver`; a Lean
+check pins its toolchain in `src/checks/lean-toolchain`). `./run.sh` and `./run.sh --smoke` run
+them first and stop with a non-zero exit if one fails, so recorded results always passed them;
+seed Hypothesis (`derandomize=True`) so a rerun checks the same examples. `plan.md`'s
+`## Method` lists the planned checks, and `results.md` reports them under `## Checks`, one line
+per check:
+```
+- <module> (<kind>): <what it checks>; <outcome, e.g. max relative error 3e-7, 500 examples>
+```
+or `- none (<why no check applies>)`. They aren't recorded in `results.json`: a failing
+check means there is no result to record.
 
 ## Budgets and the GPU
 
