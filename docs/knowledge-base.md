@@ -244,8 +244,62 @@ content, take either side, run `kb.py index`, and `git add` the result. CI runs
 
 `kb/topics/<topic>.md` is an optional synthesis across papers (`<topic>` lowercase kebab-case).
 Frontmatter: `id` (the file name), `title`, `tags`, `updated` (`YYYY-MM-DD`). The body is free
-markdown; its `[[id]]` and `[[id#C2]]` links are checked like a note's, and any statement about
-a paper's results cites the claim.
+markdown; its `[[id]]`, `[[id#C2]]` and `[[id#A1]]` links are checked like a note's, and any
+statement about a paper's results cites the claim.
+
+### Combining claims
+
+A statement that combines claims from more than one paper ("A's encoder with B's adversarial
+loss should transfer across games") rests on all their assumptions at once, and on the setting
+it is about. Instead of a formal proof, the topic shows that these are compatible, under a
+`### Compatibility: <short name>` heading next to the statement, in four parts:
+
+1. **Assume**: the topic's own conditions, one per line with a local id, starting with the
+   conditions of the target setting the statement is about; entries added later to close a gap
+   (below) follow:
+   ```
+   Assume:
+   - S1: the target games have continuous actions
+   - S2: one policy is trained across all target games
+   - S3: B's per-game result carries over to one policy shared across games
+   ```
+2. **Claims**: a table of the combined claims and the assumptions each uses, copied from the
+   notes' assumption lists (`kb.py check` compares them). A claim whose list is `[]` shows
+   `none`; a claim from a skimmed note whose `Assumptions` holds `- not read yet` shows
+   `not read yet`:
+   ```
+   | Claim | Assumptions |
+   |---|---|
+   | [[a2020x#C2]] | [[a2020x#A1]], [[a2020x#A2]] |
+   | [[b2021y#C5]] | [[b2021y#A1]], [[b2021y#A3]] |
+   | [[c2019z#C1]] | none |
+   | [[d2022w#C3]] | not read yet |
+   ```
+3. **Union**: one line listing every assumption in the table and every `Assume` entry, the set
+   the combined statement holds under:
+   `Union: S1, S2, S3, [[a2020x#A1]], [[a2020x#A2]], [[b2021y#A1]], [[b2021y#A3]]`.
+4. **Gaps**: every pair in the union whose members come from different sources (two papers, or
+   a paper and the `Assume` list) is considered; the pairs that conflict, or whose
+   compatibility hasn't been established, get a row (pairs that are plainly compatible are left
+   out). A `not read yet` claim is `unverified` against everything, in one row with the pair
+   `<claim> / all`:
+   ```
+   | Pair | Status | Gap | What would close it |
+   |---|---|---|---|
+   | [[a2020x#A1]] / S1 | conflicts | A1 needs discrete actions; the target's are continuous | experiment: discretise the target's actions and rerun A's benchmark |
+   | [[a2020x#A2]] / [[b2021y#A1]] | unverified | B's label distribution may differ between games | paper: a label-shift result for adversarial alignment |
+   | [[b2021y#A3]] / S2 | unverified | B trains one policy per game | assume: S3 |
+   | [[d2022w#C3]] / all | unverified | its conditions aren't recorded | paper: read [[d2022w]] in full |
+   ```
+   `Status` is `conflicts` or `unverified`. `What would close it` starts with `experiment:`
+   (one that could be proposed, `docs/experiments.md`), `paper:` (what kind of result to look
+   for, or a skimmed paper to read in full; the user picks papers, `docs/intake.md`) or
+   `assume:` and the id of a new `Assume` entry the topic adds (which then joins the union and
+   the pairs). With no rows, write `Gaps: none`.
+
+The combined statement is written as holding under the union. While a `conflicts` row is open
+it is a conjecture and is labelled as one; an `unverified` row makes it conditional, and the
+statement says so.
 
 ## Examples
 
@@ -262,7 +316,10 @@ not written yet; until it is, follow these formats by hand. Planned commands:
   (against `origin/main`), the assumptions (unique ids in order, stable against `origin/main`
   like claim ids; every claim that isn't withdrawn has a list, unless the section is missing or
   `- not read yet`; lists name only defined ids, and none withdrawn unless the claim is; a note
-  without the section warns during the transition, "Note format"), note length, the
+  without the section warns during the transition, "Note format"), topics'
+  compatibility blocks (each claim's assumptions match its note's list, the union line is the
+  table's assumptions plus the `Assume` entries, gap rows name union members or `<claim> / all`
+  and have a valid status and closing kind, "Combining claims"), note length, the
   `verified` rule, experiment plans and results (including their input fingerprints,
   `docs/experiments.md`), and that generated content is current;
 - `kb.py index [--check]`: regenerates `INDEX.md` and the `Experiments` blocks; `--check` exits
