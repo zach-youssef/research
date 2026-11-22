@@ -80,19 +80,47 @@ or other non-linear motion (pp. 1-2). CNN-regressed Gaussian maps reach ~1 GiB m
   training frames (10 FPS) and 1,500 test frames (30 FPS); 4 subjects public as Goliath-4.
   ActorsHQ with 40 cameras and SMPL-X fits from OpenPose + scan-to-mesh (Sec. 5.1, p. 6).
 
+## Assumptions
+
+- A1: Person-specific: one avatar per subject, trained on a dense multi-view capture of that consenting subject (Sec. 6, p. 8).
+- A2: The authors' dataset: 9 subjects, 200 synchronized cameras at 4096×2668 downsampled to 1024×667, 12,000 training frames at 10 FPS and 1,500 test frames at 30 FPS (Sec. 4, pp. 5-6).
+- A3: Training uses per-frame RGB images, 2D segmentation masks, keypoints and 3D joint angles, plus one registered mesh or 3D scan of the subject for the template (Sec. 3.2, p. 4, Sec. 4, p. 6).
+- A4: The garment segmenter (EfficientNet + PointRend) and the 3D keypoint detector are trained on a corpus of similar multi-view captures (Sec. 3.2, pp. 3-4).
+- A5: A low-resolution LBS body model is fitted to the scan and to 3D keypoints, and cage nodes take LBS weights from the nearest template vertex; linear weights work when cage cells are small (Sec. 3.2, Sec. 3.3, p. 4).
+- A6: Gaussians are embedded in per-part tetrahedral cages (solid body, hollow garment shells inflated 1-3 cm, face from body tetrahedra) through barycentric coordinates in R⁴ (Sec. 3.2, Sec. 3.3, p. 4, Eq. 5).
+- A7: Each Gaussian's covariance is warped by its tetrahedron's deformation gradient, Σ̂ = J Σ Jᵀ (Eq. 7, Eq. 8, pp. 4-5).
+- A8: The avatar is layered: body, face and each garment have their own cage and GaussianNet, and each Gaussian is statically assigned to one part (Sec. 3.4, Sec. 3.5, p. 5).
+- A9: Pose-conditioned corrective MLPs predict cage node offsets (Ψ) and per-Gaussian barycentric, rotation and scale corrections (Π) (Eq. 9, p. 5).
+- A10: Colour and opacity come from a pose- and view-conditioned MLP (Γ) with auto-decoded per-Gaussian features instead of SH, so lighting and self-shadowing are baked in and the avatar is not relightable (Eq. 9, Eq. 10, p. 5, Sec. 6, p. 8).
+- A11: Driving signals are joint angles for body and garments, and for the face a code κ regressed by a small MLP from 150 normalized 3D face keypoints; these sparse signals carry no explicit information on complex wrinkles or self-shadowing (p. 5, Sec. 6, p. 8).
+- A12: A per-frame time embedding is learned during training and replaced by the mean training embedding at test time (p. 5).
+- A13: The garment loss L_Garment needs ground-truth part segmentations (Eq. 13, p. 5).
+- A14: A Neo-Hookean energy L_Neo regularizes each tetrahedron's deformation gradient (Eq. 12, p. 5).
+- A15: A fixed number of Gaussians, initialized on the template surface, with no densification by default; the count behind Table 1 is not stated (Sec. 3.4, p. 4, Table 3, p. 14).
+- A16: Training runs on a single NVIDIA V100 at 1024×667 (p. 5).
+- A17: ActorsHQ: 40 cameras and no ground-truth poses; SMPL-X fits come from OpenPose and scan-to-mesh optimization, and poses regressed from keypoints are refined during training and at test time, optionally projected on a training-set PCA basis (p. 5, Sec. 5, Sec. 5.1, p. 6).
+- A18: Image quality is measured by PSNR, SSIM and LPIPS with random colour backgrounds on held-out test frames (Sec. 4, Sec. 5.1, p. 6).
+- A19: The baselines are trained on the same multi-view data (Sec. 5, p. 6).
+- A20: FPS is measured on an NVIDIA V100 at 1024×667; whether it includes the MLP decoding is not stated (Table 3, p. 14).
+- A21: The Table 3 and Table 4 runs on the authors' dataset use a setting whose full-model PSNR (29.825) differs from Table 1's (30.634), and that setting is not described (reader's inference, Table 1, p. 8, Table 3, Table 4, p. 14).
+- A22: Subjects are real people in a capture studio wearing everyday garments (T-shirts, jeans, sweatpants, skirts, dresses) (Sec. 4, p. 5, Fig. 4, p. 6, Fig. 12, p. 15).
+- A23: No stylized, non-humanoid or rendered game characters are trained on or evaluated; the pipeline presumes a human LBS body model and human keypoint detectors (reader's inference, Sec. 3.2, p. 4, Sec. 4, p. 5).
+- A24: The model maps pose to image and is not an image encoder: reusing it on game frames would need joint angles and face keypoints for those frames, which a game engine's skeleton might supply but the paper does not test (reader's inference, Eq. 9, p. 5).
+- A25: The dataset and setting behind the triangle ablation are not stated; its full-model LPIPS (0.0648) is close to ActorsHQ's 0.065 in Table 1, not the authors' dataset's 0.054 (reader's inference, Fig. 8, Table 1, p. 8).
+
 ## Claims
 
-- C1: On the authors' dataset D3GA gets PSNR 30.634 / LPIPS 0.054 / SSIM 0.964, vs. MVP 28.795 / 0.051 / 0.955 and BodyDecoder 29.918 / 0.044 / 0.959: best PSNR and SSIM, worst LPIPS of the three (Table 1, Sec. 5.1, p. 6, p. 8).
-- C2: On ActorsHQ D3GA gets PSNR 26.562 / LPIPS 0.065 / SSIM 0.944, vs. GaussianAvatar 24.731 / 0.088 / 0.933, 3DGS-Avatar 21.709 / 0.082 / 0.915 and Animatable Gaussians 26.454 / 0.055 / 0.937; AG is sharper (better LPIPS), which the authors attribute to its much larger CNN (StyleUNet) (Table 1, Fig. 5, Sec. 5.1, pp. 6-8).
-- C3: D3GA has 9M parameters (45 MiB), vs. GaussianAvatar 7M (59 MiB), 3DGS-Avatar 6M (57 MiB) and Animatable Gaussians 232M (862 MiB) (Table 2, p. 8).
-- C4: Rendering at 1024×667 on a V100 runs at 28 / 26 / 23 / 20 FPS with 25k / 100k / 200k / 300k Gaussians, while PSNR stays within 29.825-29.938 and SSIM at 0.960; the authors call 100k-200k the best speed/quality compromise (Table 3, App. A, p. 14).
-- C5: Replacing tetrahedra with triangles (barycentrics in R³, no deformation gradient) gives holes and artifacts and worsens LPIPS from 0.0648 to 0.0703 (Fig. 8, Sec. 5.2, pp. 6-8).
-- C6: Without L_Garment, PSNR/LPIPS/SSIM are 30.140 / 0.057 / 0.961 vs. 29.825 / 0.056 / 0.960 with it (PSNR and SSIM slightly better without, LPIPS slightly worse), but garment boundaries become blurry and semi-transparent; a single-layer avatar (29.740 / 0.057 / 0.959) over-smooths the T-shirt/jeans boundary and models sliding poorly (Table 4, Fig. 7, Fig. 15, p. 8, pp. 14-15).
-- C7: Disabling the corrective networks and deforming only the body triangle mesh with LBS gives test-time artifacts from wrongly oriented Gaussians (Fig. 11, App. A, p. 13).
-- C8: L_Neo keeps tetrahedra from shearing, flipping or losing volume, mostly visible in regions without supervision such as under garments (Fig. 13, App. A, pp. 13-15).
-- C9: Avatars can be driven by poses of other subjects (motion transfer) and decomposed into independently controlled garment layers (Fig. 6, Fig. 9, Fig. 16, p. 8, p. 13, p. 15).
-- C10: Discussing NPC's nearest-neighbour searches during training, the paper contrasts "12 hours vs. 30 minutes for our model"; it doesn't say what the 30 minutes cover (Sec. 2, p. 2).
-- C11: Long garments (dresses, long skirts) are a common failure for pose-conditioned methods; MLP-based methods including D3GA give stable but incorrect results on the SMPL template, while Animatable Gaussians needs a per-frame tracked garment template and fails completely without one (Fig. 12, App. A, pp. 14-15).
+- C1: On the authors' dataset D3GA gets PSNR 30.634 / LPIPS 0.054 / SSIM 0.964, vs. MVP 28.795 / 0.051 / 0.955 and BodyDecoder 29.918 / 0.044 / 0.959: best PSNR and SSIM, worst LPIPS of the three [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A18, A19, A22, A23] (Table 1, Sec. 5.1, p. 6, p. 8).
+- C2: On ActorsHQ D3GA gets PSNR 26.562 / LPIPS 0.065 / SSIM 0.944, vs. GaussianAvatar 24.731 / 0.088 / 0.933, 3DGS-Avatar 21.709 / 0.082 / 0.915 and Animatable Gaussians 26.454 / 0.055 / 0.937; AG is sharper (better LPIPS), which the authors attribute to its much larger CNN (StyleUNet) [A1, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A22, A23] (Table 1, Fig. 5, Sec. 5.1, pp. 6-8).
+- C3: D3GA has 9M parameters (45 MiB), vs. GaussianAvatar 7M (59 MiB), 3DGS-Avatar 6M (57 MiB) and Animatable Gaussians 232M (862 MiB) [A8, A9, A10, A15] (Table 2, p. 8).
+- C4: Rendering at 1024×667 on a V100 runs at 28 / 26 / 23 / 20 FPS with 25k / 100k / 200k / 300k Gaussians, while PSNR stays within 29.825-29.938 and SSIM at 0.960; the authors call 100k-200k the best speed/quality compromise [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A18, A20, A21, A22, A23] (Table 3, App. A, p. 14).
+- C5: Replacing tetrahedra with triangles (barycentrics in R³, no deformation gradient) gives holes and artifacts and worsens LPIPS from 0.0648 to 0.0703 [A1, A3, A4, A5, A8, A9, A10, A11, A12, A13, A15, A16, A18, A22, A23, A25] (Fig. 8, Sec. 5.2, pp. 6-8).
+- C6: Without L_Garment, PSNR/LPIPS/SSIM are 30.140 / 0.057 / 0.961 vs. 29.825 / 0.056 / 0.960 with it (PSNR and SSIM slightly better without, LPIPS slightly worse), but garment boundaries become blurry and semi-transparent; a single-layer avatar (29.740 / 0.057 / 0.959) over-smooths the T-shirt/jeans boundary and models sliding poorly [A1, A2, A3, A4, A5, A6, A7, A9, A10, A11, A12, A14, A15, A16, A18, A21, A22, A23] (Table 4, Fig. 7, Fig. 15, p. 8, pp. 14-15).
+- C7: Disabling the corrective networks and deforming only the body triangle mesh with LBS gives test-time artifacts from wrongly oriented Gaussians [A1, A3, A4, A5, A8, A10, A11, A12, A13, A15, A16, A22, A23] (Fig. 11, App. A, p. 13).
+- C8: L_Neo keeps tetrahedra from shearing, flipping or losing volume, mostly visible in regions without supervision such as under garments [A1, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A15, A16, A22, A23] (Fig. 13, App. A, pp. 13-15).
+- C9: Avatars can be driven by poses of other subjects (motion transfer) and decomposed into independently controlled garment layers [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A22, A23] (Fig. 6, Fig. 9, Fig. 16, p. 8, p. 13, p. 15).
+- C10: Discussing NPC's nearest-neighbour searches during training, the paper contrasts "12 hours vs. 30 minutes for our model"; it doesn't say what the 30 minutes cover [] (Sec. 2, p. 2).
+- C11: Long garments (dresses, long skirts) are a common failure for pose-conditioned methods; MLP-based methods including D3GA give stable but incorrect results on the SMPL template, while Animatable Gaussians needs a per-frame tracked garment template and fails completely without one [A1, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A19, A22, A23] (Fig. 12, App. A, pp. 14-15).
 
 ## Implementation notes
 
