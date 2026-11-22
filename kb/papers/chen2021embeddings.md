@@ -70,21 +70,43 @@ whose state and discrete action spaces differ but whose rewards and dynamics are
   game with two classes, She Shou (SS) and Fang Shi (FS), hand-made states of 48 and 60 dims,
   10 actions each.
 
+## Assumptions
+
+- A1: Action spaces are discrete (a finite action set); continuous control is handled by discretising each action dimension into equally spaced values (Sec. 3, p. 2, Sec. 5.2, p. 5)
+- A2: Source and target MDPs differ in their state and/or action spaces but have similar reward and transition functions, with actions whose effects resemble each other across tasks (Sec. 3, p. 2)
+- A3: An action's semantics are reflected in its effect on the next state, so a forward transition model of p(s_{t+1}|s_t, a_t) captures them (Sec. 4.1, p. 3)
+- A4: States are low-dimensional vectors (grid positions, cart-pole joint states, hand-extracted game features), not pixels (Sec. 5.1, p. 5, Sec. 5.3, p. 6, App. A.3, p. 8)
+- A5: Transitions are Markov in the given state (otherwise a recurrent model is suggested), and deterministic except in the combat game, the only task that uses the stochastic latent (Sec. 4.1, p. 3, App. A.1, p. 8)
+- A6: The learner is off-policy SAC with a replay buffer, whose continuous proto-action is mapped to the nearest action embedding; other RL algorithms are said to need "appropriate adaptions" and are not tested (Sec. 4.2, pp. 3-4, Alg. 1, p. 3)
+- A7: Same-domain transfer keeps the state space identical and changes only the action space (Sec. 4.2, p. 4)
+- A8: In cross-domain transfer a learned state embedding maps each task's states into a space of common size; it and the action embeddings are reinitialised on the target (Sec. 4.2, p. 4, Alg. 2, p. 3)
+- A9: In cross-domain transfer the copied transition model is fine-tuned, not frozen (Sec. 4.2, p. 4)
+- A10: Transfer is not zero-shot: target action embeddings (and the state embedding) start random and are learned from online interaction and reward in the target task (Alg. 2, p. 3, Sec. 5.1, p. 5)
+- A11: Each target is transferred from a single source task whose policy was first trained on the source (reader's inference, Sec. 5.1-5.3, pp. 5-6)
+- A12: The action-embedding dimension is small and chosen per environment (2 to 6); a 1-d embedding is too small to capture action semantics (App. C, p. 10, Table 1, p. 8, Table 5, p. 9)
+- A13: All compared methods, including BT and MIKT, use SAC as the underlying learner (Sec. 5, p. 5)
+- A14: The combat game pits each class against the same built-in rule-based opponent, with rewards from HP changes and the win or loss (Sec. 5.3, p. 6, App. A.4, pp. 8-9)
+- A15: Gridworld actions are all compositions of the same four atomic moves, so actions in the source and target sets have exact or composite counterparts (reader's inference, Sec. 5.1, p. 5, App. A.2, p. 8)
+- A16: The pendulum transfers stay within one task family: the same cart-force action and the goal of keeping poles upright, varying the engine and the number of poles (Sec. 5.2, p. 5, App. A.3, p. 8)
+- A17: The source policy is transferred to the target and fine-tuned there (Sec. 4.2, p. 4, Alg. 2, p. 3)
+- A18: In same-domain transfer the source transition model is copied and frozen, so only the target's action embeddings are learned (Sec. 4.2, p. 4)
+- A19: In cross-domain transfer the transition model is initialised from the source (Sec. 4.2, p. 4, Alg. 2, p. 3)
+
 ## Claims
 
-- C1: In the 3-step gridworld (64 actions, d = 4, 10,000 transitions from a random policy), embeddings of actions with the same net effect sit close together in 16 separate groups with near-perfect symmetry across the four directions, and show analogies such as e(↑↑←) + e(↑←→) − e(←→←) ≈ e(↑↑↑) (Sec. 5.1, p. 5, Fig. 3a, p. 4)
-- C2: After same-domain transfer from the 2-step to the 1-step gridworld, source and target embeddings are aligned, e.g. e(↑) ≈ 0.5·e(↑↑) + 0.5·e(↑↓) (Sec. 5.1, p. 5, Fig. 3b, p. 4)
-- C3: In gridworld same-domain transfer (target n = 1, 2, 3 from sources n = 3, 1, 2), TRACE-PT learns faster than all other methods on all three tasks; MIKT learns faster than SAC but slower than BT (Sec. 5.1, p. 5, Fig. 4, p. 5)
-- C4: SAC from scratch outperforms TRACE without transfer on all gridworld tasks, which the authors attribute to mapping discrete actions into a continuous space, hard to learn especially with few actions; TRACE-PT curves show no jump-start because target embeddings start random, but they adapt quickly (Sec. 5.1, p. 5, Fig. 4, p. 5)
-- C5: Across MuJoCo and Roboschool pendulum tasks with different state and action spaces (mDP→mP, rDP→rP in the same engine; mP→rDP, rP→mDP across engines), TRACE-PT learns faster than SAC and BT in all tasks, and MIKT is slightly better than SAC (Sec. 5.2, p. 5, Fig. 5, p. 6, Fig. 10, p. 10)
-- C6: BT does well only in the simplest transfers and in most cases transfers negatively, e.g. failing on rP→mDP and mP→rDP, while TRACE-PT handles all transfer tasks (Sec. 5.2, pp. 5-6, Fig. 5, p. 6, App. B.2, p. 10)
-- C7: For Roboschool/MuJoCo pendulums, the 1-D PCA projection of learned embeddings of the discretised actions follows a roughly linear trend in the action index, with local oscillations, as expected for a discretised continuous action (App. B.1, p. 10, Fig. 11, p. 10)
-- C8: In the commercial game (5 sampled skills, 50,000 transitions, d = 6), skills with special effects (Silence, Stun) are clearly separated, damage skills lie close together, and DoT and instant damage are distinguished (Sec. 5.3, p. 6, Fig. 6, p. 6)
-- C9: For SS→FS and FS→SS policy transfer, measured by win rate over the last 100 episodes, TRACE-PT is more sample-efficient than MIKT, while BT may transfer negatively (Sec. 5.3, p. 6, Fig. 7, p. 6, Fig. 12, p. 10)
-- C10: Transferring only the policy (TRACE-P) also speeds learning in same-domain transfer but trails TRACE-PT, because the target's embeddings, learned anew with a new transition model, may not align with the source's; in cross-domain transfer TRACE-P is competitive with TRACE-PT, especially on rDP→rP, which the authors explain by the transition model and action embeddings being learned from state embeddings that are retrained on the target, which limits transfer (Sec. 5.4, p. 6, Fig. 4, p. 5, Fig. 5b, p. 6)
-- C11: Transferring only the transition model (TRACE-T) performs about like TRACE without transfer in both settings, which the authors read as the training cost lying mainly in policy training (Sec. 5.4, p. 6)
-- C12: With d from 1 to 6 on the 2-step gridworld, d = 1 fails to learn action semantics; without transfer, training slows as d grows; transfer performance is only slightly affected by d, and the best d depends on the environment's dynamics and action semantics (App. C, p. 10, Fig. 13, p. 11, Fig. 14, p. 11)
-- C13: Freezing the transition model in cross-domain transfer (rP→mDP, rP→rDP) gives unstable training and negative transfer compared with fine-tuning it (App. D, pp. 10-11, Fig. 15, p. 11)
+- C1: In the 3-step gridworld (64 actions, d = 4, 10,000 transitions from a random policy), embeddings of actions with the same net effect sit close together in 16 separate groups with near-perfect symmetry across the four directions, and show analogies such as e(↑↑←) + e(↑←→) − e(←→←) ≈ e(↑↑↑) [A1, A3, A4, A5, A12, A15] (Sec. 5.1, p. 5, Fig. 3a, p. 4)
+- C2: After same-domain transfer from the 2-step to the 1-step gridworld, source and target embeddings are aligned, e.g. e(↑) ≈ 0.5·e(↑↑) + 0.5·e(↑↓) [A1, A2, A3, A4, A5, A6, A7, A10, A12, A15, A17, A18] (Sec. 5.1, p. 5, Fig. 3b, p. 4)
+- C3: In gridworld same-domain transfer (target n = 1, 2, 3 from sources n = 3, 1, 2), TRACE-PT learns faster than all other methods on all three tasks; MIKT learns faster than SAC but slower than BT [A1, A2, A3, A4, A5, A6, A7, A10, A11, A12, A13, A15, A17, A18] (Sec. 5.1, p. 5, Fig. 4, p. 5)
+- C4: SAC from scratch outperforms TRACE without transfer on all gridworld tasks, which the authors attribute to mapping discrete actions into a continuous space, hard to learn especially with few actions; TRACE-PT curves show no jump-start because target embeddings start random, but they adapt quickly [A1, A2, A3, A4, A5, A6, A7, A10, A12, A13, A15] (Sec. 5.1, p. 5, Fig. 4, p. 5)
+- C5: Across MuJoCo and Roboschool pendulum tasks with different state and action spaces (mDP→mP, rDP→rP in the same engine; mP→rDP, rP→mDP across engines), TRACE-PT learns faster than SAC and BT in all tasks, and MIKT is slightly better than SAC [A1, A2, A3, A4, A5, A6, A8, A9, A10, A11, A12, A13, A16, A17, A19] (Sec. 5.2, p. 5, Fig. 5, p. 6, Fig. 10, p. 10)
+- C6: BT does well only in the simplest transfers and in most cases transfers negatively, e.g. failing on rP→mDP and mP→rDP, while TRACE-PT handles all transfer tasks [A1, A2, A3, A4, A5, A6, A8, A9, A10, A11, A12, A13, A16, A17, A19] (Sec. 5.2, pp. 5-6, Fig. 5, p. 6, App. B.2, p. 10)
+- C7: For Roboschool/MuJoCo pendulums, the 1-D PCA projection of learned embeddings of the discretised actions follows a roughly linear trend in the action index, with local oscillations, as expected for a discretised continuous action [A1, A3, A4, A5, A8, A12, A16] (App. B.1, p. 10, Fig. 11, p. 10)
+- C8: In the commercial game (5 sampled skills, 50,000 transitions, d = 6), skills with special effects (Silence, Stun) are clearly separated, damage skills lie close together, and DoT and instant damage are distinguished [A1, A3, A4, A5, A12, A14] (Sec. 5.3, p. 6, Fig. 6, p. 6)
+- C9: For SS→FS and FS→SS policy transfer, measured by win rate over the last 100 episodes, TRACE-PT is more sample-efficient than MIKT, while BT may transfer negatively [A1, A2, A3, A4, A5, A6, A8, A9, A10, A11, A12, A13, A14, A17, A19] (Sec. 5.3, p. 6, Fig. 7, p. 6, Fig. 12, p. 10)
+- C10: Transferring only the policy (TRACE-P) also speeds learning in same-domain transfer but trails TRACE-PT, because the target's embeddings, learned anew with a new transition model, may not align with the source's; in cross-domain transfer TRACE-P is competitive with TRACE-PT, especially on rDP→rP, which the authors explain by the transition model and action embeddings being learned from state embeddings that are retrained on the target, which limits transfer [A1, A2, A3, A4, A5, A6, A7, A8, A10, A11, A12, A15, A16, A17] (Sec. 5.4, p. 6, Fig. 4, p. 5, Fig. 5b, p. 6)
+- C11: Transferring only the transition model (TRACE-T) performs about like TRACE without transfer in both settings, which the authors read as the training cost lying mainly in policy training [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A12, A15, A16, A19] (Sec. 5.4, p. 6)
+- C12: With d from 1 to 6 on the 2-step gridworld, d = 1 fails to learn action semantics; without transfer, training slows as d grows; transfer performance is only slightly affected by d, and the best d depends on the environment's dynamics and action semantics [A1, A2, A3, A4, A5, A6, A7, A10, A11, A15, A17, A18] (App. C, p. 10, Fig. 13, p. 11, Fig. 14, p. 11)
+- C13: Freezing the transition model in cross-domain transfer (rP→mDP, rP→rDP) gives unstable training and negative transfer compared with fine-tuning it [A1, A2, A3, A4, A5, A6, A8, A10, A11, A12, A16, A17, A19] (App. D, pp. 10-11, Fig. 15, p. 11)
 
 ## Implementation notes
 
