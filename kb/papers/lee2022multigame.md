@@ -65,28 +65,48 @@ inference (Sec. 2, p. 3).
 - **Metric** (Sec. 4.1, p. 6): human-normalized score (HNS) aggregated by interquartile mean
   (IQM); DQN-normalized scores use the best DQN score in the dataset; one training seed.
 
+## Assumptions
+
+- A1: All games share Atari's set of 18 discrete actions, so observation and action spaces are aligned across games; the authors caution that their conclusions rest largely on this property of the Atari suite (Sec. 3.2, p. 4, Sec. 5, p. 10, App. B.4, p. 18).
+- A2: Observations are 84x84 grayscale Atari frames, preprocessed as in Agarwal et al. and JPEG-compressed in the dataset and at evaluation, cut into 6x6 = 36 patches of 14x14 pixels with linear projection and learned patch positions (Sec. 3.2, p. 4, App. B.1, p. 17, App. B.4, p. 18).
+- A3: Rewards are clipped to [−1, 1] and tokenized as {−1, 0, +1}, and returns-to-go are uniformly quantized into one range {−20, …, 100} shared by all games, which covers most returns seen in the data (Sec. 3.2, p. 4).
+- A4: Training data is the DQN-Replay dataset: per game, the logged experience of 2 DQN training runs × 50 checkpoints × 1M steps, mixing expert and non-expert behaviour, with no filtering, curation or balancing between games, and used offline without environment interaction (Sec. 3.3, pp. 4-5, Sec. 4.3, p. 7).
+- A5: The 46 games are those where DQN clearly beats a random agent; 41 train and 5 (Alien, MsPacman, Pong, SpaceInvaders, StarGunner) are held out as different game types (Sec. 3.3, p. 4).
+- A6: Expert behaviour is obtained at inference by sampling a return under P(expert | R) ∝ exp(κR), with κ = 10 and return bounds −20 and 100, then an action conditioned on it (Sec. 3.4, p. 5, Alg. 1, p. 19, App. B.3, p. 18).
+- A7: The model is a GPT-2-style decoder over 4-frame contexts (156 tokens) with a causal mask that lets the patches of one frame attend to each other; future observations are not predicted (Sec. 3.1, pp. 3-4, Sec. 4.1, p. 6, App. B.1, p. 17).
+- A8: Models have 10M-200M parameters, train for 10M steps at batch 2048 with LAMB on 64 TPUv4 (1-8 days), with hyperparameters searched on DT-40M (Sec. 4.1, p. 6, App. B.1, pp. 17-18, Table 1).
+- A9: Evaluation uses the Atari 2600 Gym environment without sticky actions, averages 16 rollouts per game, and aggregates human-normalized scores by IQM (DQN-normalized scores use the best DQN score in the dataset) (Sec. 4.1, p. 6, App. B.4, p. 18).
+- A10: Each result comes from one training seed, except a 5-seed check of DT-40M (Sec. 4.1, p. 6, App. B.1, pp. 17-18).
+- A11: Actions and returns are sampled at temperature 1 from the top 85th percentile of logits, and the last predicted action is executed (App. B.3, p. 18).
+- A12: Transfer is measured by fine-tuning one model per held-out game for 100k steps (lr 1e-4, batch 256) on 1% of that game's data, sampled uniformly without quality filtering (1M steps on p. 8, roughly 500,000 transitions on p. 18) (Sec. 4.1, p. 6, Sec. 4.5, p. 8, App. B.2, p. 18).
+- A13: All models train with image augmentation (random crops and rotations, the same per sequence), in pretraining and fine-tuning (Sec. 4.1, p. 6, App. B.5, pp. 18-19).
+- A14: Baselines are configured as stated: multi-game online C51 with n = 4 on an Impala CNN for 15M gradient steps; CQL as C51 plus a BC loss weighted 1 (4 when fine-tuning) on Impala CNNs of 5M-120M parameters; CPC, BERT and ACL representations on Impala CNNs with a BC head for fine-tuning (Sec. 4.2, pp. 6-7, App. C, pp. 19-20).
+- A15: The expert-only dataset keeps each game's top 10% of trajectories by episodic return (Sec. 4.8, p. 9).
+- A16: Transfer is tested only to held-out games of the same Atari suite, with the same preprocessing and action set, and only by fine-tuning; zero-shot adaptation isn't studied (Sec. 4.5, p. 8, Sec. 5, p. 10).
+- A17: What the model learns on the 41 training games (entity-centred visual features and return-conditioned action prediction) carries over to the held-out game types well enough that 100k fine-tuning steps on 1% of a game's data adapt it; the authors state the hypothesis that pretraining on other games helps rapid learning of a new game, but which features transfer isn't tested (reader's inference, Sec. 3.3, p. 4, Sec. 4.5, p. 8)
+
 ## Claims
 
-- C1: A single DT-200M trained offline on 41 games reaches 126% human-normalized IQM, above the 101% IQM of its training dataset (Fig. 1, p. 2, Sec. 1, p. 2)
-- C2: Among multi-game generalists DT is best (126%), ahead of multi-game BC 68%, online multi-game C51 DQN (Impala) 66% and offline CQL (Impala) 38%; single-game specialists remain stronger (online DQN 144%, offline BCQ 135%) (Fig. 1, p. 2, Sec. 4.3, p. 7)
-- C3: DT's training-game IQM increases reliably with size (about 56%, 93%, 126% for 10M, 40M, 200M), BC rises more slowly (46%, 54%, 68%), and CQL stays flat or falls (23%, 38%, 38%, 35% at 5M, 30M, 60M, 120M) (Fig. 5a, Sec. 4.4, pp. 7-8)
-- C4: On the 5 held-out games after fine-tuning, DT's IQM grows with model size (72% at 10M to about 91-94% at 200M; a grid line hides one digit of the label), while CQL's is inconsistent and drops sharply for the largest model (46%, 26%, 50%, 6%) (Fig. 5b, p. 7, Sec. 4.4, p. 8)
-- C5: The authors attribute CQL's "inverse" scaling to TD methods' instability with larger models; offline C51, DQN and DDQN objectives did even worse and are not reported (Sec. 4.4, p. 8, App. C, p. 19)
-- C6: Fine-tuning for 100k steps on 1% of each held-out game's data, DT pretraining gives the best result of all methods, and every pretraining method beats CQL trained from scratch on that 1% (Fig. 6, Sec. 4.5, p. 8)
-- C7: CPC and BERT pretraining fine-tune worse than DT, which the authors read as state representations alone not sufficing for transfer; ACL's added action prediction barely helps over BERT (Sec. 4.5, p. 8, Fig. 6)
-- C8: The top-3 DT rollouts beat the best episode in the training data by a large margin in a number of games, though not in all (Fig. 7, Sec. 4.6, pp. 8-9)
-- C9: Expert action inference beats BC (same transformer, no return conditioning) on 31 of 41 games, by mean DQN-normalized score over 16 trials (Fig. 8, Sec. 4.7, p. 9)
-- C10: Training on all data helps DT but hurts BC: with 40M models, DT full data 93% vs top-10%-expert data 89% IQM, BC full 54% vs expert 79%, so DT on full data beats BC on expert data (Fig. 9, Sec. 4.8, pp. 9-10)
-- C11: Larger models train faster: at the same number of training steps (tokens seen), 200M reaches higher scores than 40M and 10M (shown for Asterix and Seaquest) (Fig. 15, App. G, pp. 22-23)
-- C12: Both the transformer and the return-conditioned (UDRL) formulation contribute, per the authors: UDRL on an Impala CNN scales worse than DT (44%, 67%, 63% and about 71-74% from 5M to 120M; a grid line hides one digit of the last label) but still beats CQL on the same Impala network at every size (Fig. 10, App. D, pp. 20-21)
-- C13: By median HNS the ranking is unchanged: single-game DQN 110%, BCQ 97%, multi-game DT 85%, multi-game DQN 68%, BC 55%, CQL 30% (Fig. 11, App. E, p. 21)
-- C14: Online multi-game C51 DQN's 68% median is close to the 70% median of multi-game Impala (IMPALA paper) on this suite, computed by the authors from that paper (Sec. 4.3, p. 7)
-- C15: Seed variance is small: 5 seeds of DT-40M give median 0.79 ± 0.06 and IQM 0.95 ± 0.05 (App. B.1, p. 18)
-- C16: Tokenizing frames through a convolutional network gave no significant benefit over linear patch projection, and rotary position embedding none over learned embeddings (Sec. 3.2, p. 4, App. B.1, p. 17)
-- C17: Hyperparameters searched on DT-40M and applied unchanged to DT-200M still give a clear scaling trend in multi-game and transfer performance (App. B.1, p. 18)
-- C18: Picking the best of N = 128 sampled returns (inverse temperature 0.75, then top-50% action logits) works about as well as κ-weighted return sampling and needs no κ (App. B.3, p. 18)
-- C19: Of the augmentations tried, random cropping (pad 4, crop 84×84) and random rotations work best (App. B.5, pp. 18-19)
-- C20: Attention heads consistently attend to patches holding meaningful entities: the player, free movement space, non-player objects and environment features (Fig. 16, App. H, p. 23)
+- C1: A single DT-200M trained offline on 41 games reaches 126% human-normalized IQM, above the 101% IQM of its training dataset [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13] (Fig. 1, p. 2, Sec. 1, p. 2)
+- C2: Among multi-game generalists DT is best (126%), ahead of multi-game BC 68%, online multi-game C51 DQN (Impala) 66% and offline CQL (Impala) 38%; single-game specialists remain stronger (online DQN 144%, offline BCQ 135%) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13, A14] (Fig. 1, p. 2, Sec. 4.3, p. 7)
+- C3: DT's training-game IQM increases reliably with size (about 56%, 93%, 126% for 10M, 40M, 200M), BC rises more slowly (46%, 54%, 68%), and CQL stays flat or falls (23%, 38%, 38%, 35% at 5M, 30M, 60M, 120M) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13, A14] (Fig. 5a, Sec. 4.4, pp. 7-8)
+- C4: On the 5 held-out games after fine-tuning, DT's IQM grows with model size (72% at 10M to about 91-94% at 200M; a grid line hides one digit of the label), while CQL's is inconsistent and drops sharply for the largest model (46%, 26%, 50%, 6%) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A17] (Fig. 5b, p. 7, Sec. 4.4, p. 8)
+- C5: The authors attribute CQL's "inverse" scaling to TD methods' instability with larger models; offline C51, DQN and DDQN objectives did even worse and are not reported [A1, A2, A4, A5, A9, A10, A14] (Sec. 4.4, p. 8, App. C, p. 19)
+- C6: Fine-tuning for 100k steps on 1% of each held-out game's data, DT pretraining gives the best result of all methods, and every pretraining method beats CQL trained from scratch on that 1% [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A17] (Fig. 6, Sec. 4.5, p. 8)
+- C7: CPC and BERT pretraining fine-tune worse than DT, which the authors read as state representations alone not sufficing for transfer; ACL's added action prediction barely helps over BERT [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A17] (Sec. 4.5, p. 8, Fig. 6)
+- C8: The top-3 DT rollouts beat the best episode in the training data by a large margin in a number of games, though not in all [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13] (Fig. 7, Sec. 4.6, pp. 8-9)
+- C9: Expert action inference beats BC (same transformer, no return conditioning) on 31 of 41 games, by mean DQN-normalized score over 16 trials [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13] (Fig. 8, Sec. 4.7, p. 9)
+- C10: Training on all data helps DT but hurts BC: with 40M models, DT full data 93% vs top-10%-expert data 89% IQM, BC full 54% vs expert 79%, so DT on full data beats BC on expert data [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13, A15] (Fig. 9, Sec. 4.8, pp. 9-10)
+- C11: Larger models train faster: at the same number of training steps (tokens seen), 200M reaches higher scores than 40M and 10M (shown for Asterix and Seaquest) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13] (Fig. 15, App. G, pp. 22-23)
+- C12: Both the transformer and the return-conditioned (UDRL) formulation contribute, per the authors: UDRL on an Impala CNN scales worse than DT (44%, 67%, 63% and about 71-74% from 5M to 120M; a grid line hides one digit of the last label) but still beats CQL on the same Impala network at every size [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13, A14] (Fig. 10, App. D, pp. 20-21)
+- C13: By median HNS the ranking is unchanged: single-game DQN 110%, BCQ 97%, multi-game DT 85%, multi-game DQN 68%, BC 55%, CQL 30% [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A13, A14] (Fig. 11, App. E, p. 21)
+- C14: Online multi-game C51 DQN's 68% median is close to the 70% median of multi-game Impala (IMPALA paper) on this suite, computed by the authors from that paper [A1, A5, A9, A14] (Sec. 4.3, p. 7)
+- C15: Seed variance is small: 5 seeds of DT-40M give median 0.79 ± 0.06 and IQM 0.95 ± 0.05 [A1, A2, A3, A4, A5, A6, A7, A8, A9, A11, A13] (App. B.1, p. 18)
+- C16: Tokenizing frames through a convolutional network gave no significant benefit over linear patch projection, and rotary position embedding none over learned embeddings [A1, A2, A3, A4, A5, A7, A8, A9] (Sec. 3.2, p. 4, App. B.1, p. 17)
+- C17: Hyperparameters searched on DT-40M and applied unchanged to DT-200M still give a clear scaling trend in multi-game and transfer performance [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A17] (App. B.1, p. 18)
+- C18: Picking the best of N = 128 sampled returns (inverse temperature 0.75, then top-50% action logits) works about as well as κ-weighted return sampling and needs no κ [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A13] (App. B.3, p. 18)
+- C19: Of the augmentations tried, random cropping (pad 4, crop 84×84) and random rotations work best [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11] (App. B.5, pp. 18-19)
+- C20: Attention heads consistently attend to patches holding meaningful entities: the player, free movement space, non-player objects and environment features [A1, A2, A4, A7, A8] (Fig. 16, App. H, p. 23)
 
 ## Implementation notes
 
