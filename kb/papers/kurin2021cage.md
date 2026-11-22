@@ -65,22 +65,39 @@ The paper tests that assumption and proposes a method without it.
   NerveNet's Walkers (Ostrich, HalfCheetah, FullCheetah, Hopper, HalfHumanoid), with its 3800 return
   limit removed (App. A, p. 15). 10^7 total environment steps per run (Fig. 3 and Fig. 4 axes).
 
+## Assumptions
+
+- A1: The tasks are MuJoCo continuous-control locomotion agents: limb-subset variants of the walker, 2D humanoid, cheetah and hopper archetypes, plus the five morphologies of NerveNet's Walkers (Sec. 4.1, p. 6, Table 2, p. 16).
+- A2: Each state is factored into one node per limb, with the features limb type, x position relative to the torso, positional and rotational velocities, rotations, and joint angle with its range normalised to [0, 1] (Sec. 2.2, p. 3, Sec. 4, p. 6).
+- A3: The action is factored into one torque per non-torso node, emitted by that node's output (Sec. 2.2, p. 3, Sec. 4, p. 6).
+- A4: Tasks may differ in state and action dimensionality, but each task's dimensionality is fixed (Sec. 2.1, pp. 2-3).
+- A5: The node features alone are enough to tell limbs apart (left from right through the x position relative to the torso), since AMORPHEUS gets no edges, positional encoding or mask (Sec. 4.1, p. 6, App. A, p. 15).
+- A6: All tasks share MuJoCo's locomotion reward family: an alive bonus, distance covered and an action-magnitude penalty (Sec. 2.2, p. 3).
+- A7: AMORPHEUS and SMP are trained with the TD3 of SMP's codebase, learning rate 0.0001 for both, tasks updated one after another, for 10^7 total environment steps (Sec. 4.1, p. 6, Sec. 6, p. 9, App. A, p. 15, Fig. 3, p. 7).
+- A8: Agents have few nodes, so the transformer's cost, quadratic in the node count, stays affordable (Sec. 6, p. 9).
+- A9: Results are average undiscounted MTRL return over three seeds, with the standard error (Sec. 3, p. 4, App. A, p. 15).
+- A10: Every task in an SMP benchmark is a limb subset of one archetype; the union benchmarks combine archetypes (Sec. 4.1, p. 6).
+- A11: The zero-shot test morphologies are held-out limb subsets of the training archetypes (Table 2, p. 16, App. D, p. 19).
+- A12: Every limb's full proprioceptive state is observed at every step; there is no partial observability or perception from pixels (reader's inference, Sec. 4, p. 6).
+- A13: The critic shares the actor's architecture and outputs one value per node, each with its own value loss towards the same scalar environment reward (Sec. 2.2.2, p. 4, Sec. 4, p. 6).
+- A14: Each node feature has the same meaning in every agent, as SMP's shared per-limb features provide; the paper itself makes no assumption on the semantics of state and action elements and addresses only the dimension mismatch (p. 3) (reader's inference, Sec. 4, p. 6).
+
 ## Claims
 
-- C1: In SMP on Walker++ and Humanoid++, a star graph performs on par with the true morphology graph and a line graph performs worse, so SMP's performance is not contingent on morphology information (Fig. 1, Sec. 3, pp. 4-5).
-- C2: In NerveNet on Walkers, morphology, line, star and fully connected graphs perform similarly, star marginally best; the fully connected variant learns more slowly at first, and unlike SMP the line graph is on par with morphology (Fig. 1, Sec. 3, p. 5).
-- C3: AMORPHEUS reaches higher average return than SMP on all eight SMP benchmarks over 10^7 steps, by a wide margin on Walker++, Hopper++ and the two Cheetah unions, moderately on Walker-Humanoid-Hopper++, and narrowly, with overlapping standard-error bands, on Cheetah++, Humanoid++ and Walker-Humanoid++ (where SMP's mean briefly crosses above around 0.9×10^7 steps); the authors call this consistently outperforming, supporting the hypothesis that explicit graph structure is not needed (Fig. 3, Sec. 4.1, pp. 6-7).
-- C4: On the union benchmarks, where SMP is unstable, AMORPHEUS learns without trouble: about 2600 vs about 850 on Cheetah-Walker-Humanoid++ and about 2400 vs about 500 with Hopper added, read from the curves at 10^7 steps (Fig. 3, Sec. 4.1, pp. 6-7).
-- C5: On NerveNet's Walkers benchmark of five different morphologies, AMORPHEUS (about 5300) beats SMP (about 3500) and NerveNet (about 2000) at 10^7 steps; NerveNet is not directly comparable (different features and learning algorithm, MLP critic, a separate encoder per task) (Fig. 4, Sec. 4.1, p. 6, p. 8).
-- C6: Zero-shot on 7 held-out morphologies (3 seeds, 100 rollouts), AMORPHEUS has the higher mean on 5, e.g. walker-3-main 666 vs 176 and humanoid-2d-8-right-knee 2717 vs 328, while SMP wins cheetah-5-back (3821 vs 3418) and cheetah-6-front (6019 vs 5082); variance is high for both, which the authors call initial results (Table 3, App. D, p. 19).
-- C7: AMORPHEUS's attention masks are state dependent: a Walker++ model shows different masks within one Walker-7 rollout, unlike the fixed message passing of NerveNet and SMP (Fig. 5, Sec. 4.2, pp. 7-8).
-- C8: First-layer attention cycles with the gait: in a Walker-7 rollout, nodes attend to an upper leg (column-wise mask sum about 3) when it is closer to the ground (normalised angle about 0) (Fig. 6, Sec. 4.2, pp. 7-8).
-- C9: Earlier attention layers change more slowly within a rollout than later ones, for three Walker++ models on Walker-7, which the authors read as AMORPHEUS being able to learn a rigid structure if needed (Fig. 13, Sec. 4.2, App. C.2, pp. 7-8, p. 19).
-- C10: Early in training the attention masks are spread over the whole graph; later their weights become less uniform (Fig. 10, Fig. 11, Fig. 12, Sec. 4.2, App. C.1, p. 8, p. 18).
-- C11: Without the input-to-decoder residual connection, AMORPHEUS still roughly matches the full model and beats SMP on most benchmarks, so the authors cannot attribute the gain to the residual alone; but on Humanoid++ the no-residual variant falls below SMP (about 3700 vs 4500 at 10^7 steps, read from the curves; one seed started improving much later) and on Cheetah++ and Walker-Humanoid++ it is about level with SMP (Fig. 14, App. E, pp. 19-20).
-- C12: Unlike SMP, which is limited to the maximum number of children per node seen at initialisation, AMORPHEUS applies to any morphology without connectivity constraints (Sec. 4, p. 6).
-- C13: SMP also does better with the smaller learning rate 0.0001 on Walker++, and that rate is used for SMP throughout (Fig. 7, App. A, p. 15).
-- C14: Removing NerveNet's 3800 return limit on Walkers slightly lowers NerveNet's performance; the better option is plotted for it (Fig. 8, App. A, p. 15).
+- C1: In SMP on Walker++ and Humanoid++, a star graph performs on par with the true morphology graph and a line graph performs worse, so SMP's performance is not contingent on morphology information [A1, A2, A3, A6, A7, A9, A10, A12, A13, A14] (Fig. 1, Sec. 3, pp. 4-5).
+- C2: In NerveNet on Walkers, morphology, line, star and fully connected graphs perform similarly, star marginally best; the fully connected variant learns more slowly at first, and unlike SMP the line graph is on par with morphology [A1, A3, A6, A9, A12] (Fig. 1, Sec. 3, p. 5).
+- C3: AMORPHEUS reaches higher average return than SMP on all eight SMP benchmarks over 10^7 steps, by a wide margin on Walker++, Hopper++ and the two Cheetah unions, moderately on Walker-Humanoid-Hopper++, and narrowly, with overlapping standard-error bands, on Cheetah++, Humanoid++ and Walker-Humanoid++ (where SMP's mean briefly crosses above around 0.9×10^7 steps); the authors call this consistently outperforming, supporting the hypothesis that explicit graph structure is not needed [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A12, A13, A14] (Fig. 3, Sec. 4.1, pp. 6-7).
+- C4: On the union benchmarks, where SMP is unstable, AMORPHEUS learns without trouble: about 2600 vs about 850 on Cheetah-Walker-Humanoid++ and about 2400 vs about 500 with Hopper added, read from the curves at 10^7 steps [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A12, A13, A14] (Fig. 3, Sec. 4.1, pp. 6-7).
+- C5: On NerveNet's Walkers benchmark of five different morphologies, AMORPHEUS (about 5300) beats SMP (about 3500) and NerveNet (about 2000) at 10^7 steps; NerveNet is not directly comparable (different features and learning algorithm, MLP critic, a separate encoder per task) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A12, A13, A14] (Fig. 4, Sec. 4.1, p. 6, p. 8).
+- C6: Zero-shot on 7 held-out morphologies (3 seeds, 100 rollouts), AMORPHEUS has the higher mean on 5, e.g. walker-3-main 666 vs 176 and humanoid-2d-8-right-knee 2717 vs 328, while SMP wins cheetah-5-back (3821 vs 3418) and cheetah-6-front (6019 vs 5082); variance is high for both, which the authors call initial results [A1, A2, A3, A4, A5, A6, A7, A9, A11, A12, A13, A14] (Table 3, App. D, p. 19).
+- C7: AMORPHEUS's attention masks are state dependent: a Walker++ model shows different masks within one Walker-7 rollout, unlike the fixed message passing of NerveNet and SMP [A1, A2, A3, A5, A7, A12, A14] (Fig. 5, Sec. 4.2, pp. 7-8).
+- C8: First-layer attention cycles with the gait: in a Walker-7 rollout, nodes attend to an upper leg (column-wise mask sum about 3) when it is closer to the ground (normalised angle about 0) [A1, A2, A3, A5, A7, A12, A14] (Fig. 6, Sec. 4.2, pp. 7-8).
+- C9: Earlier attention layers change more slowly within a rollout than later ones, for three Walker++ models on Walker-7, which the authors read as AMORPHEUS being able to learn a rigid structure if needed [A1, A2, A3, A5, A7, A12, A14] (Fig. 13, Sec. 4.2, App. C.2, pp. 7-8, p. 19).
+- C10: Early in training the attention masks are spread over the whole graph; later their weights become less uniform [A1, A2, A3, A5, A7, A12, A14] (Fig. 10, Fig. 11, Fig. 12, Sec. 4.2, App. C.1, p. 8, p. 18).
+- C11: Without the input-to-decoder residual connection, AMORPHEUS still roughly matches the full model and beats SMP on most benchmarks, so the authors cannot attribute the gain to the residual alone; but on Humanoid++ the no-residual variant falls below SMP (about 3700 vs 4500 at 10^7 steps, read from the curves; one seed started improving much later) and on Cheetah++ and Walker-Humanoid++ it is about level with SMP [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A12, A13, A14] (Fig. 14, App. E, pp. 19-20).
+- C12: Unlike SMP, which is limited to the maximum number of children per node seen at initialisation, AMORPHEUS applies to any morphology without connectivity constraints [A2, A3] (Sec. 4, p. 6).
+- C13: SMP also does better with the smaller learning rate 0.0001 on Walker++, and that rate is used for SMP throughout [A1, A6, A9, A10, A12] (Fig. 7, App. A, p. 15).
+- C14: Removing NerveNet's 3800 return limit on Walkers slightly lowers NerveNet's performance; the better option is plotted for it [A1, A6, A9, A12] (Fig. 8, App. A, p. 15).
 
 ## Implementation notes
 
