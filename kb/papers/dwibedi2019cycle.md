@@ -67,20 +67,34 @@ that learns the representation itself from unaligned videos of the same process.
   lookup, fine-grained retrieval, anomaly detection by distance from typical trajectories, and
   synchronous playback using dynamic time warping on the embeddings.
 
+## Assumptions
+
+- A1: Training pairs are videos of the same action category, so their frames can in principle be matched one to one (Sec. 1, p. 2, Sec. 3, p. 3).
+- A2: Videos of one action go through the same key events in the same order, so the correct match of a frame is temporally ordered and cycle-back regression's penalty on temporal distance is meaningful (reader's inference, Sec. 3.3, p. 4, Table 2, p. 6).
+- A3: Kendall's tau assumes no repeated frames in a video (no slow or periodic motion), which the authors say holds for these datasets (Sec. 4.1, p. 5).
+- A4: Representation learning uses no labels and no given correspondences between videos (Sec. 2, pp. 2-3, Sec. 3, p. 3).
+- A5: Training data are small: 70 Pouring training videos and 40-134 per Penn Action class (Table 2, p. 6, Sec. 3.4, p. 4).
+- A6: Inputs are RGB frames resized to 224x224, each embedded with one context frame (k = 2, about 0.75 s apart on Penn Action and 0.3 s on Pouring), with 20 frames sampled per video and batches of 4 (Sec. 3.4, p. 4, Table 7, App. G, p. 11, App. H, p. 12).
+- A7: All methods share one encoder: a per-frame 2D CNN (VGG-M-like from scratch, or ResNet-50 to conv4c) followed by 3D convolutions, pooling and FC layers to a 128-d embedding (Table 1, Sec. 3.4, p. 4, Sec. 5.1, p. 6).
+- A8: The videos are third-person videos of humans: Pouring (object-focused) and Penn Action sports and exercise classes, without the two classes whose key events are ambiguous (Sec. 4, pp. 4-5).
+- A9: Evaluation uses frozen features on validation videos of the training classes: an SVM for phase classification, linear regression for phase progression (R²), and nearest-neighbour Kendall's tau over all validation pairs, against key-event and phase labels made by the authors (Sec. 4.1, p. 5).
+- A10: All methods use the same augmentation: whole-video horizontal flips, brightness shifts in [−32, 32] and contrast factors in [0.5, 1.5] (App. E, p. 11).
+- A11: The fine-tuning and few-shot settings start from an ImageNet-pretrained ResNet-50 (Sec. 5.3, pp. 6-7).
+
 ## Claims
 
-- C1: On Pouring, cycle-back regression beats both the MSE variant and cycle-back classification on all three metrics: phase classification 91.82% vs 86.16% and 88.06%, phase progression 0.8030 vs 0.6532 and 0.6636, Kendall's tau 0.8516 vs 0.6093 and 0.6707 (Table 3, Sec. 5.2, p. 6).
-- C2: Training a VGG-M-like encoder from scratch, TCC beats SaL and TCN on phase classification at 10%, 50% and 100% of labels: Penn Action 74.68/76.39/77.30% vs at most 69.65/71.41/72.53%, Pouring 86.82/89.43/90.21% vs at most 76.03/83.27/84.57% (Table 4, Sec. 5.3, pp. 6-7).
-- C3: From scratch, TCC beats supervised learning at 10% and 50% labels on both datasets and at 100% on Pouring (90.21 vs 88.41%), but not on Penn Action at 100% (77.30 vs 79.98%) (Table 4, p. 7).
-- C4: Fine-tuning ImageNet ResNet-50, TCC is competitive on Penn Action (81.26/83.35/84.45% vs TCN 81.99/83.67/84.04%) and best on Pouring (89.23/91.43/91.82%); TCC+TCN is best on Penn Action (84.27/84.79/85.22%) (Table 5, Sec. 5.3, p. 7).
-- C5: With fine-tuning, supervised learning on all labels still beats every self-supervised method on Penn Action (86.05%) and is within 0.3 points of TCC on Pouring (91.55 vs 91.82%); ImageNet or random features reach only 42.7-52.9% (Table 5, p. 7).
-- C6: In few-shot phase classification on Golf Swing and Tennis Serve, TCC and TCC+TCN with one labelled video match supervised learning with about 50 densely labelled videos (Fig. 5, Sec. 5.3, p. 7, Sec. 7, p. 8).
-- C7: From scratch, TCC has the best phase progression and Kendall's tau on both datasets: Penn Action 0.5383 and 0.6024, Pouring 0.7750 and 0.7504, against supervised learning from scratch at 0.5332/0.4997 and 0.5529/0.5282 (Table 6, Sec. 5.4, pp. 7-8).
-- C8: With fine-tuning, TCC+TCN has the best Kendall's tau (Penn Action 0.7672, Pouring 0.8779) and Pouring progression (0.8307), TCC+SaL the best Penn Action progression (0.6839); all TCC variants beat supervised fine-tuning (0.6267/0.5582 Penn Action, 0.6986/0.6195 Pouring) (Table 6, Sec. 5.4, pp. 7-8).
-- C9: Nearest neighbours in the TCC embedding retrieve frames of the same fine-grained state across videos, e.g. glass half full, or the pitcher's leg up before versus after the throw (qualitative) (Fig. 6, Sec. 6, p. 8, Fig. 9, App. D, p. 11, p. 13).
-- C10: Distance from a video's frames to their nearest frames in typical videos flags anomalous activity: in one bench-press example it spikes around frame 20 (qualitative, single example) (Fig. 7, Sec. 6, p. 8).
-- C11: During training on two Baseball Pitch videos, the frame-similarity matrix aligns along the diagonal more orderly ("more effective" per the caption) under cycle-back regression than under cycle-back classification (Fig. 10, App. F, p. 11, p. 14).
-- C12: k = 2 frames per embedding (the frame plus one context frame) gives good performance on both datasets, with the two frames about 0.75 s apart on Penn Action (15 frames at 20 fps) and 0.3 s on Pouring (9 frames at 30 fps) (App. H, p. 12).
+- C1: On Pouring, cycle-back regression beats both the MSE variant and cycle-back classification on all three metrics: phase classification 91.82% vs 86.16% and 88.06%, phase progression 0.8030 vs 0.6532 and 0.6636, Kendall's tau 0.8516 vs 0.6093 and 0.6707 [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10] (Table 3, Sec. 5.2, p. 6).
+- C2: Training a VGG-M-like encoder from scratch, TCC beats SaL and TCN on phase classification at 10%, 50% and 100% of labels: Penn Action 74.68/76.39/77.30% vs at most 69.65/71.41/72.53%, Pouring 86.82/89.43/90.21% vs at most 76.03/83.27/84.57% [A1, A2, A4, A5, A6, A7, A8, A9, A10] (Table 4, Sec. 5.3, pp. 6-7).
+- C3: From scratch, TCC beats supervised learning at 10% and 50% labels on both datasets and at 100% on Pouring (90.21 vs 88.41%), but not on Penn Action at 100% (77.30 vs 79.98%) [A1, A2, A4, A5, A6, A7, A8, A9, A10] (Table 4, p. 7).
+- C4: Fine-tuning ImageNet ResNet-50, TCC is competitive on Penn Action (81.26/83.35/84.45% vs TCN 81.99/83.67/84.04%) and best on Pouring (89.23/91.43/91.82%); TCC+TCN is best on Penn Action (84.27/84.79/85.22%) [A1, A2, A4, A5, A6, A7, A8, A9, A10, A11] (Table 5, Sec. 5.3, p. 7).
+- C5: With fine-tuning, supervised learning on all labels still beats every self-supervised method on Penn Action (86.05%) and is within 0.3 points of TCC on Pouring (91.55 vs 91.82%); ImageNet or random features reach only 42.7-52.9% [A1, A2, A4, A5, A6, A7, A8, A9, A10, A11] (Table 5, p. 7).
+- C6: In few-shot phase classification on Golf Swing and Tennis Serve, TCC and TCC+TCN with one labelled video match supervised learning with about 50 densely labelled videos [A1, A2, A4, A5, A6, A7, A8, A9, A10, A11] (Fig. 5, Sec. 5.3, p. 7, Sec. 7, p. 8).
+- C7: From scratch, TCC has the best phase progression and Kendall's tau on both datasets: Penn Action 0.5383 and 0.6024, Pouring 0.7750 and 0.7504, against supervised learning from scratch at 0.5332/0.4997 and 0.5529/0.5282 [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10] (Table 6, Sec. 5.4, pp. 7-8).
+- C8: With fine-tuning, TCC+TCN has the best Kendall's tau (Penn Action 0.7672, Pouring 0.8779) and Pouring progression (0.8307), TCC+SaL the best Penn Action progression (0.6839); all TCC variants beat supervised fine-tuning (0.6267/0.5582 Penn Action, 0.6986/0.6195 Pouring) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11] (Table 6, Sec. 5.4, pp. 7-8).
+- C9: Nearest neighbours in the TCC embedding retrieve frames of the same fine-grained state across videos, e.g. glass half full, or the pitcher's leg up before versus after the throw (qualitative) [A1, A2, A4, A5, A6, A7, A8] (Fig. 6, Sec. 6, p. 8, Fig. 9, App. D, p. 11, p. 13).
+- C10: Distance from a video's frames to their nearest frames in typical videos flags anomalous activity: in one bench-press example it spikes around frame 20 (qualitative, single example) [A1, A2, A4, A5, A6, A7, A8] (Fig. 7, Sec. 6, p. 8).
+- C11: During training on two Baseball Pitch videos, the frame-similarity matrix aligns along the diagonal more orderly ("more effective" per the caption) under cycle-back regression than under cycle-back classification [A1, A2, A4, A6, A7, A8] (Fig. 10, App. F, p. 11, p. 14).
+- C12: k = 2 frames per embedding (the frame plus one context frame) gives good performance on both datasets, with the two frames about 0.75 s apart on Penn Action (15 frames at 20 fps) and 0.3 s on Pouring (9 frames at 30 fps) [A1, A6, A7, A8] (App. H, p. 12).
 
 ## Implementation notes
 
