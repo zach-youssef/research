@@ -69,16 +69,33 @@ contexts; pretrained visual features (Sermanet et al.) give invariance but no ex
 - Real tasks (Sec. VI-D, pp. 6-7): a human demonstrates with the same tool the 7-DoF Sawyer later
   uses; videos are cropped around task-relevant areas to avoid embodiment shift.
 
+## Assumptions
+
+- A1: Demonstrations are observation-only videos (no actions), each from a context drawn i.i.d. from p(ω), and the learner's fixed context comes from the same distribution: no systematic domain shift such as a different embodiment (Sec. III, p. 3, Sec. VI-D, pp. 6-7).
+- A2: The first frame of a demonstration carries enough information about its context to condition the translation (Sec. IV, p. 3).
+- A3: Paired demonstrations are aligned in time, so frame t of one corresponds to frame t of the other (Sec. IV, p. 3).
+- A4: Many demonstrations of the same task from many different contexts are available: 894-4500 videos per simulated task, 60-135 per real task (Sec. VI-A, p. 5, Sec. VII, p. 8).
+- A5: Observations are low-resolution RGB frames (48x48, or 36x64 for simulated sweeping) (Sec. VI-A, p. 5).
+- A6: The learner runs RL in its own environment with the learned reward, conditioned on its own first frame: TRPO in simulation (100 iterations of 12,500 samples), trajectory-centric GPS with z3 in the state on the real robot (Sec. V-B, pp. 4-5, Sec. VI-B, p. 5, Sec. VI-D1, p. 7).
+- A7: The learner's observations during RL stay close enough to the demonstration distribution for Enc1 to encode them; the weak image-tracking reward is added for early policies that drift outside it (Sec. V-A, p. 4).
+- A8: Simulated demonstrations are rollouts of TRPO experts trained on hand-specified rewards, in MuJoCo (Sec. VI, p. 5).
+- A9: Real demonstrations are by a human using the same tool as the robot, with videos cropped around task-relevant areas, so the tasks centre on objects and tools rather than on the arm or end effector (Sec. VI-D, pp. 6-7).
+- A10: Contexts vary in viewpoint, background, object appearance and positions, and distractor objects, within one task and scene type (Sec. III, p. 3, Sec. VI, p. 5).
+- A11: Simulated success is a threshold on the final object-to-goal distance divided by the initial one, over 10 random environment conditions; real tasks use a final-distance threshold (pushing) or the fraction of items delivered (sweeping, ladling) (Sec. VI-B, p. 5, Sec. VI-D, p. 7).
+- A12: A separate translation model is trained from scratch for each task (Sec. VII, p. 8).
+- A13: The translated features z3 and the encoder's features of real target frames are tied into one space by the reconstruction and alignment losses, which the feature-tracking reward needs (Sec. IV, p. 4).
+- A14: The learner can reproduce the translated demonstration in its own context: its body and actions can produce the observations the translation predicts (reader's inference, Sec. V, p. 4).
+
 ## Claims
 
-- C1: Learning from demos in random contexts, the method succeeds on all four simulated tasks, close to a TRPO oracle on the true reward (figure reading: ours about 0.85 reach, 0.85 push, 1.0 sweep, 0.95 strike vs oracle about 0.9, 0.9, 1.0, 1.0, with error bars overlapping) (Fig. 4, Sec. VI-B, pp. 5-6).
-- C2: TPIL and GAIL reach 0% success on all four simulated tasks; pretrained Inception-v3 features do reasonably only on sweep (about 0.7 read from the figure, wide error bar) and are about 0.25 on reach, 0 on push and about 0.05 on strike (Fig. 4, Sec. VI-B, p. 6).
-- C3: In ablations on simulated reach and push, removing any of L_trans, L_rec, L_rec with L_align, R_feat or R_img lowers success; the full method is best on both tasks (figure reading: reach 0.85 vs 0.45-0.75, push 0.85 vs 0.6 without R_feat and 0.4 without R_img; the error bars overlap and the loss ablations were not run on push) (Fig. 6, Sec. VI-C, p. 6).
-- C4: Without L_align (and L_rec) tying the translated features to the encoder's own features, the feature-tracking reward is ineffective, since learner and expert features need not lie in the same space (Sec. IV, p. 4, Fig. 6).
-- C5: On real Sawyer pushing with GPS, trained only from human videos from different viewpoints, the method succeeds about 0.96 of the time (figure reading) and beats pretrained-feature (about 0.25) and kinesthetic joint-angle (about 0) rewards (Fig. 8, Sec. VI-D1, p. 7).
-- C6: On real crumpled-paper sweeping, the method and the joint-angle baseline both work well (about 1.0 in the figure) while pretrained features fail (about 0); on almond sweeping the method scores highest (about 0.75 vs 0.62 and 0.67, read from the figure, with overlapping error bars) (Fig. 8, Sec. VI-D2, p. 7).
-- C7: On real almond ladling the method reaches 66% success, while the pretrained-feature and joint-angle baselines stay at about 0.17 and 0.11 (figure reading); the authors explain the joint-angle failure by its interpolating between the start pose and the turned-spoon end pose (Fig. 8, Sec. VI-D3, p. 7).
-- C8: The translation model generalises to the learner's context not seen in training, producing plausible translated videos for holdout demos (qualitative) (Fig. 5, p. 6, Sec. VII, pp. 7-8).
+- C1: Learning from demos in random contexts, the method succeeds on all four simulated tasks, close to a TRPO oracle on the true reward (figure reading: ours about 0.85 reach, 0.85 push, 1.0 sweep, 0.95 strike vs oracle about 0.9, 0.9, 1.0, 1.0, with error bars overlapping) [A1, A2, A3, A4, A5, A6, A7, A8, A10, A11, A12, A13, A14] (Fig. 4, Sec. VI-B, pp. 5-6).
+- C2: TPIL and GAIL reach 0% success on all four simulated tasks; pretrained Inception-v3 features do reasonably only on sweep (about 0.7 read from the figure, wide error bar) and are about 0.25 on reach, 0 on push and about 0.05 on strike [A1, A4, A5, A6, A8, A10, A11] (Fig. 4, Sec. VI-B, p. 6).
+- C3: In ablations on simulated reach and push, removing any of L_trans, L_rec, L_rec with L_align, R_feat or R_img lowers success; the full method is best on both tasks (figure reading: reach 0.85 vs 0.45-0.75, push 0.85 vs 0.6 without R_feat and 0.4 without R_img; the error bars overlap and the loss ablations were not run on push) [A1, A2, A3, A4, A5, A6, A7, A8, A10, A11, A12, A13, A14] (Fig. 6, Sec. VI-C, p. 6).
+- C4: Without L_align (and L_rec) tying the translated features to the encoder's own features, the feature-tracking reward is ineffective, since learner and expert features need not lie in the same space [A1, A2, A3, A13] (Sec. IV, p. 4, Fig. 6).
+- C5: On real Sawyer pushing with GPS, trained only from human videos from different viewpoints, the method succeeds about 0.96 of the time (figure reading) and beats pretrained-feature (about 0.25) and kinesthetic joint-angle (about 0) rewards [A1, A2, A3, A4, A5, A6, A7, A9, A10, A11, A12, A13, A14] (Fig. 8, Sec. VI-D1, p. 7).
+- C6: On real crumpled-paper sweeping, the method and the joint-angle baseline both work well (about 1.0 in the figure) while pretrained features fail (about 0); on almond sweeping the method scores highest (about 0.75 vs 0.62 and 0.67, read from the figure, with overlapping error bars) [A1, A2, A3, A4, A5, A6, A7, A9, A10, A11, A12, A13, A14] (Fig. 8, Sec. VI-D2, p. 7).
+- C7: On real almond ladling the method reaches 66% success, while the pretrained-feature and joint-angle baselines stay at about 0.17 and 0.11 (figure reading); the authors explain the joint-angle failure by its interpolating between the start pose and the turned-spoon end pose [A1, A2, A3, A4, A5, A6, A7, A9, A10, A11, A12, A13, A14] (Fig. 8, Sec. VI-D3, p. 7).
+- C8: The translation model generalises to the learner's context not seen in training, producing plausible translated videos for holdout demos (qualitative) [A1, A2, A3, A4, A5, A10, A12, A13] (Fig. 5, p. 6, Sec. VII, pp. 7-8).
 
 ## Implementation notes
 
