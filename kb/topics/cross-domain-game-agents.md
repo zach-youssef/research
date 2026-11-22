@@ -1,7 +1,7 @@
 ---
 id: cross-domain-game-agents
 title: "Cross-domain game agents: a visual state embedding, one transformer policy, unseen games"
-tags: [cross-domain, transfer, video-games, state-representation, segmentation, object-centric, world-model, domain-adaptation, transformer, ppo, generalist-agent, zero-shot]
+tags: [cross-domain, transfer, video-games, state-representation, segmentation, object-centric, object-detection, imitation-learning, robustness, world-model, domain-adaptation, transformer, ppo, generalist-agent, zero-shot]
 updated: 2026-11-22
 ---
 
@@ -21,9 +21,10 @@ that a transformer can take a variable-length set of segments? The section "Segm
 the state" answers it.
 
 Each statement about a paper's results cites the claim it rests on (`[[id#Cn]]`), and its
-conditions (`[[id#An]]`) where they matter. The four combined statements that carry the idea
-each have a `### Compatibility` block ("Combining claims" in `docs/knowledge-base.md`). A
-statement with an open `conflicts` row is labelled a **conjecture**.
+conditions (`[[id#An]]`) where they matter. The six combined statements that carry the idea
+each have a `### Compatibility` block ("Combining claims" in `docs/knowledge-base.md`), referred
+to as (a) to (f) in their order below. A statement with an open `conflicts` row is labelled a
+**conjecture**.
 
 ## Summary
 
@@ -40,6 +41,10 @@ statement with an open `conflicts` row is labelled a **conjecture**.
     [[hafner2025scalable#C5]]. Both are single-game or per-task.
   - Against a representation-only route: CPC and BERT pretraining fine-tune worse than a
     multi-game decision transformer on held-out Atari games [[lee2022multigame#C7]].
+  - Cross-domain alignment without paired data is shown only between two control domains, not
+    games: GWIL's Gromov-Wasserstein reward, optimal up to isometry [[fickinger2022cross#C2]],
+    recovers cartpole behaviour from one pendulum trajectory [[fickinger2022cross#C6]], and
+    DAIL's maps learned from shared alignment tasks [[kim2020domain#C6]].
 - **Stage 2, policy.** Every generalist game policy in the KB is trained by imitation or
   offline:
   - Gato is pure BC ([[reed2022generalist#A5]]); NitroGen, Game-TARS and SIMA use no RL
@@ -62,11 +67,17 @@ statement with an open `conflicts` row is labelled a **conjecture**.
   - Game-specific skills don't transfer ([[simateam2024instructable#C9]],
     [[magne2026nitrogen#C16]]). Gato transfers negatively to visually distinct Atari Boxing
     [[reed2022generalist#C11]].
+  - Even within one game, RL agents break on perturbations: HackAtari variants
+    [[delfosse2025intelligence#C2]] and the ALE's own modes [[farebrother2020generalization#C1]].
+    These test robustness inside a game, not transfer to a new game of the genre.
 - **SAM as the state.** It is a plausible base, not an established one. A permutation-invariant
   transformer over an object set is robust to object order and count [[derstroff2026relative#C5]],
   [[derstroff2026relative#C14]]. But the result assumes perfect, typed objects read from RAM
   ([[derstroff2026relative#A1]], [[derstroff2026relative#A6]]). SAM's masks are class-agnostic
   and it never saw game frames ([[kirillov2023segment#A6]], [[kirillov2023segment#A14]]).
+  Learned Atari object detectors exist but are uneven per game (SPOC's relevant-object F1 runs
+  from 62.6 on Tennis to 93.0 on Carnival [[delfosse2023continuity#C2]]), and swapped into
+  RAM-trained agents they fall far short of RAM objects [[delfosse2023continuity#C10]].
 - **Main open problems:**
   1. extracting a typed, tracked object or state set from game pixels without per-game RAM
      access;
@@ -107,6 +118,17 @@ statement with an open `conflicts` row is labelled a **conjecture**.
 - **Bisimulation.** A learned behavioural distance on Space Invaders tracks game events, not
   pixel differences [[castro2020scalable#C12]], within one deterministic MDP
   ([[castro2020scalable#A11]], [[castro2020scalable#A4]]).
+- **Agent-centric targets (Shang et al.).** In cooperative multi-agent football and DMLab2D:
+  - Predicting each agent's own next location, as an auxiliary loss, mostly improves performance
+    and sample efficiency [[shang2021agentcentric#C5]], and beats predicting all players'
+    occupancy [[shang2021agentcentric#C8]].
+  - Pretraining that predictor on action-free frames improves sample efficiency and never hurt
+    final performance [[shang2021agentcentric#C6]], though pretrained attention models rate
+    lower in a round robin [[shang2021agentcentric#C9]].
+  - Conditions: the agent's location must be available as a target
+    ([[shang2021agentcentric#A5]]), the action-free frames come from the same environment
+    ([[shang2021agentcentric#A6]]), and training runs for 100M-4.5G frames
+    ([[shang2021agentcentric#A9]]). No result transfers a model across environments.
 - **How many frames.** The evidence is mixed:
   - Context length matters for DT on Atari even with frame stacking [[chen2021decision#C7]].
   - Frame stacks help CURL [[srinivas2020curl#C10]].
@@ -144,6 +166,68 @@ statement with an open `conflicts` row is labelled a **conjecture**.
 - **Entities from patches.** MGDT's attention heads attend to patches holding entities (the
   player, objects, free space) with no object supervision [[lee2022multigame#C20]].
 
+### From pixels to objects
+
+The stage between frames and an object set, on Atari unless stated:
+
+- **OCAtari (hand-built extraction).** Per-game decoders read objects (class, position, size)
+  from the 2600's RAM; ORCA's objects come from it ([[derstroff2026relative#A1]]).
+  - The RAM decoder agrees with a colour-filter detector at about 90% mean F1
+    [[delfosse2024ocatari#C1]], from 63.4 to 100 per game with a DQN agent's frames
+    [[delfosse2024ocatari#C2]]. That is agreement with another hand-written detector, which
+    misses blinking and occluded objects, not accuracy against human labels
+    ([[delfosse2024ocatari#A4]], [[delfosse2024ocatari#C3]]).
+  - PPO on the decoded positions matches or beats pixel PPO on 8 games
+    [[delfosse2024ocatari#C6]].
+  - Conditions: every game needs its own reverse-engineered extractor
+    ([[delfosse2024ocatari#A2]]) and a fixed object vocabulary chosen by the authors
+    ([[delfosse2024ocatari#A5]]), and the state must sit in 128 bytes of RAM
+    ([[delfosse2024ocatari#A1]]).
+- **SPACE (unsupervised).** A VAE with parallel per-cell foreground objects and a segmented
+  background:
+  - On synthetic 3D-Room scenes its boxes match SPAIR's (AP 0.89 vs 0.91 at IoU 0.5)
+    [[lin2020space#C1]], with step latency that grows far more slowly with the grid
+    [[lin2020space#C3]].
+  - On Atari it is shown only qualitatively ([[lin2020space#A6]]): one model trained on 10 games
+    still finds foreground objects [[lin2020space#C8]], but it counts some static objects
+    (shields, a key, parts of a base) as foreground [[lin2020space#C9]], and its
+    hyperparameters are tuned per dataset ([[lin2020space#A4]]).
+- **SPOC (SPACE plus motion and object-continuity losses).**
+  - Relevant-object F1 on 8 games rises from 38% to 85% on average [[delfosse2023continuity#C1]].
+    Per game, SPACE vs SPOC: Pong 0.2 vs 92.8, MsPacman 0.5 vs 91.5, Tennis 0.0 vs 62.6,
+    Riverraid 65.0 vs 69.1 [[delfosse2023continuity#C2]]. Counting the HUD, SPOC's F1 drops on
+    some games, e.g. Boxing 70.5 and Tennis 40.2 [[delfosse2023continuity#C3]].
+  - Detection is not the whole problem: the authors find SPACE's object encodings sub-optimal
+    even on games it detects well [[delfosse2023continuity#C9]], and the continuity loss mainly
+    improves encodings, not detection [[delfosse2023continuity#C8]].
+  - The exact object count per frame is right in only 11.1% (SpaceInvaders) to 77.1% (Boxing) of
+    frames [[delfosse2023continuity#C11]].
+  - Swapped into agents trained on RAM positions, SPOC objects score far below RAM: Boxing 8.4
+    vs 36, Pong −11 vs 20 [[delfosse2023continuity#C10]], on two games whose policies never saw
+    detector output ([[delfosse2023continuity#A8]]).
+  - Conditions: objects must move against a mostly static background
+    ([[delfosse2023continuity#A1]]), labels are semi-automatic heuristics
+    ([[delfosse2023continuity#A4]]), and hyperparameters are set per game
+    ([[delfosse2023continuity#A5]]).
+- **OCAtari's comparison table.** OCAtari reports RAM extraction at 93.9 average F1 on 7 games
+  against 31.5 for SPACE and 77.3 for SPOC [[delfosse2024ocatari#C4]]. The SPACE and SPOC values
+  equal SPOC's all-object F1 [[delfosse2023continuity#C3]], scored, per its App. A, against
+  SPOC's heuristic labels ([[delfosse2023continuity#A4]]); the match is recorded in
+  [[delfosse2023continuity]]'s implementation notes. The RAM column is presumably scored
+  against OCAtari's colour filters, as its other RAM scores are ([[delfosse2024ocatari#A4]]).
+  The columns then rest on different ground truths, so the gap is indicative, not like for like.
+- **Slots for RL in synthetic scenes (Yoon et al.).** PPO over task-agnostic pretrained slots:
+  - With transformer pooling, SLATE and Slot Attention slots perform like ground-truth states on
+    the two comparison tasks, where fixed-region CNN features and MAE patches fail
+    [[yoon2023investigation#C3]]. Pooling matters: an MLP over SLATE's slots collapses on three
+    of four tasks [[yoon2023investigation#C9]].
+  - Slots mostly hold up better than ground-truth integer codes on unseen colours and shapes
+    ([[yoon2023investigation#C6]], [[yoon2023investigation#C7]]).
+  - Standard object-discovery metrics (FG-ARI, reconstruction MSE) don't predict RL success
+    [[yoon2023investigation#C12]].
+  - Conditions: simple 64x64 scenes that segment well ([[yoon2023investigation#A1]]),
+    pretraining on random-policy data ([[yoon2023investigation#A2]]); no game frames.
+
 ### Segmentation maps as the state
 
 What the KB supports:
@@ -153,8 +237,14 @@ What the KB supports:
   and landmark counts change at test time [[derstroff2026relative#C14]]. Relative coordinates
   make the input invariant to rigid moves of the whole scene [[derstroff2026relative#C9]].
   In robots, one transformer over variable-length limb sets transfers zero-shot to unseen
-  morphologies ([[gupta2022metamorph#C9]], [[kurin2021cage#C6]]).
+  morphologies ([[gupta2022metamorph#C9]], [[kurin2021cage#C6]]). Over learned slots rather than
+  given objects, a transformer-pooled PPO policy matches ground-truth states on two synthetic
+  comparison tasks ([[yoon2023investigation#C3]], [[yoon2023investigation#C9]]).
 - **The extractor half is unproven for games.**
+  - The working Atari extractors are hand-built per game ([[delfosse2024ocatari#A2]]). The best
+    learned one, SPOC, is uneven per game [[delfosse2023continuity#C2]] and its objects lose
+    most of a RAM-trained agent's score [[delfosse2023continuity#C10]] (section "From pixels to
+    objects").
   - ORCA reads objects from RAM and assumes a perfect extractor ([[derstroff2026relative#A1]]).
     Its objects carry a one-hot type from a fixed vocabulary plus position and velocity, with
     no appearance features ([[derstroff2026relative#A6]]).
@@ -230,6 +320,33 @@ unverified row, mask quality on game imagery.
   character classes [[chen2021embeddings#C9]]. They need low-dimensional states
   ([[chen2021embeddings#A4]]), and target embeddings are learned online, not zero-shot
   ([[chen2021embeddings#A10]]).
+- **GWIL.** Rewards the agent by the Gromov-Wasserstein distance from its trajectory to one
+  expert trajectory of another domain, comparing only distances within each space:
+  - A policy minimising it is optimal up to isometry, when isometries exist that preserve reward,
+    dynamics and start states [[fickinger2022cross#C2]] ([[fickinger2022cross#A3]]); the
+    isometry class can hold suboptimal policies, picked between by seed
+    [[fickinger2022cross#C3]], and its cheetah-to-walker run goes forward or backward by seed
+    [[fickinger2022cross#C7]].
+  - From one pendulum trajectory it recovers optimal cartpole behaviour with no reward, across
+    state-action spaces of different dimension (qualitative) [[fickinger2022cross#C6]].
+  - Its cost grows with trajectory length, not state dimension [[fickinger2022cross#C10]].
+  - Conditions: expert actions ([[fickinger2022cross#A1]]), Euclidean distances on raw
+    low-dimensional vectors ([[fickinger2022cross#A4]], [[fickinger2022cross#A10]]), continuous
+    spaces ([[fickinger2022cross#A8]]). UDIL's authors found it highly stochastic across
+    hyperparameters on six MuJoCo pairs [[franzmeyer2022matters#C5]].
+- **DAIL (GAMA).** Learns state and action maps between two domains from unpaired, unaligned
+  demonstrations of shared alignment tasks, then imitates new expert tasks zero-shot:
+  - Its state maps are 17.3x closer to the ground-truth correspondence than the best baseline's
+    on average [[kim2020domain#C3]], and the maps imitate target tasks zero-shot near expert level
+    where self-domain pretraining plateaus lower [[kim2020domain#C6]].
+  - From 64x64 images, aligning in an autoencoder's latent space works about as well as from
+    joint states [[kim2020domain#C10]].
+  - Conditions: the same tasks demonstrated in both domains ([[kim2020domain#A1]]), with actions
+    ([[kim2020domain#A2]]); the theory needs discrete deterministic MDPs ([[kim2020domain#A3]])
+    and alignable pairs ([[kim2020domain#A4]]); target tasks come from the alignment tasks'
+    family ([[kim2020domain#A10]]).
+  - Using GWIL or DAIL on object-centric game states to align two games are the conjectures
+    of Compatibility (e) and (f).
 - **The survey's view.** Most cross-domain methods assume some shared structure whose presence
   in a new setting is hard to check [[serrano2024crossdomain#C6]]. No method detects that no
   source will help [[serrano2024crossdomain#C5]]. None of the reviewed domains is a video game
@@ -352,6 +469,31 @@ structure varies, the role games' object sets would play.
 - **Within one design space.** Zero-shot to unseen robots works when they come from the
   training design space ([[gupta2022metamorph#C9]], [[gupta2022metamorph#A12]]): the robot
   analogue of "same genre".
+- **Within-game perturbations: robustness, not genre transfer.** HackAtari's RAM-edited variants
+  and the ALE's native modes change one game (its colours, speeds, enemies, level) and test the
+  agent on that game zero-shot ([[delfosse2025intelligence#A2]],
+  [[farebrother2020generalization#A1]]). They measure robustness inside a game; a new game of
+  the same genre is a larger shift that neither tests.
+  - HackAtari: on 32 variants of 17 games every agent's expert-HNS IQM drops, IMPALA least among
+    the deep agents and SCoBots least overall [[delfosse2025intelligence#C2]], while non-expert
+    humans mostly improve on the variants they played [[delfosse2025intelligence#C4]] (always
+    after practising the original, [[delfosse2025intelligence#A5]]). Even
+    IMPALA loses more than half its score on 10 of the 15 human-tested variants
+    [[delfosse2025intelligence#C5]].
+  - Object-centric agents mostly hold on recolours but drop on most gameplay variants
+    ([[delfosse2025intelligence#C6]], [[delfosse2025intelligence#C9]]), with objects read from
+    OCAtari's RAM extraction ([[delfosse2025intelligence#A6]]). ORBiT, with ORCA's relative frame,
+    drops 4% on a different set of 10 variants [[derstroff2026relative#C6]], about as little as
+    pixel PPO's 7% on that set.
+  - ALE modes: DQN trained 50M frames on the default mode scores far below scratch training on
+    8 of 9 other modes [[farebrother2020generalization#C1]], half of scratch even on a Freeway
+    mode with the same sprites [[farebrother2020generalization#C2]]. Dropout and ℓ2 help
+    zero-shot on most modes, a little, beating scratch only on two Freeway modes
+    [[farebrother2020generalization#C5]]; the authors conclude regularisation alone doesn't make
+    policies generalise [[farebrother2020generalization#C7]], and its gain is as an
+    initialisation for fine-tuning [[farebrother2020generalization#C9]].
+  - The topic's reading: both are cheap checks a cross-game agent should pass before genre
+    transfer is tried, not evidence of genre transfer.
 
 ## Compatibility blocks
 
@@ -386,7 +528,7 @@ Gaps:
 
 | Pair | Status | Gap | What would close it |
 |---|---|---|---|
-| [[kirillov2023segment#A14]] / S1 | unverified | SAM saw no game frames, sprites or HUDs; mask quality on them is unknown | experiment: score SAM automatic masks against OCAtari's RAM objects on Atari frames |
+| [[kirillov2023segment#A14]] / S1 | unverified | SAM saw no game frames, sprites or HUDs; mask quality on them is unknown | experiment: score SAM automatic masks against OCAtari's RAM objects ([[delfosse2024ocatari]]) on Atari frames |
 | [[kirillov2023segment#A4]] / S1 | unverified | the ~100 masks per image are a statistic of high-resolution photos; game frames may give far fewer or more | experiment: count masks per frame on a range of 2D and 3D games |
 | [[kirillov2023segment#A6]] / [[derstroff2026relative#A6]] | conflicts | ORCA needs a one-hot type per object from a fixed vocabulary; SAM's masks carry no class | experiment: replace ORCA's types by clustered SAM mask embeddings and rerun its Atari benchmark |
 | [[derstroff2026relative#A1]] / S5 | conflicts | ORCA's results assume a perfect RAM extractor; SAM masks are noisy, split or merge objects, and give no velocity | experiment: ORBiT on SAM-derived objects vs RAM objects on the same games |
@@ -399,7 +541,7 @@ Gaps:
 | [[kirillov2023segment#A11]] / S4 | unverified | the ~50 ms CPU prompt time ([[kirillov2023segment#C5]]) excludes the image encoder; SAM runs at 21.7 FPS on an A100 ([[ravi2024sam#C6]]) | experiment: end-to-end per-frame latency, encoder included, on the local GPU |
 | [[derstroff2026relative#A3]] / S2 | conflicts | the anchor is hand-picked per game; across games, and in unseen ones, it must be found automatically | experiment: learned anchor selection (e.g. the segment whose motion best predicts the action) vs the hand-picked anchor |
 | [[derstroff2026relative#A8]] / S2 | conflicts | ORCA trains one agent per game | experiment: one ORBiT agent across several Atari games with a shared type vocabulary |
-| [[derstroff2026relative#A8]] / S3 | conflicts | ORCA never tests a game unseen in training | experiment: leave-one-game-out ORBiT on HackAtari or OCAtari games |
+| [[derstroff2026relative#A8]] / S3 | conflicts | ORCA never tests a game unseen in training | experiment: leave-one-game-out ORBiT on OCAtari games ([[delfosse2024ocatari]]) |
 | [[derstroff2026relative#A4]] / S1 | unverified | ORCA's environments are 2D; many target games are 3D | paper: an object-centric RL result from pixels in 3D games |
 | [[derstroff2026relative#A2]] / S5 | unverified | an anchor must exist and be localised every step; SAM may miss or merge the player | experiment: rate of anchor loss in SAM 2 tracks over long episodes |
 
@@ -548,21 +690,96 @@ Gaps:
 | [[gupta2022metamorph#A14]] / S1 | conflicts | MetaMorph's zero-shot robots are observed by state, not pixels | paper: an analogous zero-shot result from pixels |
 | [[gupta2022metamorph#A12]] / S5 | unverified | unseen robots come from the training design space; whether a genre is as tight a family is open | experiment: zero-shot within-genre vs cross-genre held-out games |
 
+### Compatibility: Gromov-Wasserstein alignment of object-centric states between two games
+
+Statement (**conjecture**): an agent in a target game learns from a demonstration of a different
+source game, with no paired data and no target reward, through GWIL's Gromov-Wasserstein reward
+between the two games' object-centric states, on objects extracted as OCAtari extracts them.
+
+Assume:
+- S1: inputs are rendered video-game frames (2D or 3D, stylised, sprites, HUD)
+- S2: one policy is trained across many games
+- S3: the target game is unseen in training
+- S4: training and play run on local hardware (one consumer GPU)
+- S5: states are object lists (type, position, size) extracted from the frames, as OCAtari provides for Atari
+- S6: the target game allows interaction but gives no reward and no demonstrations paired with, or of tasks shared with, the source game
+- S7: game actions are discrete (buttons, as Atari's 18 actions)
+
+| Claim | Assumptions |
+|---|---|
+| [[fickinger2022cross#C2]] | [[fickinger2022cross#A3]], [[fickinger2022cross#A4]], [[fickinger2022cross#A5]], [[fickinger2022cross#A9]] |
+| [[fickinger2022cross#C6]] | [[fickinger2022cross#A1]], [[fickinger2022cross#A2]], [[fickinger2022cross#A4]], [[fickinger2022cross#A5]], [[fickinger2022cross#A6]], [[fickinger2022cross#A7]], [[fickinger2022cross#A8]], [[fickinger2022cross#A10]] |
+| [[delfosse2024ocatari#C6]] | [[delfosse2024ocatari#A1]], [[delfosse2024ocatari#A2]], [[delfosse2024ocatari#A5]], [[delfosse2024ocatari#A7]] |
+
+Union: S1, S2, S3, S4, S5, S6, S7, [[fickinger2022cross#A3]], [[fickinger2022cross#A4]], [[fickinger2022cross#A5]], [[fickinger2022cross#A9]], [[fickinger2022cross#A1]], [[fickinger2022cross#A2]], [[fickinger2022cross#A6]], [[fickinger2022cross#A7]], [[fickinger2022cross#A8]], [[fickinger2022cross#A10]], [[delfosse2024ocatari#A1]], [[delfosse2024ocatari#A2]], [[delfosse2024ocatari#A5]], [[delfosse2024ocatari#A7]]
+
+Gaps:
+
+| Pair | Status | Gap | What would close it |
+|---|---|---|---|
+| [[fickinger2022cross#A3]] / S3 | unverified | GWIL's optimality needs isometric games with reward and dynamics preserved; two different games are rarely isometric, and without reward GWIL can't tell the members of an isometry class apart ([[fickinger2022cross#C3]]) | experiment: GW couplings between object-state trajectories of two Atari games with matching mechanics (e.g. Pong and Breakout paddles), checking whether matching objects pair up, before any RL |
+| [[fickinger2022cross#A4]] / S5 | unverified | GWIL's distances are Euclidean on fixed-length vectors; object lists vary in count and order | experiment: GWIL with a set distance over object lists (e.g. matching-based) on two Atari games |
+| [[fickinger2022cross#A8]] / S7 | conflicts | GWIL's evidence ([[fickinger2022cross#C6]]) assumes continuous state and action spaces and SAC; game actions are discrete, and only the theorem is written for finite spaces ([[fickinger2022cross#A9]]) | experiment: GWIL with a discrete-action learner on two Atari games |
+| [[fickinger2022cross#A7]] / S2 | unverified | GWIL learns one agent online from the pseudo-reward of one expert; one policy across many games needs one pseudo-reward per (source, target) pair, which is untested | experiment: one shared policy trained on GW rewards from several source games |
+| [[delfosse2024ocatari#A2]] / S3 | conflicts | each game needs a hand-built extractor; an unseen game has none | experiment: replace RAM extraction by a learned detector (SPOC, [[delfosse2023continuity]]) on the target game and measure what the alignment loses |
+| [[delfosse2024ocatari#A1]] / S1 | conflicts | RAM extraction exists only for Atari 2600 games | experiment: the same alignment on SPOC- or SAM-derived objects |
+
+### Compatibility: learned state and action maps between two games' object-centric states
+
+Statement (**conjecture**): an agent in a target game imitates new tasks demonstrated in a
+different source game, with no paired data and no target reward, through DAIL's learned state
+and action maps between the two games' object-centric states, on objects extracted as OCAtari
+extracts them.
+
+Assume:
+- S1: inputs are rendered video-game frames (2D or 3D, stylised, sprites, HUD)
+- S2: one policy is trained across many games
+- S3: the target game is unseen in training
+- S4: training and play run on local hardware (one consumer GPU)
+- S5: states are object lists (type, position, size) extracted from the frames, as OCAtari provides for Atari
+- S6: the target game allows interaction but gives no reward and no demonstrations paired with, or of tasks shared with, the source game
+- S7: game actions are discrete (buttons, as Atari's 18 actions)
+- S8: games may be stochastic (the ALE adds sticky actions)
+
+| Claim | Assumptions |
+|---|---|
+| [[kim2020domain#C6]] | [[kim2020domain#A1]], [[kim2020domain#A2]], [[kim2020domain#A3]], [[kim2020domain#A4]], [[kim2020domain#A5]], [[kim2020domain#A7]], [[kim2020domain#A8]], [[kim2020domain#A9]], [[kim2020domain#A10]] |
+| [[kim2020domain#C10]] | [[kim2020domain#A1]], [[kim2020domain#A2]], [[kim2020domain#A4]], [[kim2020domain#A5]], [[kim2020domain#A7]], [[kim2020domain#A9]], [[kim2020domain#A10]] |
+| [[delfosse2024ocatari#C6]] | [[delfosse2024ocatari#A1]], [[delfosse2024ocatari#A2]], [[delfosse2024ocatari#A5]], [[delfosse2024ocatari#A7]] |
+
+Union: S1, S2, S3, S4, S5, S6, S7, S8, [[kim2020domain#A1]], [[kim2020domain#A2]], [[kim2020domain#A3]], [[kim2020domain#A4]], [[kim2020domain#A5]], [[kim2020domain#A7]], [[kim2020domain#A8]], [[kim2020domain#A9]], [[kim2020domain#A10]], [[delfosse2024ocatari#A1]], [[delfosse2024ocatari#A2]], [[delfosse2024ocatari#A5]], [[delfosse2024ocatari#A7]]
+
+Gaps:
+
+| Pair | Status | Gap | What would close it |
+|---|---|---|---|
+| [[kim2020domain#A1]] / S6 | conflicts | DAIL needs the same alignment tasks demonstrated in both games | experiment: a few shared sub-tasks (reach a target, avoid an object) demonstrated in two grid games as DAIL's alignment set, then imitation of a new task |
+| [[kim2020domain#A4]] / S2 | unverified | maps are learned per alignable pair; whether many games are pairwise alignable, or the maps compose, is unknown | paper: alignment of many domains into one shared space without paired data |
+| [[kim2020domain#A3]] / S8 | unverified | DAIL's theory covers discrete deterministic MDPs; many games are stochastic (the ALE adds sticky actions) | paper: an alignability result for stochastic MDPs |
+| [[kim2020domain#A9]] / S5 | unverified | DAIL's maps are MLPs on fixed-length joint or latent vectors; object lists vary in count | experiment: DAIL with a set encoder over object lists |
+| [[kim2020domain#A10]] / S3 | unverified | target tasks come from the alignment tasks' family; an unseen game's tasks may not | experiment: DAIL maps tested on a target task outside the alignment family |
+| [[delfosse2024ocatari#A2]] / S3 | conflicts | each game needs a hand-built extractor; an unseen game has none | experiment: replace RAM extraction by a learned detector (SPOC, [[delfosse2023continuity]]) on the target game and measure what the alignment loses |
+| [[delfosse2024ocatari#A1]] / S1 | conflicts | RAM extraction exists only for Atari 2600 games | experiment: the same alignment on SPOC- or SAM-derived objects |
+
 ## Open questions and candidate experiments
 
 The gaps above reduce to a few experiments, in rough order of cost. Each is small enough for one
 local GPU on Atari or emulated games.
 
 1. **SAM on game frames.** Run SAM or SAM 2 automatic masks on Atari frames and score them
-   against OCAtari's RAM objects: recall, splits and merges, and end-to-end FPS on the local GPU
-   (encoder, automatic prompting, re-prompting per frame). It closes the SAM-imagery and cost
-   rows of (a) and decides whether stage 1 can start from segments.
+   against OCAtari's RAM objects ([[delfosse2024ocatari]]): recall, splits and merges, and
+   end-to-end FPS on the local GPU (encoder, automatic prompting, re-prompting per frame), with
+   SPOC ([[delfosse2023continuity]]) as the learned baseline on the same labels. RAM objects are
+   themselves checked only against colour filters ([[delfosse2024ocatari#A4]]), so blinking and
+   occluded objects need care. It closes the SAM-imagery and cost rows of (a) and decides
+   whether stage 1 can start from segments.
 2. **ORBiT from SAM objects.** Train ORBiT on SAM-derived objects, with clustered mask
    embeddings as types and SAM 2 tracks for velocity, against RAM objects on the same games.
    It tests the two conflicts of (a) on ORCA's own benchmark.
 3. **Multi-game ORBiT and leave-one-out.** One agent over several games with an automatic anchor
-   rule, then on a held-out game and on HackAtari variants as a genre-shift template. It tests
-   stage 3 in the object-set setting.
+   rule, then on a held-out game. HackAtari variants ([[delfosse2025intelligence]]) serve as a
+   within-game robustness check, not as a genre shift. It tests stage 3 in the object-set
+   setting.
 4. **Multi-game PPO baseline.** Per-game vs one shared pixel transformer with PPO on a small
    Atari set at equal frames, with and without per-game reward normalisation and game-level
    success sampling (SGS-style). It closes the PPO rows of (c).
@@ -572,6 +789,11 @@ local GPU on Atari or emulated games.
 6. **RL post-training of an imitation generalist.** KL-regularised PPO on NitroGen (needs a
    tractable action head) on two games, measuring held-out zero-shot before and after. It
    tests whether RL keeps or erodes imitation transfer, the S7 rows of (d).
+7. **Gromov-Wasserstein couplings between games.** Compute GW couplings between OCAtari
+   object-state trajectories of two games with matching mechanics (e.g. Pong and Breakout) and
+   check whether matching objects pair up, before any RL; then GWIL with a set distance and a
+   discrete-action learner. It tests the GWIL rows of (e); DAIL's rows in (f) would need shared
+   alignment tasks demonstrated in both games.
 
 Open questions without an experiment yet:
 - What plays the role of ORCA's object type, or MetaMorph's morphology inputs, when objects come
@@ -590,11 +812,9 @@ None fetched. Entries are in `~/code/.supervisor/plans/res/optional-papers.md` u
   ([[ganin2016domain#A8]]) row of (b).
 - **Kline 2025** (arXiv 2505.17328): a DANN-style game classifier over 10 games; the
   two-domain conflict of (b). Its downstream transfer isn't measured, per the list.
-- **OCAtari** (arXiv 2306.08649) and **HackAtari** (arXiv 2505.21731): the object ground truth
-  for experiment 1 and the variant benchmark for experiment 3.
-- **Yoon et al. 2023**, object-centric pretraining for RL (id unverified): slots from frames,
-  the unsupervised alternative to RAM extraction in (a). **Haramati et al. 2024** (id
-  unverified), an object-centric transformer from pixels, for the same row.
+- **Haramati et al. 2024** (id unverified): an object-centric transformer from pixels, the
+  unsupervised alternative to RAM extraction in (a); OCAtari, HackAtari and Yoon et al., once
+  listed here, are now in the KB.
 - **OneLA** (arXiv 2610.20160): latent actions across games, robots and driving with no
   alignment loss; the single-world-model row of (b).
 - **Genie** (arXiv 2402.15391) and **LAPA** (arXiv 2410.11758): latent actions from unlabelled
