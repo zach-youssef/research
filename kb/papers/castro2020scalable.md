@@ -56,22 +56,46 @@ label (p. 2). The author knows of no prior method approximating them with neural
   Gaussian noise for a continuous variant; d^π for Dopamine's trained Rainbow agents on Space
   Invaders, Pong and Asterix (no sticky actions), with φ the agent's penultimate layer.
 
+## Assumptions
+
+- A1: Finite state and action sets: the exact metrics are defined through a Wasserstein LP over u ∈ R^|S| and a max over the action set A (Eq. 1, Eq. 2, p. 2)
+- A2: Discount γ < 1 and bounded rewards, so the operators contract (reader's inference, p. 2, p. 10)
+- A3: d_∼ compares two states by matching action labels, so the same action set and labels must apply in every state; d^π drops this requirement (Eq. 2, p. 2, p. 3)
+- A4: Transitions are deterministic (each (s, a) has a unique next state N(s, a)); the methods are designed for deterministic MDPs and the extension to stochastic systems is left open (p. 3, p. 5, p. 7)
+- A5: d^π is defined relative to one fixed policy π, so the metric changes when the policy changes (p. 3)
+- A6: For the sampled and learned d^π the policy is deterministic, so each state has one action π(s) (p. 3, p. 4)
+- A7: Each sample is a transition tuple with its reward and next state, ⟨s, a, R(s, a), N(s, a)⟩, e.g. from a replay memory (p. 4)
+- A8: The sampling distribution gives positive probability to every valid pair of transitions sharing an action (for d^π: every state of the chain induced by π is updated infinitely often) (p. 4, p. 10)
+- A9: A state representation φ: S → R^k is given and held fixed while ψ is learned; ψ approximates the metric on top of it rather than learning the representation (p. 4, p. 6, p. 7)
+- A10: ψ is a feed-forward network on the concatenation [φ(s), φ(t)], trained with a periodically updated target network and a β factor that grows the effective horizon from 0 to 1 (Fig. 3, p. 4, p. 5)
+- A11: Distances compare two states within a single MDP, not states of two different systems (p. 3, p. 6)
+- A12: GridWorld: 31 cells, 4 deterministic moves, +1 for entering a goal cell and −1 for moving into a wall, each state given as its normalised (x, y) coordinates, with the exact d_∼ available as ground truth (Fig. 4, p. 5)
+- A13: GridWorld training samples state pairs and actions uniformly at random over the whole state space, not along agent trajectories (p. 5)
+- A14: The continuous GridWorld variant adds small clipped Gaussian noise to the (x, y) inputs, so noisy samples stay near their cell and are scored against the underlying cell's exact distance (Fig. 4, p. 5)
+- A15: Because the max in the target makes ψ overshoot, training length is set per problem to stop after convergence and before overshooting (p. 5)
+- A16: The GridWorld stopping point was chosen with the exact metric available, a signal other settings lack (reader's inference, p. 5)
+- A17: Atari agents were trained and run without sticky actions, so emulator transitions are deterministic (p. 5)
+- A18: The stack of the last four frames is treated as the Markov state, although Atari is partially observed (reader's inference, p. 6)
+- A19: Atari: φ is the penultimate layer of a trained Dopamine Rainbow agent and π is that agent run in evaluation mode, filling the replay buffer with its own transitions (pp. 5-6)
+- A20: Atari evaluation is qualitative, with no ground-truth metric: distances from the first state of an episode are inspected along one evaluation run per game (p. 6, p. 7, p. 15)
+- A21: The aggregation groups samples whose normalised learned distances are all below a hand-set threshold (p. 13, p. 14)
+
 ## Claims
 
-- C1: The π-bisimulation operator F^π has a least fixed point d^π_∼, which is a π-bisimulation metric (p. 3, p. 9).
-- C2: For any states s, t, |V^π(s) − V^π(t)| ≤ d^π_∼(s, t) (p. 3, p. 9).
-- C3: The original metric can be uninformative about optimal behaviour: in the 3-state example with γ = 0.9, V*(s) = V*(t) = 10K while d_∼(s, t) = 10K; lax bisimulation gives 0 there (Fig. 2, p. 3).
-- C4: In a deterministic MDP, W1(d)(P(s, a), P(t, a)) = d(N(s, a), N(t, a)) for any pseudometric d, so no Wasserstein LP is needed (p. 3, pp. 9-10).
-- C5: If every pair of transitions with a shared action has positive probability under the sampling distribution, the sampled update of Eq. 3 from d_0 ≡ 0 converges to d_∼ almost surely; for d^π the condition is that all states of the Markov chain induced by π are updated infinitely often (Eq. 3, p. 4, p. 10).
-- C6: The learned approximant ψ is not in general a proper pseudometric: it can violate identity of indiscernibles, symmetry and subadditivity (p. 5, p. 11).
-- C7: On the 31-state GridWorld, over 10 runs, the absolute error ||d_∼ − ψ||∞ falls from about 150 to about 30-45 within roughly 2,400 steps, and the error of the normalized distances falls to the low 10^-3 range (Fig. 5, pp. 5-6).
-- C8: Absolute errors are not guaranteed to be bounded because there is no fixed learning target, and the max in the target makes the networks tend to overshoot; training was stopped at 2,500 steps, before overshooting (p. 5).
-- C9: Adding clipped Gaussian noise (σ = 0.1, clipped to ±0.3) to the GridWorld inputs, making the state space continuous, makes little difference to the learned metric and, per the author, seems to help, hypothesized as a regularizing effect (untested); in the plots it helps the normalized error (about 2e-3 vs 3e-3, Fig. 5), while the absolute error ends higher with noise (about 42 vs 32) with a wider 95% CI (Fig. 5, p. 5, p. 6).
-- C10: d_∼ on the GridWorld, computed by the sampled update (Eq. 3), captures similarity beyond spatial proximity: the bottom row of the top room, next to the hallway cell, is furthest from it (Fig. 7, p. 12).
-- C11: Clustering continuous GridWorld samples (100 per cell) by the learned distance recovers many of the environment's symmetries, with the hallway cell its own cluster (Fig. 8, p. 13).
-- C12: On Space Invaders, the learned d^π from the first state is low at game or level starts and peaks when an enemy alien is destroyed, capturing differences beyond pixel differences, and the frames furthest from the start are usually ones where the agent is about to be killed; Pong peaks when the agent scores and Asterix plateaus when the agent doesn't move (Fig. 6, pp. 6-7, Fig. 9, Fig. 10, Fig. 11, pp. 15-17).
-- C13: On Atari, training ran for about 600K steps, though about half that was needed to reach a stable approximant (p. 6, Fig. 12, Fig. 13, Fig. 14, pp. 17-18).
-- C14: The author describes this as, to his knowledge, the first mechanism for approximating bisimulation metrics with neural networks, shown valid quantitatively on GridWorld and qualitatively on Atari (p. 2, p. 7).
+- C1: The π-bisimulation operator F^π has a least fixed point d^π_∼, which is a π-bisimulation metric [A1, A2, A5, A11] (p. 3, p. 9).
+- C2: For any states s, t, |V^π(s) − V^π(t)| ≤ d^π_∼(s, t) [A1, A2, A5, A11] (p. 3, p. 9).
+- C3: The original metric can be uninformative about optimal behaviour: in the 3-state example with γ = 0.9, V*(s) = V*(t) = 10K while d_∼(s, t) = 10K; lax bisimulation gives 0 there [A1, A3, A11] (Fig. 2, p. 3).
+- C4: In a deterministic MDP, W1(d)(P(s, a), P(t, a)) = d(N(s, a), N(t, a)) for any pseudometric d, so no Wasserstein LP is needed [A1, A4, A11] (p. 3, pp. 9-10).
+- C5: If every pair of transitions with a shared action has positive probability under the sampling distribution, the sampled update of Eq. 3 from d_0 ≡ 0 converges to d_∼ almost surely; for d^π the condition is that all states of the Markov chain induced by π are updated infinitely often [A1, A2, A3, A4, A6, A7, A8, A11] (Eq. 3, p. 4, p. 10).
+- C6: The learned approximant ψ is not in general a proper pseudometric: it can violate identity of indiscernibles, symmetry and subadditivity [A10] (p. 5, p. 11).
+- C7: On the 31-state GridWorld, over 10 runs, the absolute error ||d_∼ − ψ||∞ falls from about 150 to about 30-45 within roughly 2,400 steps, and the error of the normalized distances falls to the low 10^-3 range [A3, A4, A7, A9, A10, A11, A12, A13, A15, A16] (Fig. 5, pp. 5-6).
+- C8: Absolute errors are not guaranteed to be bounded because there is no fixed learning target, and the max in the target makes the networks tend to overshoot; training was stopped at 2,500 steps, before overshooting [A10, A12, A15, A16] (p. 5).
+- C9: Adding clipped Gaussian noise (σ = 0.1, clipped to ±0.3) to the GridWorld inputs, making the state space continuous, makes little difference to the learned metric and, per the author, seems to help, hypothesized as a regularizing effect (untested); in the plots it helps the normalized error (about 2e-3 vs 3e-3, Fig. 5), while the absolute error ends higher with noise (about 42 vs 32) with a wider 95% CI [A3, A4, A7, A9, A10, A11, A12, A13, A14, A15, A16] (Fig. 5, p. 5, p. 6).
+- C10: d_∼ on the GridWorld, computed by the sampled update (Eq. 3), captures similarity beyond spatial proximity: the bottom row of the top room, next to the hallway cell, is furthest from it [A1, A3, A4, A7, A8, A11, A12, A13] (Fig. 7, p. 12).
+- C11: Clustering continuous GridWorld samples (100 per cell) by the learned distance recovers many of the environment's symmetries, with the hallway cell its own cluster [A3, A4, A7, A9, A10, A11, A12, A13, A14, A15, A16, A21] (Fig. 8, p. 13).
+- C12: On Space Invaders, the learned d^π from the first state is low at game or level starts and peaks when an enemy alien is destroyed, capturing differences beyond pixel differences, and the frames furthest from the start are usually ones where the agent is about to be killed; Pong peaks when the agent scores and Asterix plateaus when the agent doesn't move [A4, A5, A6, A7, A8, A9, A10, A11, A17, A18, A19, A20] (Fig. 6, pp. 6-7, Fig. 9, Fig. 10, Fig. 11, pp. 15-17).
+- C13: On Atari, training ran for about 600K steps, though about half that was needed to reach a stable approximant [A5, A6, A9, A10, A17, A18, A19] (p. 6, Fig. 12, Fig. 13, Fig. 14, pp. 17-18).
+- C14: The author describes this as, to his knowledge, the first mechanism for approximating bisimulation metrics with neural networks, shown valid quantitatively on GridWorld and qualitatively on Atari [] (p. 2, p. 7).
 
 ## Implementation notes
 
