@@ -78,20 +78,51 @@ light-stage pipelines don't extend easily to dynamic capture, hair or eyes (p. 2
   latent of facial expression (from tracked geometry + texture), decoded by CNNs on a UV grid;
   gaze, view and lighting enter outside the latent.
 
+## Assumptions
+
+- A1: One avatar per person: the CVAE expression latent is personalized and trained only on that subject's own capture, for a few consenting subjects (App. E, p. 15).
+- A2: Dense multiview capture with 110 synchronized cameras at 4096×2668 and 90 Hz (Sec. 3.1, p. 4).
+- A3: Illumination is known for every training frame: a light stage with 460 calibrated white LEDs, time-multiplexed so that every third frame is fully lit and the rest are lit by grouped or random sets of 5 lights; without known illumination, in-the-wild capture is hard (Sec. 3.1, p. 4, Sec. 5, p. 8).
+- A4: Training uses all captured light conditions except the held-out ones (Sec. 4, p. 7, Fig. 10, p. 15).
+- A5: Training data is a scripted performance of predefined expressions, sentences and gaze motions, ~144,000 frames per person (Sec. 3.1, p. 4).
+- A6: A coarse, topologically consistent, non-rigidly tracked mesh of the subject is available for every frame as encoder input; the method is sensitive to tracking failures (Sec. 3.1, p. 4, Eq. 3, p. 5, Sec. 5, p. 8).
+- A7: Rigid head pose is stabilized and gaze is estimated on fully lit frames and interpolated to partially lit ones; gaze enters the decoders in head-centric coordinates (Sec. 3.1, p. 4, Eq. 9, p. 6).
+- A8: The expression code z ∈ R²⁵⁶ is encoded from the tracked mesh vertices and the unwrapped average texture, not from raw images (Eq. 3, p. 5).
+- A9: Geometry is one 3D Gaussian per texel of a shared UV map of a coarse template, positioned relative to the decoded coarse mesh (Sec. 3.2, pp. 4-5, Eq. 3, Eq. 4).
+- A10: Evaluated models use 1024² = 1 Mi Gaussians (App. D, p. 15).
+- A11: Explicit eye model: each eyeball is two blended spheres rotated by gaze, with eye Gaussians' positions and normals frozen to the sphere (Sec. 3.4, p. 6, App. A, p. 13).
+- A12: Diffuse appearance is a static per-Gaussian albedo times learned SH transfer up to 3rd order in RGB, linear in the light (Eq. 5, p. 5).
+- A13: Diffuse transfer adds monochrome SH of orders 4 to 8 (Eq. 5, p. 5).
+- A14: Specular is monochrome, a spherical Gaussian times a learned view-dependent visibility, derived from a microfacet approximation that assumes small roughness and per-Gaussian constant terms; coloured highlights are not modelled (Eq. 6, Eq. 7, Eq. 8, p. 6, App. B, p. 13).
+- A15: The specular lobe uses the angle-based normalized spherical Gaussian rather than the cosine-based form (Eq. 7, p. 6, App. C, p. 14).
+- A16: The specular normal is decoded with view conditioning (Eq. 9, p. 6).
+- A17: Lighting is given as point lights (treated as Dirac deltas) or as prefiltered environment maps, projected to SH for diffuse and looked up per Gaussian for specular (Sec. 3.3, p. 6).
+- A18: Illumination is distant, i.e. the same incident light for every Gaussian, since one set of light SH coefficients and one environment map serve the whole head (reader's inference, Eq. 5, Eq. 8, p. 6).
+- A19: Evaluation: 3 subjects quantitatively (3 more qualitatively), ~9,000 held-out conversational frames and ~100 held-out disgust frames, 10 frontally biased light patterns (~1,800 of 144,000 frames) excluded from training, PSNR/SSIM/LPIPS on face-masked images (Sec. 4, p. 7).
+- A20: Controlled comparisons: geometry variants share the proposed appearance model, and appearance variants share the same geometry (Sec. 4.2, p. 7).
+- A21: The camera- and light-count ablations are judged qualitatively on a training frame; the light-count arms use different numbers of training frames, and single physical lights cannot be held out (App. C, p. 15).
+- A22: Training runs on 4 NVIDIA A100 GPUs (Sec. 3.5, p. 7).
+- A23: Timings are measured on an NVIDIA A100, with no Gaussian pruning (App. D, p. 15).
+- A24: The VR demo uses a 512² (256 Ki Gaussian) model on a tethered consumer VR headset (p. 1, App. D, p. 15).
+- A25: Live driving from head-mounted-camera images relies on a headset driving method from prior work [78] (p. 1, p. 7).
+- A26: Subjects are real human heads (faces, hair, eyes) of diverse races, genders and hairstyles, captured photographically (Sec. 3.1, p. 4, Sec. 4, p. 7).
+- A27: No stylized, non-human or rendered game characters, and no frames under unknown lighting, are trained on or evaluated (reader's inference, Sec. 4, p. 7, Sec. 5, p. 8).
+- A28: The model is a per-identity generative renderer, not an image encoder: using it on arbitrary frames would need a mapping from those frames to z, which the paper gets only from tracked meshes or the headset method [78] (reader's inference, Eq. 3, p. 5, p. 7).
+
 ## Claims
 
-- C1: On held-out expression segments, 3D Gaussians + explicit eyes + the proposed appearance reach PSNR 36.501 / SSIM 0.943 / LPIPS 0.110; with the same geometry, EyeNeRF appearance gives 34.550 / 0.939 / 0.115; with MVP geometry the proposed appearance gives 35.789 / 0.943 / 0.134 (Table 1, Sec. 4.2, p. 7).
-- C2: On held-out lights, the full model reaches PSNR 34.042 / SSIM 0.858 / LPIPS 0.148, vs. 30.7976 / 0.828 / 0.162 with EyeNeRF appearance; MVP geometry + the proposed appearance has the best SSIM (0.877) but lower PSNR (33.778) and worse LPIPS (0.168) (Table 2, Sec. 4.2, p. 7).
-- C3: With Gaussian geometry (no explicit eyes), the proposed appearance beats the Linear model of Yang et al. on held-out segments (36.529 vs. 33.831 PSNR, LPIPS 0.111 vs. 0.184) and held-out lights (33.845 vs. 32.829 PSNR, LPIPS 0.148 vs. 0.202), though Linear has the higher held-out-light SSIM (0.870 vs. 0.831); Linear relights blurrily, and view-dependent SH (EyeNeRF) overfits and flickers in animation (Table 1, Table 2, Fig. 5, pp. 7-8).
-- C4: Gaussians resolve eyelashes, pores and hair strands better than MVP with the same appearance model, and the explicit eye model gives convincing eye glints (Fig. 4, Sec. 4.2, pp. 7-8).
-- C5: Removing the 4th-8th order monochrome SH lowers held-out-light PSNR from 34.042 to 33.762 (LPIPS 0.148 → 0.152) and blurs shadows (Table 3, Fig. 6, App. C, pp. 13-14).
-- C6: Removing view conditioning of the normal does not clearly hurt (PSNR 33.927, SSIM 0.864, LPIPS 0.148 vs. 34.042 / 0.858 / 0.148); the authors keep it as more geometrically correct for fibre-like Gaussians and expect it to matter under continuous environments (Table 3, App. C, p. 14).
-- C7: The conventional cosine spherical Gaussian is comparable on metrics (33.778 / 0.855 / 0.147) but recovers sharp eye glints worse than the angle-based one (Table 3, Fig. 7, App. C, p. 14).
-- C8: A generic head template with only rigid head pose and gaze, without L_geo, still reconstructs surprisingly well, with occasional missing eye glints and blurrier extreme expressions (Fig. 8, App. C, p. 14).
-- C9: 32 cameras give good results (16 show artifacts around the eyes, 8 degrade noticeably, more than 32 gives diminishing returns), and 10-20% of the light conditions give acceptable relighting (Fig. 9, Fig. 10, App. C, p. 15).
-- C10: Per-frame inference takes 31 ms for the full model (35 with EyeNeRF appearance), 18 ms without explicit eyes, 34 ms with MVP geometry, and 6 ms for the Linear appearance; splatting alone takes 12.84 ms for 1024² = 1 Mi Gaussians and 6.40 ms for 512² on an A100, with no pruning (Table 4, App. D, p. 15).
-- C11: A 512² (256 Ki Gaussian) version is relit in real time on a tethered consumer VR headset, and avatars can be driven live from head-mounted-camera images (Fig. 1, p. 1, App. D, p. 15).
-- C12: Gaussian-based models converge within 3 days; MVP-based ones need twice the iterations (400k) (App. D, p. 15).
+- C1: On held-out expression segments, 3D Gaussians + explicit eyes + the proposed appearance reach PSNR 36.501 / SSIM 0.943 / LPIPS 0.110; with the same geometry, EyeNeRF appearance gives 34.550 / 0.939 / 0.115; with MVP geometry the proposed appearance gives 35.789 / 0.943 / 0.134 [A1, A2, A3, A4, A5, A6, A7, A8, A17, A18, A19, A20, A26, A27] (Table 1, Sec. 4.2, p. 7).
+- C2: On held-out lights, the full model reaches PSNR 34.042 / SSIM 0.858 / LPIPS 0.148, vs. 30.7976 / 0.828 / 0.162 with EyeNeRF appearance; MVP geometry + the proposed appearance has the best SSIM (0.877) but lower PSNR (33.778) and worse LPIPS (0.168) [A1, A2, A3, A4, A5, A6, A7, A8, A17, A18, A19, A20, A26, A27] (Table 2, Sec. 4.2, p. 7).
+- C3: With Gaussian geometry (no explicit eyes), the proposed appearance beats the Linear model of Yang et al. on held-out segments (36.529 vs. 33.831 PSNR, LPIPS 0.111 vs. 0.184) and held-out lights (33.845 vs. 32.829 PSNR, LPIPS 0.148 vs. 0.202), though Linear has the higher held-out-light SSIM (0.870 vs. 0.831); Linear relights blurrily, and view-dependent SH (EyeNeRF) overfits and flickers in animation [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A17, A18, A19, A20, A26, A27] (Table 1, Table 2, Fig. 5, pp. 7-8).
+- C4: Gaussians resolve eyelashes, pores and hair strands better than MVP with the same appearance model, and the explicit eye model gives convincing eye glints [A1, A2, A3, A4, A5, A6, A7, A8, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A26, A27] (Fig. 4, Sec. 4.2, pp. 7-8).
+- C5: Removing the 4th-8th order monochrome SH lowers held-out-light PSNR from 34.042 to 33.762 (LPIPS 0.148 → 0.152) and blurs shadows [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A14, A15, A16, A17, A18, A19, A26, A27] (Table 3, Fig. 6, App. C, pp. 13-14).
+- C6: Removing view conditioning of the normal does not clearly hurt (PSNR 33.927, SSIM 0.864, LPIPS 0.148 vs. 34.042 / 0.858 / 0.148); the authors keep it as more geometrically correct for fibre-like Gaussians and expect it to matter under continuous environments [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A17, A18, A19, A26, A27] (Table 3, App. C, p. 14).
+- C7: The conventional cosine spherical Gaussian is comparable on metrics (33.778 / 0.855 / 0.147) but recovers sharp eye glints worse than the angle-based one [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A16, A17, A18, A19, A26, A27] (Table 3, Fig. 7, App. C, p. 14).
+- C8: A generic head template with only rigid head pose and gaze, without L_geo, still reconstructs surprisingly well, with occasional missing eye glints and blurrier extreme expressions [A1, A2, A3, A4, A5, A7, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A26, A27] (Fig. 8, App. C, p. 14).
+- C9: 32 cameras give good results (16 show artifacts around the eyes, 8 degrade noticeably, more than 32 gives diminishing returns), and 10-20% of the light conditions give acceptable relighting [A1, A3, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A21, A26, A27] (Fig. 9, Fig. 10, App. C, p. 15).
+- C10: Per-frame inference takes 31 ms for the full model (35 with EyeNeRF appearance), 18 ms without explicit eyes, 34 ms with MVP geometry, and 6 ms for the Linear appearance; splatting alone takes 12.84 ms for 1024² = 1 Mi Gaussians and 6.40 ms for 512² on an A100, with no pruning [A17, A23] (Table 4, App. D, p. 15).
+- C11: A 512² (256 Ki Gaussian) version is relit in real time on a tethered consumer VR headset, and avatars can be driven live from head-mounted-camera images [A1, A2, A3, A4, A5, A6, A7, A8, A9, A11, A12, A13, A14, A15, A16, A17, A18, A24, A25, A26, A27, A28] (Fig. 1, p. 1, App. D, p. 15).
+- C12: Gaussian-based models converge within 3 days; MVP-based ones need twice the iterations (400k) [A1, A2, A3, A4, A5, A6, A7, A8, A22] (App. D, p. 15).
 
 ## Implementation notes
 
