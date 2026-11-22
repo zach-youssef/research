@@ -55,12 +55,6 @@ A section with nothing to say holds `- none`. A `skimmed` note may hold `- not r
 carry no assumption lists: their conditions are unrecorded, not absent, so nothing may treat
 those claims as unconditional. A later full reading fills the section in and adds the lists.
 
-**Transition.** The notes written before `## Assumptions` existed don't have it yet; a separate
-backfill task adds it. Until that backfill is merged on `main`, `kb.py check` warns about a note
-without the section (and then its claims carry no assumption lists) instead of failing. The
-commit that merges the backfill turns the warning into a failure and deletes this paragraph.
-New notes always have the section.
-
 Keep notes under about 250 lines (`kb.py check` warns above that): the KB is searched, not read
 end to end. Paraphrase; quote only short passages where the wording matters, in double quotes
 with a reference. Don't copy figures (see `docs/intake.md`).
@@ -166,8 +160,7 @@ single `.`.
   has one, so a missing list is an error rather than an unrecorded "none"; on a withdrawn claim
   it is optional, since withdrawn claims are neither tested nor combined. Each id must be
   defined in the note, and a claim that isn't withdrawn must not use a withdrawn assumption.
-  Claims carry no lists when the note has no `## Assumptions` (the transition above) or a
-  skimmed note's section holds `- not read yet`.
+  Claims carry no lists when a skimmed note's section holds `- not read yet`.
 - **Ids** are `C1`, `C2`, … in the order assigned. Once a note is on `main`, an id is never
   renumbered, reused or deleted; a re-read adds new claims after the last id. A claim that turns
   out wrong in the note (not in the paper) is kept and marked `- C4 [withdrawn: <why>]: …`;
@@ -345,9 +338,9 @@ except that its id needn't match the file name and its links needn't resolve; `k
 not written yet; until it is, follow these formats by hand. Planned commands:
 - `kb.py check`: validates the frontmatter, ids, links, claim references and their stability
   (against `origin/main`), the assumptions (unique ids in order, stable against `origin/main`
-  like claim ids; every claim that isn't withdrawn has a list, unless the section is missing or
+  like claim ids; every claim that isn't withdrawn has a list, unless the section holds
   `- not read yet`; lists name only defined ids, and none withdrawn unless the claim is; a note
-  without the section warns during the transition, "Note format"), topics'
+  without the section fails, "Note format"), topics'
   compatibility blocks (each claim's assumptions match its note's list, the union line is the
   table's assumptions plus the `Assume` entries, gap rows name union members or `<claim> / all`
   and have a valid status and closing kind, "Combining claims"), note length, the
