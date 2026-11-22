@@ -132,6 +132,7 @@ absent from OCRL (p. 2, p. 10).
 - related [[gupta2022metamorph]]: one PPO transformer over per-entity tokens, transferring across morphologies.
 - related [[kirillov2023segment]]: the paper names SAM3, a successor of SAM, as a possible upstream object detector.
 - related [[lee2022multigame]]: multi-game Atari transformer from pixels, the cross-game setting ORCA doesn't test.
+- related [[ravi2024sam]]: video segmentation that tracks object identities across frames, a candidate source of the per-step object set A1 assumes (velocities would need differencing); the paper itself names only SAM3.
 
 ## Experiments
 

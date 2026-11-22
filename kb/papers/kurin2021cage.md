@@ -130,6 +130,11 @@ The paper tests that assumption and proposes a method without it.
 - uses [[vaswani2017attention]]: the transformer encoder at the core, without positional encoding.
 - related [[reed2022generalist]]: Gato's Modular RL domain is from the same SMP benchmark family, handled by flat tokenisation instead of per-limb tokens.
 - related [[serrano2024crossdomain]]: survey of cross-domain transfer in RL, the frame for this survey batch.
+- related [[huang2020modular]]: SMP is one of the two GNN policies whose use of the morphology graph this paper ablates, and the message-passing baseline AMORPHEUS replaces.
+- related [[devin2016modular]]: earlier transfer across robots by composing per-robot and per-task modules, where AMORPHEUS shares one transformer over limb tokens.
+- related [[hejna2020morphological]]: morphology transfer by reusing a high-level policy and retraining the low level, against one policy trained on all morphologies here.
+- related [[zhang2020correspondence]]: crosses mismatched state and action spaces with learned maps between two domains, where this paper makes the policy accept any limb count.
+- related [[zakka2021xirl]]: also targets cross-embodiment transfer, through an embodiment-invariant reward learned from videos rather than a shared policy.
 
 ## Experiments
 

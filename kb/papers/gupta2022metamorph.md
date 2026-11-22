@@ -155,6 +155,10 @@ joint training is unbalanced (Sec. 1, p. 2).
 - related [[zhang2026balanced]]: also reweights task sampling in multi-task on-policy RL so that hard tasks are not starved.
 - related [[serrano2024crossdomain]]: survey of cross-domain transfer in RL, the frame for this survey batch.
 - extends [[kurin2021cage]]: builds on the AMORPHEUS per-limb transformer, adding morphology descriptors, learned position embeddings, exteroception and parallel PPO for 3D robots (Sec. 2, App. B.1).
+- related [[devin2016modular]]: earlier zero-shot transfer across robots by composing per-robot and per-task modules, where MetaMorph shares one transformer over limb tokens.
+- related [[hejna2020morphological]]: morphology transfer by reusing a high-level policy and retraining the low level, against zero-shot control of unseen morphologies here.
+- related [[zhang2020correspondence]]: crosses mismatched state and action spaces with learned maps between two domains, where MetaMorph tokenises any morphology into one input space.
+- related [[zakka2021xirl]]: also targets cross-embodiment transfer, through an embodiment-invariant reward learned from videos rather than a shared policy.
 
 ## Experiments
 
