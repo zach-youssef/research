@@ -87,12 +87,13 @@ and also infer sequentially, so neither scales to many objects (Sec. 1, pp. 1-2)
 - No quantitative detection results on Atari: Atari frames have no ground-truth boxes in this paper (Sec. 4.2, p. 9).
 - What is foreground is ambiguous; static objects may land on either side (Sec. 4.1, p. 8).
 - Background inference is still sequential (LSTM over K); natural images are future work (Sec. 5, p. 9).
-- Open question (reader): Atari F1 for SPACE was measured later, by [[delfosse2024ocatari]] and the SPOC paper (Delfosse et al. 2023, delfosse2023continuity, not on main yet), and is poor on Pong, Tennis and MsPacman; this note can't say whether that reflects SPACE or per-game tuning.
+- Open question (reader): Atari F1 for SPACE was measured later, by [[delfosse2024ocatari]] and the SPOC paper [[delfosse2023continuity]], and is poor on Pong, Tennis and MsPacman; this note can't say whether that reflects SPACE or per-game tuning.
 - Open question (reader): the per-cell z_what is a ready object embedding for a policy; this paper doesn't test it in RL.
 
 ## Related
 
 - related [[delfosse2024ocatari]]: its Table 2 compares RAM extraction's F1 with SPACE's on Atari.
+- related [[delfosse2023continuity]]: adds motion and object-continuity losses to SPACE and measures its per-game F1 on Atari.
 - related [[yoon2023investigation]]: another route from pixels to object slots for RL, via slot-based encoders.
 
 ## Experiments
