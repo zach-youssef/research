@@ -73,25 +73,47 @@ domains (p. 2).
   end on death or after 36000 steps (30 min at 20 Hz); +1 per first-time milestone of 12 items,
   ±0.01 per lost or restored heart.
 
+## Assumptions
+
+- A1: Every task is learned from scratch by online RL in its own environment, with no human or expert data, no pretraining and no transfer between tasks or domains; one world model across domains is future work (p. 1, p. 11).
+- A2: The environment gives a scalar reward and an episode-continuation flag each step, which the world model learns to predict (Eq. 1-3, pp. 4-5).
+- A3: Observations are images, encoded by stride-2 convolutions to a flat 6x6 or 4x4 feature map, and/or vectors, symlog-transformed and encoded by 3-layer MLPs; Minecraft images are 64x64x3, other domains' image resolution isn't stated (p. 18, p. 22).
+- A4: Each benchmark has a fixed action space, discrete or continuous, and the actor uses Reinforce for both; Atari uses sticky actions and DMLab its fixed action space (p. 6, p. 8, p. 19).
+- A5: Minecraft runs on MineRL v0.4.4 (Minecraft 1.11.2) at 20 Hz with a flat categorical action space and abstract crafting actions, the block-breaking setting of prior work and jump held for 200 ms, not raw keyboard and mouse; episodes end on death or after 36000 steps, without MineRL's early termination on breaking diamond ore (p. 10, p. 11, p. 22).
+- A6: Besides the 64x64x3 image, the Minecraft agent observes inventory counts for over 400 items, maximum inventory counts since the episode began, the equipped item, and health, hunger and breath (p. 22).
+- A7: The Minecraft reward is +1 the first time in an episode each of 12 milestone items is obtained (log to diamond), plus ±0.01 per lost or restored heart (p. 22).
+- A8: One set of hyperparameters (Table 4) is used for all benchmarks without annealing, prioritized replay, weight decay or dropout; per benchmark only the step budget, action repeat, environment instances, replay ratio and model size differ (p. 19, Table 2, p. 21, Table 4).
+- A9: Every Dreamer and PPO run trains on one Nvidia A100 GPU (p. 8, p. 19, Table 2).
+- A10: Benchmarks follow standard or stated protocols: Atari 57 games at 200M frames with sticky actions and common human/random reference scores; ProcGen hard difficulty with unlimited levels at 50M; DMLab 30 tasks at 100M steps against baselines at 1B; Atari100k in the originally introduced settings at 400K; control suites with action repeat 2 (the two quadruped tasks excluded from proprioceptive control); Minecraft episode return at 100M steps (p. 19, p. 32, Table 10).
+- A11: Results average 5 seeds per benchmark, 1 for ProcGen, 10 for BSuite and Minecraft, with one standard deviation shaded (p. 19).
+- A12: Expert baselines outside Minecraft come from published results and curves at their own budgets; PPO, and for Minecraft IMPALA and Rainbow, are the authors' Acme runs with tuned learning rates and entropy (p. 17, p. 19).
+- A13: The PPO baseline uses one hyperparameter set for all domains (Table 1), selected by recommendations and tuning and checked against the official PPO on ProcGen (p. 17).
+- A14: The world model's representation is shaped by reconstructing the inputs through a decoder, alongside reward and continue prediction and the KL terms with free bits (Eq. 2-3, pp. 4-5, p. 10).
+- A15: Memory is the recurrent state of a block GRU trained on 16 x 64-step sequences; the actor and critic learn from 15-step imagined rollouts with γ = 0.997 and act without planning at decision time (p. 5, p. 18, p. 21, Table 4).
+- A16: Replay is uniform with an online queue and a 5e6-step capacity, storing latent states to initialize the world model on replayed sequences (p. 18, p. 21, Table 4).
+- A17: The ablations use a set of 14 tasks and the scaling studies Crafter and one DMLab task (Goals) (p. 9, Fig. 6, p. 10).
+- A18: Dreamer uses the 200M-parameter model by default and the 12M model on the two control suites (p. 19, Table 2).
+- A19: Using the fixed hyperparameters across the 8 domains tested (assumed to extend to new ones) relies on the robustness techniques (symlog inputs, free bits with a small representation loss, symexp twohot reward and critic heads, percentile return normalization) absorbing differences in observation, reward and return magnitudes across domains (p. 3, p. 5, pp. 6-7)
+
 ## Claims
 
-- C1: One configuration with fixed hyperparameters outperforms specialised methods across over 150 tasks in 8 domains and substantially outperforms a fixed-hyperparameter PPO in all of them (p. 1, Fig. 1, p. 8, Table 4)
-- C2: Dreamer is the first algorithm to collect diamonds in Minecraft from scratch without human data or curricula, and every trained agent (10 seeds) found a diamond within 100M env steps, while IMPALA, Rainbow and PPO reach the iron pickaxe but none finds a diamond (p. 1, p. 8, Fig. 5, p. 10, p. 19)
-- C3: At 100M steps the Minecraft return is 9.1 for Dreamer vs 7.1 IMPALA, 6.3 Rainbow and 5.1 PPO, but diamonds are obtained in only 0.4% of episodes at the budget, which the authors leave as an open challenge (p. 24, Table 5, Fig. 9)
-- C4: Minecraft Dreamer used 1 GPU for about 9 days (8.9 A100 days) without human data, against VPT's 720 GPUs for 9 days with contractor demonstrations and RL fine-tuning (p. 11, p. 19, Table 2)
-- C5: On Atari (57 games, 200M frames, sticky actions) Dreamer reaches a human-gamer median of 830% and mean of 3381%, vs MuZero 693% and 3054% and PPO 180% and 892%, using a fraction of MuZero's compute (p. 8, p. 26, Table 6)
-- C6: On ProcGen (16 games, hard, unlimited levels, 50M frames) the normalized mean is 66.01 vs PPG 64.89 and PPO 42.80, and the fixed-hyperparameter PPO matches the tuned official PPO (41.16) (p. 8, p. 19, p. 28, Table 7)
-- C7: On DMLab (30 tasks) Dreamer at 100M steps scores 71.4% human mean capped vs IMPALA 66.3% at 1B and 31.0% at 100M, which the authors call a data-efficiency gain of over 1000% (p. 8, p. 19, p. 30, Table 8)
-- C8: On Atari100k Dreamer reaches a 125% gamer mean and 49% median in 0.1 A100 days, above IRIS (105%), TWM (96%), SPR (62%) and SimPLe (33%) on the mean (TWM's median is 51%); EfficientZero (190%) is set aside because it resets levels early and changed the standard setup (p. 9, p. 32, Table 9, Table 10)
-- C9: Dreamer sets the state of the art on proprioceptive control (500K steps, over D4PG, DMPO, MPO), visual control (1M steps, over DrQ-v2 and CURL) and BSuite (over Boot DQN, especially on reward-scale robustness and memory) (p. 9, p. 10, p. 34, p. 36, p. 37, Fig. 16)
-- C10: In the 14-task ablation every robustness technique helps on average, the KL objective (balancing plus free bits) most, then return normalization, then symexp twohot regression, though each technique matters only on a subset of tasks (p. 9, Fig. 6, p. 10, p. 39, Fig. 17)
-- C11: Performance rests predominantly on the task-agnostic reconstruction objective: stopping reconstruction gradients collapses it, while stopping reward and value gradients costs less, which the authors suggest could enable pretraining on unsupervised data (p. 9, Fig. 6, p. 10, p. 40, Fig. 18)
-- C12: Scores increase monotonically with model size from 12M to 400M parameters on Crafter and one DMLab task (Goals), and larger models also need fewer environment steps (p. 2, p. 9, Fig. 6, p. 10)
-- C13: Higher replay ratios (1 to 64) predictably increase performance, so compute can be traded for data efficiency (p. 9, Fig. 6, p. 19)
-- C14: Percentile-based return normalization with a floor of 1 was found stable across domains, where advantage normalization, return-std normalization and constrained entropy were not (p. 6)
-- C15: The world model predicts 45 frames open-loop from 5 context frames on DMLab, quadruped and Minecraft (p. 4, Fig. 4, p. 23, Fig. 7)
-- C16: On the two control suites the 12M model reaches the same performance as the default 200M model (p. 19)
-- C17: Uniform replay is used for simplicity although prioritized replay was also found to improve Dreamer (p. 18)
+- C1: One configuration with fixed hyperparameters outperforms specialised methods across over 150 tasks in 8 domains and substantially outperforms a fixed-hyperparameter PPO in all of them [A1, A2, A3, A4, A8, A9, A10, A11, A12, A13, A14, A15, A16, A18, A19] (p. 1, Fig. 1, p. 8, Table 4)
+- C2: Dreamer is the first algorithm to collect diamonds in Minecraft from scratch without human data or curricula, and every trained agent (10 seeds) found a diamond within 100M env steps, while IMPALA, Rainbow and PPO reach the iron pickaxe but none finds a diamond [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 1, p. 8, Fig. 5, p. 10, p. 19)
+- C3: At 100M steps the Minecraft return is 9.1 for Dreamer vs 7.1 IMPALA, 6.3 Rainbow and 5.1 PPO, but diamonds are obtained in only 0.4% of episodes at the budget, which the authors leave as an open challenge [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 24, Table 5, Fig. 9)
+- C4: Minecraft Dreamer used 1 GPU for about 9 days (8.9 A100 days) without human data, against VPT's 720 GPUs for 9 days with contractor demonstrations and RL fine-tuning [A1, A5, A6, A7, A9] (p. 11, p. 19, Table 2)
+- C5: On Atari (57 games, 200M frames, sticky actions) Dreamer reaches a human-gamer median of 830% and mean of 3381%, vs MuZero 693% and 3054% and PPO 180% and 892%, using a fraction of MuZero's compute [A1, A2, A3, A4, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 8, p. 26, Table 6)
+- C6: On ProcGen (16 games, hard, unlimited levels, 50M frames) the normalized mean is 66.01 vs PPG 64.89 and PPO 42.80, and the fixed-hyperparameter PPO matches the tuned official PPO (41.16) [A1, A2, A3, A4, A8, A9, A10, A11, A12, A13, A14, A15, A16, A18, A19] (p. 8, p. 19, p. 28, Table 7)
+- C7: On DMLab (30 tasks) Dreamer at 100M steps scores 71.4% human mean capped vs IMPALA 66.3% at 1B and 31.0% at 100M, which the authors call a data-efficiency gain of over 1000% [A1, A2, A3, A4, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 8, p. 19, p. 30, Table 8)
+- C8: On Atari100k Dreamer reaches a 125% gamer mean and 49% median in 0.1 A100 days, above IRIS (105%), TWM (96%), SPR (62%) and SimPLe (33%) on the mean (TWM's median is 51%); EfficientZero (190%) is set aside because it resets levels early and changed the standard setup [A1, A2, A3, A4, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 9, p. 32, Table 9, Table 10)
+- C9: Dreamer sets the state of the art on proprioceptive control (500K steps, over D4PG, DMPO, MPO), visual control (1M steps, over DrQ-v2 and CURL) and BSuite (over Boot DQN, especially on reward-scale robustness and memory) [A1, A2, A3, A4, A8, A9, A10, A11, A12, A14, A15, A16, A18, A19] (p. 9, p. 10, p. 34, p. 36, p. 37, Fig. 16)
+- C10: In the 14-task ablation every robustness technique helps on average, the KL objective (balancing plus free bits) most, then return normalization, then symexp twohot regression, though each technique matters only on a subset of tasks [A1, A2, A3, A4, A8, A9, A11, A14, A15, A16, A17, A18] (p. 9, Fig. 6, p. 10, p. 39, Fig. 17)
+- C11: Performance rests predominantly on the task-agnostic reconstruction objective: stopping reconstruction gradients collapses it, while stopping reward and value gradients costs less, which the authors suggest could enable pretraining on unsupervised data [A1, A2, A3, A4, A8, A9, A11, A14, A15, A16, A17, A18] (p. 9, Fig. 6, p. 10, p. 40, Fig. 18)
+- C12: Scores increase monotonically with model size from 12M to 400M parameters on Crafter and one DMLab task (Goals), and larger models also need fewer environment steps [A1, A2, A3, A4, A8, A9, A11, A14, A15, A16, A17] (p. 2, p. 9, Fig. 6, p. 10)
+- C13: Higher replay ratios (1 to 64) predictably increase performance, so compute can be traded for data efficiency [A1, A2, A3, A4, A8, A9, A11, A14, A15, A16, A17, A18] (p. 9, Fig. 6, p. 19)
+- C14: Percentile-based return normalization with a floor of 1 was found stable across domains, where advantage normalization, return-std normalization and constrained entropy were not [A1, A2, A3, A4, A8, A10] (p. 6)
+- C15: The world model predicts 45 frames open-loop from 5 context frames on DMLab, quadruped and Minecraft [A1, A3, A4, A14, A15] (p. 4, Fig. 4, p. 23, Fig. 7)
+- C16: On the two control suites the 12M model reaches the same performance as the default 200M model [A1, A2, A3, A4, A8, A9, A10, A11, A14, A15, A16, A19] (p. 19)
+- C17: Uniform replay is used for simplicity although prioritized replay was also found to improve Dreamer [A1, A2, A3, A4, A8, A14, A15] (p. 18)
 
 ## Implementation notes
 
