@@ -58,21 +58,48 @@ a component inside them (Sec. 1, p. 3).
 - **Percentile BC (%BC)**: a diagnostic baseline that behaviour-clones only the top X% of timesteps
   by episode return (Sec. 5.1, p. 8).
 
+## Assumptions
+
+- A1: The task is an MDP with a per-step reward, and learning is offline from a fixed dataset of trajectories from arbitrary policies, with no further environment interaction during training (Sec. 2.1, p. 4)
+- A2: Each timestep is tokenised as (return-to-go, state, action), where return-to-go is the undiscounted sum of future rewards (Sec. 3, Eq. 2, p. 4)
+- A3: At test time a target return is given as a prompt and decremented by each observed reward, so the agent must observe rewards online during evaluation (Sec. 3, pp. 4-5, Alg. 1, p. 5)
+- A4: Return targets are hand-picked per environment: about 1× or 5× the dataset's maximum return on Atari, and expert performance on Gym except 50% for HalfCheetah (App. A.1, p. 18, Table 8, p. 18, App. A.2.1, p. 18, Table 9, p. 19)
+- A5: Conditioning is on a single deterministic return; the authors leave conditioning on return distributions for stochastic settings to future work (Sec. 7, p. 12)
+- A6: The model sees the last K timesteps (3K tokens) with a learned per-timestep embedding: K = 30 on Atari (50 for Pong), 20 on HalfCheetah, Hopper and Walker, 5 on Reacher, and the whole episode on Key-to-Door (Sec. 3, p. 5, Table 8, p. 18, Table 9, p. 19, Sec. 5.4, p. 9)
+- A7: Each modality has its own embedding: a linear layer on vector states, returns and actions, and a convolutional encoder (the DQN encoder on Atari) on visual states (Sec. 3, p. 5, App. A.1, p. 18)
+- A8: Only actions are predicted, with cross-entropy for discrete and mean-squared error for continuous actions (Sec. 3, p. 5)
+- A9: The Atari data is 1% of the DQN-replay dataset (500k of the 50M transitions seen by an online DQN agent) on Breakout, Qbert, Pong and Seaquest (Sec. 4.1, p. 6)
+- A10: Atari observations use frame stacking (Sec. 5.3, p. 9)
+- A11: Frame size, frame skip, sticky actions and the action set aren't stated, and presumably follow the DQN-replay dataset's preprocessing (reader's inference, Sec. 4.1, p. 6)
+- A12: Atari scores are normalised so that 0 is a random policy and 100 a professional gamer, following Hafner et al. (Sec. 4.1, p. 6, Table 11, p. 20)
+- A13: Baseline numbers come from several sources: CQL, REM and QR-DQN on Atari, and CQL on D4RL, are taken from their papers; BEAR, BRAC-v and AWR from the D4RL paper; Atari BC is DT without return conditioning, and Gym BC is an MLP run by the authors (Sec. 4.1, p. 6, Sec. 4.2, p. 7, App. A.2.2, p. 19)
+- A14: The Gym data is D4RL medium, medium-replay and medium-expert for HalfCheetah, Hopper and Walker, plus a sparse-reward, goal-conditioned 2D Reacher with datasets generated the same way; scores are normalised so that 100 is an expert policy (Sec. 4.2, p. 7)
+- A15: The Gym models have 3 layers, 1 head and 128 dimensions and are trained for 10⁵ AdamW steps; the Atari models are minGPT with 6 layers, 8 heads and 128 dimensions, trained for 5 epochs with Tanh instead of LayerNorm (App. A.1, p. 18, Table 8, p. 18, App. A.2.1, pp. 18-19, Table 9, p. 19)
+- A16: The policy is limited by the behaviours in the data: the authors read DT as honing in on a high-return subset, and returns beyond the dataset's best occur only on some tasks (Sec. 5.1, p. 8, Sec. 5.2, p. 9)
+- A17: Choosing the best %BC subset requires environment rollouts (Sec. 5.1, p. 8)
+- A18: Key-to-Door is a three-phase grid task with a binary reward for reaching the door after picking up the key, trained on random-action trajectories (Sec. 5.4, p. 9)
+- A19: The critic variant also predicts return tokens, including the first one (Sec. 5.5, p. 10)
+- A20: The delayed-reward variant gives the trajectory's whole return at the final step and zero elsewhere (Sec. 5.6, p. 10)
+- A21: The graph task uses one random 20-node graph (edge sparsity 0.1), 1,000 random walks of 10 steps, and a return prior favouring short paths, combined with the model's own return predictions; the other experiments don't use such a prior (App. A.3, pp. 19-20)
+- A22: A premise of the method: self-attention can assign credit directly over long horizons, without bootstrapping or discounting (Sec. 1, p. 3)
+- A23: Each environment gets its own model, trained from scratch on that environment's data; no cross-game or cross-domain training or transfer is tested (reader's inference, Sec. 4, p. 6, App. A, p. 18)
+- A24: Reusing a model in another game or body would need a new state encoder and action head, since both depend on the environment's spaces, and a re-chosen return target, since return scales differ per game (reader's inference, Sec. 3, p. 5, Table 8, p. 18)
+
 ## Claims
 
-- C1: On 1% DQN-replay Atari (gamer-normalised, 3 seeds), DT scores Breakout 267.5 ± 97.5, Qbert 15.4 ± 11.4, Pong 106.1 ± 8.1, Seaquest 2.5 ± 0.4, against CQL 211.1 / 104.2 / 111.9 / 1.7; DT is comparable to CQL on 3 of 4 games and, in the paper's words, outperforms or matches REM, QR-DQN and BC on all 4, though BC's Qbert mean is higher (17.3) (Table 1, Sec. 4.1, pp. 6-7)
-- C2: On D4RL (3 seeds), DT averages 74.7 without Reacher vs CQL 63.9, BEAR 48.2, BRAC-v 36.9, AWR 34.3, BC 46.4, and 69.2 vs CQL 54.2 (BC 47.7) over all settings; it has the highest score on a majority of the tasks (Table 2, Sec. 4.2, p. 7)
-- C3: DT is not uniformly best on D4RL: e.g. CQL is higher on Hopper medium-expert (111.0 vs 107.6) and BRAC-v on HalfCheetah medium and medium-replay (46.3, 47.7 vs 42.6, 36.6) (Table 2, p. 7)
-- C4: With plentiful data (D4RL), percentile BC trained on the best subset can match or beat offline-RL methods, and DT (average 56.1) is competitive with the best %BC (10%BC average 56.7) over the medium and medium-replay sets; choosing the subset needs environment rollouts (Table 3, Sec. 5.1, p. 8)
-- C5: In the low-data Atari regime %BC is weak and DT beats every %BC variant on Breakout, Pong and Seaquest (e.g. Pong 106.1 vs at most 85.2), though 25%BC and 100%BC are slightly higher on Qbert (16.0, 17.3 vs 15.4) (Table 4, Sec. 5.1, p. 8)
-- C6: Desired target returns and achieved returns are highly correlated on every task; on Pong, HalfCheetah and Walker the achieved returns almost match the target, and on some Atari games such as Seaquest prompting above the dataset's best return yields higher returns (some extrapolation) (Fig. 4, Sec. 5.2, pp. 8-9)
-- C7: Context length matters on Atari even with frame stacking: K = 1 drops Breakout from 267.5 to 73.9, Pong from 106.1 to 2.5 and Seaquest from 2.5 to 0.6 (Qbert 15.1 vs 13.6) (Table 5, Sec. 5.3, p. 9)
-- C8: On Key-to-Door, trained on random trajectories, DT succeeds 71.8% (1K trajectories) and 94.6% (10K) vs CQL 13.1% / 13.3%, BC 1.4% / 1.6%, %BC 69.9% / 95.1% and random 3.1% (Table 6, Sec. 5.4, pp. 9-10)
-- C9: A DT variant that also predicts return tokens updates its predicted success probability at key events, and its attention concentrates on the key pickup and door reaching (Fig. 5, Sec. 5.5, p. 10)
-- C10: With delayed (sparse) rewards — all reward given at the last step — DT on Hopper scores 107.3 / 60.7 / 78.5 (medium-expert / medium / medium-replay), close to its dense scores 107.6 / 67.6 / 82.7, while CQL collapses to 9.0 / 5.2 / 2.0 (Table 7, Sec. 5.6, p. 10)
-- C11: On Atari, an MLP with K = 1 as in prior work was found worse than the transformer; the remark is footnote 2, attached to the description of the BC baseline, so it may concern BC rather than DT (Sec. 4.1, p. 6)
-- C12: On a 20-node random graph, trained only on 1,000 random walks of 10 steps and sampled with a return prior favouring short paths, DT's generated paths closely match shortest-path lengths; 15.8% of generated paths stitch sub-optimal segments not present in the data (Fig. 6, App. A.3, pp. 19-20)
-- C13: In Atari, Tanh instead of LayerNorm after the modality embeddings made no significant difference (App. A.1, p. 18)
+- C1: On 1% DQN-replay Atari (gamer-normalised, 3 seeds), DT scores Breakout 267.5 ± 97.5, Qbert 15.4 ± 11.4, Pong 106.1 ± 8.1, Seaquest 2.5 ± 0.4, against CQL 211.1 / 104.2 / 111.9 / 1.7; DT is comparable to CQL on 3 of 4 games and, in the paper's words, outperforms or matches REM, QR-DQN and BC on all 4, though BC's Qbert mean is higher (17.3) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A15, A23] (Table 1, Sec. 4.1, pp. 6-7)
+- C2: On D4RL (3 seeds), DT averages 74.7 without Reacher vs CQL 63.9, BEAR 48.2, BRAC-v 36.9, AWR 34.3, BC 46.4, and 69.2 vs CQL 54.2 (BC 47.7) over all settings; it has the highest score on a majority of the tasks [A1, A2, A3, A4, A5, A6, A7, A8, A13, A14, A15, A23] (Table 2, Sec. 4.2, p. 7)
+- C3: DT is not uniformly best on D4RL: e.g. CQL is higher on Hopper medium-expert (111.0 vs 107.6) and BRAC-v on HalfCheetah medium and medium-replay (46.3, 47.7 vs 42.6, 36.6) [A1, A2, A3, A4, A5, A6, A7, A8, A13, A14, A15, A23] (Table 2, p. 7)
+- C4: With plentiful data (D4RL), percentile BC trained on the best subset can match or beat offline-RL methods, and DT (average 56.1) is competitive with the best %BC (10%BC average 56.7) over the medium and medium-replay sets; choosing the subset needs environment rollouts [A1, A2, A3, A4, A6, A7, A8, A13, A14, A15, A16, A17] (Table 3, Sec. 5.1, p. 8)
+- C5: In the low-data Atari regime %BC is weak and DT beats every %BC variant on Breakout, Pong and Seaquest (e.g. Pong 106.1 vs at most 85.2), though 25%BC and 100%BC are slightly higher on Qbert (16.0, 17.3 vs 15.4) [A1, A2, A3, A4, A6, A7, A8, A9, A10, A11, A12, A15, A16, A17] (Table 4, Sec. 5.1, p. 8)
+- C6: Desired target returns and achieved returns are highly correlated on every task; on Pong, HalfCheetah and Walker the achieved returns almost match the target, and on some Atari games such as Seaquest prompting above the dataset's best return yields higher returns (some extrapolation) [A2, A3, A5, A6, A7, A8, A9, A10, A11, A12, A14, A15, A16] (Fig. 4, Sec. 5.2, pp. 8-9)
+- C7: Context length matters on Atari even with frame stacking: K = 1 drops Breakout from 267.5 to 73.9, Pong from 106.1 to 2.5 and Seaquest from 2.5 to 0.6 (Qbert 15.1 vs 13.6) [A1, A2, A3, A4, A6, A7, A8, A9, A10, A11, A12, A15] (Table 5, Sec. 5.3, p. 9)
+- C8: On Key-to-Door, trained on random trajectories, DT succeeds 71.8% (1K trajectories) and 94.6% (10K) vs CQL 13.1% / 13.3%, BC 1.4% / 1.6%, %BC 69.9% / 95.1% and random 3.1% [A1, A2, A3, A5, A6, A8, A13, A17, A18, A22] (Table 6, Sec. 5.4, pp. 9-10)
+- C9: A DT variant that also predicts return tokens updates its predicted success probability at key events, and its attention concentrates on the key pickup and door reaching [A2, A6, A18, A19, A22] (Fig. 5, Sec. 5.5, p. 10)
+- C10: With delayed (sparse) rewards — all reward given at the last step — DT on Hopper scores 107.3 / 60.7 / 78.5 (medium-expert / medium / medium-replay), close to its dense scores 107.6 / 67.6 / 82.7, while CQL collapses to 9.0 / 5.2 / 2.0 [A1, A2, A3, A4, A5, A6, A7, A8, A13, A14, A15, A20, A22] (Table 7, Sec. 5.6, p. 10)
+- C11: On Atari, an MLP with K = 1 as in prior work was found worse than the transformer; the remark is footnote 2, attached to the description of the BC baseline, so it may concern BC rather than DT [A9, A10, A11, A13] (Sec. 4.1, p. 6)
+- C12: On a 20-node random graph, trained only on 1,000 random walks of 10 steps and sampled with a return prior favouring short paths, DT's generated paths closely match shortest-path lengths; 15.8% of generated paths stitch sub-optimal segments not present in the data [A1, A2, A21] (Fig. 6, App. A.3, pp. 19-20)
+- C13: In Atari, Tanh instead of LayerNorm after the modality embeddings made no significant difference [A7, A9, A10, A11, A15] (App. A.1, p. 18)
 
 ## Implementation notes
 
