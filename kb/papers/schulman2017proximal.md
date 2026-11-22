@@ -66,25 +66,44 @@ reliability with first-order optimization only (Sec. 1, p. 1).
   (Sec. 6.3, p. 7); (4) 49 Atari games vs tuned A2C and ACER with the same policy network as
   [Mni+16], 3 trials, 40M frames (Sec. 6.4, p. 8; App. B, pp. 10-12).
 
+## Assumptions
+
+- A1: On-policy RL from a scalar environment reward: each iteration collects fresh data with the current policy π_θold, optimises on it, then discards it (Sec. 2.1, p. 2, Alg. 1, Sec. 5, p. 5)
+- A2: The policy is stochastic with a tractable likelihood π_θ(a|s), so the probability ratio r_t(θ) and the KL to π_θold can be computed (Sec. 2.1, p. 2, Sec. 3, p. 3)
+- A3: Advantages are estimated with a learned state-value function, by truncated generalized advantage estimation over fixed-length segments that need not reach the episode end (Sec. 5, pp. 4-5)
+- A4: Optimisation is first-order: several epochs of minibatch SGD or Adam on the same batch of samples (Sec. 5, p. 5)
+- A5: The objective is the clipped surrogate L^CLIP of Eq. 7, a pessimistic bound on L^CPI (Eq. 7, Sec. 3, p. 3)
+- A6: Data come from N actors running in parallel for T timesteps each (Alg. 1, Sec. 5, p. 5)
+- A7: Continuous-control benchmark policy: an MLP with two tanh hidden layers of 64 units outputting the mean of a Gaussian with variable standard deviations, a separate value network, and no entropy bonus (Sec. 6.1, p. 6)
+- A8: The objective comparison and the continuous-domain comparison use the 7 OpenAI Gym MuJoCo "-v1" tasks for 1M timesteps each (Sec. 6.1, p. 6)
+- A9: Scores are the average total reward of the last 100 episodes, rescaled per environment so that a random policy scores 0 and the best result 1 (Sec. 6.1, p. 6)
+- A10: Apart from the clipping and penalty parameters being compared, one hyperparameter setting is shared by all 7 MuJoCo tasks (Sec. 6.1, p. 6, Table 3, p. 10)
+- A11: The baselines are tuned implementations: TRPO, CEM, vanilla PG with adaptive stepsize, A2C and A2C with trust region in MuJoCo, and A2C and ACER with hyperparameters tuned for the Atari benchmark (Sec. 6.2, pp. 6-7, Sec. 6.4, p. 8)
+- A12: The humanoid runs use a larger setup: 32 or 128 parallel actors, an Adam stepsize adjusted to a KL target and an annealed action-noise scale (Sec. 6.3, p. 7, Table 4, p. 10)
+- A13: Atari: discrete actions from game frames, with the network of Mnih et al. 2016 for all three algorithms, a joint policy-value loss with value and entropy terms (Eq. 9), and clipping and stepsize annealed linearly to 0 (Sec. 6.4, p. 8, Table 5, p. 10)
+- A14: Atari evaluation covers the 49 games in OpenAI Gym at the time for 40M frames, with a game's winner decided by the metric averaged over 3 trials (Sec. 6.4, p. 8, App. B, pp. 10-11)
+- A15: Each policy is trained from scratch on a single environment; no multi-task training or transfer between tasks is tested (reader's inference, Sec. 6, pp. 5-8)
+- A16: MuJoCo and Roboschool observations are low-dimensional state vectors rather than images (reader's inference, Sec. 6.1, p. 6, Sec. 6.3, p. 7)
+
 ## Claims
 
-- C1: On the 7-task MuJoCo benchmark (1M steps, 3 seeds per task, 21 runs averaged), clipping with ε = 0.2 gives the best average normalized score, 0.82, of all settings tried (Table 1, Sec. 6.1, p. 6)
-- C2: The other settings score: clipping ε = 0.1 → 0.76, ε = 0.3 → 0.70; adaptive KL d_targ = 0.003/0.01/0.03 → 0.68/0.74/0.71; fixed KL β = 0.3/1/3/10 → 0.62/0.71/0.72/0.69, with β initialized at 1 (Table 1, p. 6)
-- C3: With no clipping or penalty the average normalized score is −0.39, because on HalfCheetah it ends far worse than the random initial policy (Sec. 6.1, Table 1, p. 6)
-- C4: The KL penalty (fixed or adaptive) performed worse than the clipped surrogate in the authors' experiments; it is kept as an important baseline (Sec. 4, p. 4, Table 1, p. 6)
-- C5: With the adaptive KL rule, updates whose KL differs significantly from d_targ occur but are rare and β adjusts quickly; the constants 1.5 and 2 are heuristic and the algorithm is not very sensitive to them, and the initial β is not important in practice (Sec. 4, p. 4)
-- C6: Clipping in log space performed no better than the clipped surrogate (Sec. 6.1, p. 6)
-- C7: Multiple optimization steps on the unclipped L^PG over the same trajectory gave results similar to or worse than the "no clipping or penalty" setting (results not shown) (Sec. 2.1, p. 2)
-- C8: A fixed penalty coefficient β optimized with SGD is not sufficient to emulate TRPO's monotonic improvement; additional modifications are required (Sec. 2.2, p. 2)
-- C9: L^CLIP equals L^CPI to first order around θ_old (r = 1) and is a lower bound on it, penalizing too large a policy update (Sec. 3, p. 3, Fig. 2, p. 4)
-- C10: On the first Hopper-v1 update with the Sec. 6.1 hyperparameters, the policy after one PPO iteration has KL about 0.02 from the initial one, and L^CLIP is maximal at that point along the interpolation (Fig. 2, p. 4)
-- C11: At 1M timesteps PPO (clip, ε = 0.2) outperforms tuned TRPO, CEM, vanilla PG with adaptive stepsize, A2C and A2C + trust region on almost all of the 7 MuJoCo environments (Sec. 6.2, Fig. 3, p. 7)
-- C12: PPO learns 3D humanoid running (RoboschoolHumanoid, 50M steps), running toward a target that moves every 200 steps or on reaching it (Flagrun, 100M steps) and the same while pelted by cubes and getting up (FlagrunHarder, 100M steps), shown by learning curves without baselines (Sec. 6.3, Fig. 4, Fig. 5, pp. 7-8)
-- C13: On 49 Atari games (3 trials), PPO wins 30 games on average reward over all of training vs 18 for ACER and 1 for A2C; on average reward over the last 100 episodes ACER wins 28, PPO 19, A2C 1, with 1 tie (Table 2, Sec. 6.4, p. 8)
-- C14: PPO's final Atari scores (last 100 episodes, 40M frames = 10M timesteps) are the best of the three in 19 games and A2C's in 1 (Krull); in Venture all three score 0 (Table 6, App. B, p. 12)
-- C15: PPO beats A2C significantly in sample complexity on Atari and performs similarly to ACER while being much simpler (Sec. 1, p. 1)
-- C16: Synchronous A2C performed the same as or better than asynchronous A3C in the authors' tests (Sec. 6.2, p. 7)
-- C17: PPO keeps the stability and reliability of trust-region methods while needing only a few lines of change to a vanilla policy-gradient implementation, applies to more general settings such as a joint policy-value architecture, and has better overall performance (Sec. 7, p. 8, p. 1)
+- C1: On the 7-task MuJoCo benchmark (1M steps, 3 seeds per task, 21 runs averaged), clipping with ε = 0.2 gives the best average normalized score, 0.82, of all settings tried [A1, A2, A3, A4, A6, A7, A8, A9, A10, A15, A16] (Table 1, Sec. 6.1, p. 6)
+- C2: The other settings score: clipping ε = 0.1 → 0.76, ε = 0.3 → 0.70; adaptive KL d_targ = 0.003/0.01/0.03 → 0.68/0.74/0.71; fixed KL β = 0.3/1/3/10 → 0.62/0.71/0.72/0.69, with β initialized at 1 [A1, A2, A3, A4, A6, A7, A8, A9, A10, A15, A16] (Table 1, p. 6)
+- C3: With no clipping or penalty the average normalized score is −0.39, because on HalfCheetah it ends far worse than the random initial policy [A1, A2, A3, A4, A6, A7, A8, A9, A10, A15, A16] (Sec. 6.1, Table 1, p. 6)
+- C4: The KL penalty (fixed or adaptive) performed worse than the clipped surrogate in the authors' experiments; it is kept as an important baseline [A1, A2, A3, A4, A6, A7, A8, A9, A10, A15, A16] (Sec. 4, p. 4, Table 1, p. 6)
+- C5: With the adaptive KL rule, updates whose KL differs significantly from d_targ occur but are rare and β adjusts quickly; the constants 1.5 and 2 are heuristic and the algorithm is not very sensitive to them, and the initial β is not important in practice [A1, A2, A3, A4] (Sec. 4, p. 4)
+- C6: Clipping in log space performed no better than the clipped surrogate [A1, A2, A3, A4, A6, A7, A8, A10, A15, A16] (Sec. 6.1, p. 6)
+- C7: Multiple optimization steps on the unclipped L^PG over the same trajectory gave results similar to or worse than the "no clipping or penalty" setting (results not shown) [A1, A2, A3, A4, A6, A7, A8, A10, A15, A16] (Sec. 2.1, p. 2)
+- C8: A fixed penalty coefficient β optimized with SGD is not sufficient to emulate TRPO's monotonic improvement; additional modifications are required [A1, A2, A4] (Sec. 2.2, p. 2)
+- C9: L^CLIP equals L^CPI to first order around θ_old (r = 1) and is a lower bound on it, penalizing too large a policy update [A2, A5] (Sec. 3, p. 3, Fig. 2, p. 4)
+- C10: On the first Hopper-v1 update with the Sec. 6.1 hyperparameters, the policy after one PPO iteration has KL about 0.02 from the initial one, and L^CLIP is maximal at that point along the interpolation [A1, A2, A3, A4, A5, A6, A7, A10, A16] (Fig. 2, p. 4)
+- C11: At 1M timesteps PPO (clip, ε = 0.2) outperforms tuned TRPO, CEM, vanilla PG with adaptive stepsize, A2C and A2C + trust region on almost all of the 7 MuJoCo environments [A1, A2, A3, A4, A5, A6, A7, A8, A10, A11, A15, A16] (Sec. 6.2, Fig. 3, p. 7)
+- C12: PPO learns 3D humanoid running (RoboschoolHumanoid, 50M steps), running toward a target that moves every 200 steps or on reaching it (Flagrun, 100M steps) and the same while pelted by cubes and getting up (FlagrunHarder, 100M steps), shown by learning curves without baselines [A1, A2, A3, A4, A6, A12, A15, A16] (Sec. 6.3, Fig. 4, Fig. 5, pp. 7-8)
+- C13: On 49 Atari games (3 trials), PPO wins 30 games on average reward over all of training vs 18 for ACER and 1 for A2C; on average reward over the last 100 episodes ACER wins 28, PPO 19, A2C 1, with 1 tie [A1, A2, A3, A4, A5, A6, A11, A13, A14, A15] (Table 2, Sec. 6.4, p. 8)
+- C14: PPO's final Atari scores (last 100 episodes, 40M frames = 10M timesteps) are the best of the three in 19 games and A2C's in 1 (Krull); in Venture all three score 0 [A1, A2, A3, A4, A5, A6, A11, A13, A14, A15] (Table 6, App. B, p. 12)
+- C15: PPO beats A2C significantly in sample complexity on Atari and performs similarly to ACER while being much simpler [A1, A2, A3, A4, A5, A6, A11, A13, A14, A15] (Sec. 1, p. 1)
+- C16: Synchronous A2C performed the same as or better than asynchronous A3C in the authors' tests [A1, A6, A8, A11, A16] (Sec. 6.2, p. 7)
+- C17: PPO keeps the stability and reliability of trust-region methods while needing only a few lines of change to a vanilla policy-gradient implementation, applies to more general settings such as a joint policy-value architecture, and has better overall performance [A1, A2, A3, A4, A5] (Sec. 7, p. 8, p. 1)
 
 ## Implementation notes
 
