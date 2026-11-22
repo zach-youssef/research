@@ -65,17 +65,35 @@ p. 2).
   drawer, vertical drawer, block push; 8 of 9 trained); visually distinct reach, push and peg
   insert from images (the reaching robots; 8 of 9 trained).
 
+## Assumptions
+
+- A1: The worlds vary along a few predefined, discrete degrees of variation, here robot identity and task identity, and each world's robot and task are known (Sec. III, pp. 2-3).
+- A2: Every task is achievable by every robot in the universe (Sec. III, p. 3).
+- A3: The observation and the state split into a robot-intrinsic part (joint angles, velocities, sensors) and a task-extrinsic part (images, object positions, end-effector position) (Sec. III-A, p. 3).
+- A4: The cost splits into a robot term c_R(x_R, u) and a task term c_T(x_T), and actions enter only the robot term (Sec. III-A, p. 3).
+- A5: The task plan depends on the task and the control output on the robot, so the task module feeds the robot module (Sec. III-B, pp. 3-4).
+- A6: Every robot module and every task module is trained in at least one training world; a held-out pair is made of a robot and a task each trained with other partners (Sec. III-B, p. 4, Sec. III-C, p. 4, Fig. 3, p. 5).
+- A7: All training worlds are trained jointly and synchronously, with module weights tied across worlds and the per-world losses summed (Sec. III-C, p. 4, Sec. V, p. 8).
+- A8: The module interface has few hidden units and dropout is applied, to keep modules from specialising to training worlds (Sec. III-D, pp. 4-5).
+- A9: Every robot has an end-effector whose position is fed to the task module (Sec. IV-B, p. 5).
+- A10: Policies are trained with BADMM guided policy search: LQR-based time-varying linear-Gaussian controllers from fixed initial states supervise the network by regression (Sec. IV-A, p. 5).
+- A11: The robots are simulated serial-link arms with 3 to 5 links and differing link lengths, controlled by joint torques (Sec. IV-C, p. 6, Sec. IV-D, p. 6).
+- A12: All experiments run in MuJoCo simulation (Sec. IV, p. 5).
+- A13: The task's goal is visible in the task observation: the target's colour or appearance in an 80x64x3 image from the simulated camera, or the target coordinates (Sec. IV-C, p. 6, Sec. IV-D, p. 6, Sec. IV-E, p. 7).
+- A14: The universe is small: 3 robots and 3 or 4 tasks, with one held-out world (Sec. IV-C, p. 6, Sec. IV-D, pp. 6-7, Sec. IV-E, p. 7).
+- A15: Zero-shot performance is measured from four test positions by the end-effector or object distance to the target over the last 5 timesteps, without seeds or variances (Table I, p. 6, Table II, p. 7).
+
 ## Claims
 
-- C1: Composing the 4-link robot module with the reach-black task module, a combination never trained, reaches the black block zero-shot: mean end-effector distance over the last 5 timesteps 0.08-0.28 at four test positions, vs 1.16-1.35 for a random network and 1.65-2.41 for the 4-link module with a different color's task module (Table I, Sec. IV-C, p. 6).
-- C2: The authors read C1 as showing that visual recognition learned by a task module transfers across robots (Sec. IV-C, p. 6).
-- C3: On the held-out 3-link horizontal drawer pull, composing the modules does not succeed zero-shot, but it is an excellent initialization: without reward shaping it learns faster than training from scratch with shaping, while from scratch without shaping makes no progress, and composing with the wrong (vertical drawer) task module doesn't transfer (Fig. 7, Sec. IV-D, p. 7).
-- C4: On the held-out 4-link block push from images, composing the 4-link robot module with the push task module works zero-shot: distance to target averaged over the last five timesteps 0.19-0.48 at four test positions, vs 0.94-1.79 random and 0.95-1.32 with the reach task module, which performs on par with random (Table II, Fig. 9, Sec. IV-E, p. 7).
-- C5: The authors conclude that the modules decompose perception and the kinematic goal (task module) from robot-specific feedback control (robot module) (Sec. IV-E, p. 7).
-- C6: With only a few robots and tasks (e.g. 3 and 3), overfitting of the modules was found to be a problem, hence the small interface and dropout (Sec. III-D, p. 4).
-- C7: The authors argue that as more worlds use a module, it becomes more invariant to the other DoVs, task modules more robot-agnostic and robot modules more task-agnostic, and expect generalization to grow with more robots and tasks; this is not measured (Sec. III-B, p. 4, Sec. V, p. 8).
-- C8: The authors state theirs is the first method to decompose policy networks into interchangeable modules that transfer zero-shot in new combinations (Sec. I, p. 2).
-- C9: The abstract claims zero-shot generalization for both visual and non-visual tasks; in the experiments zero-shot transfer succeeds only in the two vision experiments, while the one non-visual experiment (target coordinates, drawer pulling) needs further training (p. 1, Sec. IV-C, Sec. IV-D, Sec. IV-E, pp. 6-7).
+- C1: Composing the 4-link robot module with the reach-black task module, a combination never trained, reaches the black block zero-shot: mean end-effector distance over the last 5 timesteps 0.08-0.28 at four test positions, vs 1.16-1.35 for a random network and 1.65-2.41 for the 4-link module with a different color's task module [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] (Table I, Sec. IV-C, p. 6).
+- C2: The authors read C1 as showing that visual recognition learned by a task module transfers across robots [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] (Sec. IV-C, p. 6).
+- C3: On the held-out 3-link horizontal drawer pull, composing the modules does not succeed zero-shot, but it is an excellent initialization: without reward shaping it learns faster than training from scratch with shaping, while from scratch without shaping makes no progress, and composing with the wrong (vertical drawer) task module doesn't transfer [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14] (Fig. 7, Sec. IV-D, p. 7).
+- C4: On the held-out 4-link block push from images, composing the 4-link robot module with the push task module works zero-shot: distance to target averaged over the last five timesteps 0.19-0.48 at four test positions, vs 0.94-1.79 random and 0.95-1.32 with the reach task module, which performs on par with random [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] (Table II, Fig. 9, Sec. IV-E, p. 7).
+- C5: The authors conclude that the modules decompose perception and the kinematic goal (task module) from robot-specific feedback control (robot module) [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] (Sec. IV-E, p. 7).
+- C6: With only a few robots and tasks (e.g. 3 and 3), overfitting of the modules was found to be a problem, hence the small interface and dropout [A1, A6, A7, A14] (Sec. III-D, p. 4).
+- C7: The authors argue that as more worlds use a module, it becomes more invariant to the other DoVs, task modules more robot-agnostic and robot modules more task-agnostic, and expect generalization to grow with more robots and tasks; this is not measured [A1, A3, A6, A7] (Sec. III-B, p. 4, Sec. V, p. 8).
+- C8: The authors state theirs is the first method to decompose policy networks into interchangeable modules that transfer zero-shot in new combinations [] (Sec. I, p. 2).
+- C9: The abstract claims zero-shot generalization for both visual and non-visual tasks; in the experiments zero-shot transfer succeeds only in the two vision experiments, while the one non-visual experiment (target coordinates, drawer pulling) needs further training [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] (p. 1, Sec. IV-C, Sec. IV-D, Sec. IV-E, pp. 6-7).
 
 ## Implementation notes
 
