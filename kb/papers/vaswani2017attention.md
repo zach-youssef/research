@@ -67,25 +67,46 @@ their distance, linearly or logarithmically, which makes distant dependencies ha
 - **Evaluation** (Sec. 6, pp. 8-10): BLEU on newstest2014 (Table 2), variants on newstest2013 dev
   (Table 3), and English constituency parsing on WSJ Section 23 (Table 4).
 
+## Assumptions
+
+- A1: Inputs and outputs are sequences of discrete tokens (byte-pair or word-piece units) mapped to vectors by learned embeddings, with the embedding and pre-softmax weights shared (Sec. 3, p. 2, Sec. 3.4, p. 5, Sec. 5.1, p. 7)
+- A2: The task is encoder-decoder sequence transduction with an autoregressive decoder: outputs are shifted by one position and decoder self-attention is masked so a position sees only earlier outputs (Sec. 3, p. 2, Sec. 3.1, p. 3, Sec. 3.2.3, p. 5)
+- A3: Self-attention is order-agnostic, so token order enters only through positional encodings added to the input embeddings (Sec. 3.5, p. 6)
+- A4: Each layer stacks multi-head self-attention and a position-wise feed-forward network, each wrapped in a residual connection followed by layer normalisation (Sec. 3.1, p. 3, Sec. 3.3, p. 5)
+- A5: Attention is dot-product attention scaled by 1/√d_k; the scaling rationale assumes query and key components roughly independent with mean 0 and variance 1, so unscaled dot products grow with d_k (Sec. 3.2.1, p. 4)
+- A6: Self-attention's O(n²·d) per-layer cost undercuts recurrence only when sequence length n is below the representation size d, as for subword-tokenised sentences; for very long inputs such as images, audio or video the authors propose restricting attention to a neighbourhood (Sec. 4, pp. 6-7, Sec. 7, p. 10)
+- A7: Translation training uses large parallel corpora: WMT 2014 EN-DE (about 4.5M sentence pairs) and EN-FR (36M sentences) (Sec. 5.1, p. 7)
+- A8: Training is supervised next-token prediction with Adam and a learning rate that warms up linearly and then decays with the inverse square root of the step (Sec. 3, p. 2, Sec. 5.3, p. 7)
+- A9: Training is regularised with residual dropout and label smoothing (Sec. 5.4, pp. 7-8)
+- A10: Training cost is wall-clock time on one machine with 8 P100 GPUs; FLOPs are estimated as training time × number of GPUs × an assumed sustained single-precision throughput per GPU (Sec. 5.2, p. 7, Sec. 6.1, p. 8)
+- A11: Test BLEU is on newstest2014 with averaged final checkpoints and beam search whose settings were chosen on the development set (Sec. 6.1, p. 8)
+- A12: Model variations change the base model one component at a time and are scored on the EN-DE development set (newstest2013) with beam search but no checkpoint averaging; perplexities are per word piece (Sec. 6.2, pp. 8-9, Table 3, p. 9)
+- A13: Competitor results are taken from the cited papers, not rerun (Table 2, p. 8, Table 4, p. 10)
+- A14: Parsing reuses the EN-DE base hyperparameters apart from a few dropout, learning-rate and beam settings selected on the WSJ Section 22 development set, with WSJ-only (about 40K sentences) and semi-supervised (about 17M sentences) training data (Sec. 6.3, pp. 9-10)
+- A15: The cost equivalence of multi-head and single-head attention assumes the per-head size is d_model/h, so h heads together use d_model dimensions (Sec. 3.2.2, p. 5)
+- A16: The interpretability evidence is inspection of selected attention maps from layer 5 of the encoder (Sec. 4, p. 7, Fig. 3, Fig. 4, Fig. 5, pp. 13-15)
+- A17: All experiments are text tasks; other input and output modalities are left to future work (Sec. 7, p. 10)
+- A18: The complexity comparison concerns layers that map a variable-length sequence of n d-dimensional vectors to another sequence of the same length (Sec. 4, p. 6)
+
 ## Claims
 
-- C1: Transformer (big) reaches 28.4 BLEU on WMT14 EN-DE newstest2014, more than 2.0 BLEU above the best previously reported models including ensembles (Table 2, Sec. 6.1, p. 8)
-- C2: On WMT14 EN-FR the big model outperforms all previously published single models at less than 1/4 of the previous state of the art's training cost; Table 2 and the abstract give 41.8 BLEU while the Sec. 6.1 text gives 41.0 (Table 2, Sec. 6.1, p. 8, p. 1)
-- C3: The base model (27.3 EN-DE, 38.1 EN-FR) surpasses all previously published EN-DE models and ensembles at a fraction of their training cost: 3.3·10^18 FLOPs vs 2.3·10^19 for big and, e.g., 7.7·10^19 for the ConvS2S ensemble on EN-DE (Table 2, Sec. 6.1, p. 8)
-- C4: On 8 P100 GPUs a base training step takes about 0.4 s (100k steps, 12 hours) and a big step 1.0 s (300k steps, 3.5 days) (Sec. 5.2, p. 7)
-- C5: Per layer, self-attention costs O(n²·d) with O(1) sequential operations and O(1) maximum path length, vs O(n·d²), O(n), O(n) for recurrent, O(k·n·d²), O(1), O(log_k n) for (dilated) convolution, and O(r·n·d), O(1), O(n/r) for self-attention restricted to a neighbourhood r (Table 1, p. 6)
-- C6: Self-attention layers are faster than recurrent ones when the sequence length n is smaller than the representation dimension d, which is most often the case for word-piece and byte-pair sentence representations (Sec. 4, pp. 6-7)
-- C7: With computation held constant, single-head attention is 0.9 BLEU worse than the best setting (24.9 vs 25.8 dev BLEU), and quality also drops with too many heads (32 heads: 25.4) (Table 3, Sec. 6.2, p. 9)
-- C8: Reducing the key size d_k hurts quality (d_k = 16: 25.1, 32: 25.4 vs 25.8 at 64), which the authors read as a sign that compatibility is not easy to determine and a richer function than dot product may help (Table 3, Sec. 6.2, p. 9)
-- C9: Bigger models are better and dropout helps avoid overfitting: N = 2 gives 23.7 dev BLEU, d_model = 1024 gives 26.0, d_ff = 4096 gives 26.2, and P_drop = 0 gives 24.6 vs 25.8 at 0.1 (Table 3, Sec. 6.2, p. 9)
-- C10: Label smoothing ε_ls = 0.1 hurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU; without it dev PPL is 4.67 and BLEU 25.3, vs 4.92 and 25.8 with it (Sec. 5.4, p. 8, Table 3, p. 9)
-- C11: Learned positional embeddings give nearly identical results to the sinusoids (dev PPL 4.92 for both, BLEU 25.7 vs 25.8) (Table 3, Sec. 6.2, p. 9, Sec. 3.5, p. 6)
-- C12: Sinusoids were chosen on two untested hypotheses: PE_{pos+k} is a linear function of PE_pos for any fixed offset k, which may let the model attend by relative position, and they may extrapolate to sequence lengths longer than those seen in training (Sec. 3.5, p. 6)
-- C13: Because each head has reduced dimension, the total cost of 8-head attention is similar to single-head attention with full dimensionality (Sec. 3.2.2, p. 5)
-- C14: Dot-product attention is much faster and more space-efficient than additive attention in practice; additive outperforms unscaled dot product for larger d_k, which the authors suspect is due to large dot products giving small softmax gradients (Sec. 3.2.1, p. 4)
-- C15: A 4-layer Transformer (d_model = 1024) without task-specific tuning reaches 91.3 F1 on WSJ Section 23 trained on WSJ only (~40k sentences) and 92.7 semi-supervised; the authors say this beats all previously reported models except the Recurrent Neural Network Grammar (93.3), and beats the BerkeleyParser (90.4) with WSJ-only data (Table 4, Sec. 6.3, p. 10)
-- C16: Individual encoder heads learn to perform different tasks, and many show behaviour related to sentence structure, e.g. layer-5 heads following the long-distance dependency "making … more difficult" and sharp attention for anaphora ("its" → "Law") (Sec. 4, p. 7, Fig. 3, Fig. 4, Fig. 5, pp. 13-15)
-- C17: The base model has 65M parameters and the big model 213M (N = 6, d_model = 1024, d_ff = 4096, h = 16, P_drop = 0.3 for EN-DE; the EN-FR big model used P_drop = 0.1), reaching dev PPL 4.33 and BLEU 26.4 (Table 3, Sec. 6.1, p. 8, p. 9)
+- C1: Transformer (big) reaches 28.4 BLEU on WMT14 EN-DE newstest2014, more than 2.0 BLEU above the best previously reported models including ensembles [A1, A2, A3, A4, A5, A7, A8, A9, A11, A13, A17] (Table 2, Sec. 6.1, p. 8)
+- C2: On WMT14 EN-FR the big model outperforms all previously published single models at less than 1/4 of the previous state of the art's training cost; Table 2 and the abstract give 41.8 BLEU while the Sec. 6.1 text gives 41.0 [A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A13, A17] (Table 2, Sec. 6.1, p. 8, p. 1)
+- C3: The base model (27.3 EN-DE, 38.1 EN-FR) surpasses all previously published EN-DE models and ensembles at a fraction of their training cost: 3.3·10^18 FLOPs vs 2.3·10^19 for big and, e.g., 7.7·10^19 for the ConvS2S ensemble on EN-DE [A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A13, A17] (Table 2, Sec. 6.1, p. 8)
+- C4: On 8 P100 GPUs a base training step takes about 0.4 s (100k steps, 12 hours) and a big step 1.0 s (300k steps, 3.5 days) [A1, A2, A4, A7, A10] (Sec. 5.2, p. 7)
+- C5: Per layer, self-attention costs O(n²·d) with O(1) sequential operations and O(1) maximum path length, vs O(n·d²), O(n), O(n) for recurrent, O(k·n·d²), O(1), O(log_k n) for (dilated) convolution, and O(r·n·d), O(1), O(n/r) for self-attention restricted to a neighbourhood r [A18] (Table 1, p. 6)
+- C6: Self-attention layers are faster than recurrent ones when the sequence length n is smaller than the representation dimension d, which is most often the case for word-piece and byte-pair sentence representations [A6, A18] (Sec. 4, pp. 6-7)
+- C7: With computation held constant, single-head attention is 0.9 BLEU worse than the best setting (24.9 vs 25.8 dev BLEU), and quality also drops with too many heads (32 heads: 25.4) [A1, A2, A3, A4, A5, A7, A8, A9, A12, A15, A17] (Table 3, Sec. 6.2, p. 9)
+- C8: Reducing the key size d_k hurts quality (d_k = 16: 25.1, 32: 25.4 vs 25.8 at 64), which the authors read as a sign that compatibility is not easy to determine and a richer function than dot product may help [A1, A2, A3, A4, A5, A7, A8, A9, A12, A17] (Table 3, Sec. 6.2, p. 9)
+- C9: Bigger models are better and dropout helps avoid overfitting: N = 2 gives 23.7 dev BLEU, d_model = 1024 gives 26.0, d_ff = 4096 gives 26.2, and P_drop = 0 gives 24.6 vs 25.8 at 0.1 [A1, A2, A3, A4, A5, A7, A8, A12, A17] (Table 3, Sec. 6.2, p. 9)
+- C10: Label smoothing ε_ls = 0.1 hurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU; without it dev PPL is 4.67 and BLEU 25.3, vs 4.92 and 25.8 with it [A1, A2, A3, A4, A5, A7, A8, A12, A17] (Sec. 5.4, p. 8, Table 3, p. 9)
+- C11: Learned positional embeddings give nearly identical results to the sinusoids (dev PPL 4.92 for both, BLEU 25.7 vs 25.8) [A1, A2, A3, A4, A5, A7, A8, A9, A12, A17] (Table 3, Sec. 6.2, p. 9, Sec. 3.5, p. 6)
+- C12: Sinusoids were chosen on two untested hypotheses: PE_{pos+k} is a linear function of PE_pos for any fixed offset k, which may let the model attend by relative position, and they may extrapolate to sequence lengths longer than those seen in training [A3] (Sec. 3.5, p. 6)
+- C13: Because each head has reduced dimension, the total cost of 8-head attention is similar to single-head attention with full dimensionality [A15] (Sec. 3.2.2, p. 5)
+- C14: Dot-product attention is much faster and more space-efficient than additive attention in practice; additive outperforms unscaled dot product for larger d_k, which the authors suspect is due to large dot products giving small softmax gradients [A5] (Sec. 3.2.1, p. 4)
+- C15: A 4-layer Transformer (d_model = 1024) without task-specific tuning reaches 91.3 F1 on WSJ Section 23 trained on WSJ only (~40k sentences) and 92.7 semi-supervised; the authors say this beats all previously reported models except the Recurrent Neural Network Grammar (93.3), and beats the BerkeleyParser (90.4) with WSJ-only data [A1, A2, A3, A4, A5, A8, A9, A13, A14, A17] (Table 4, Sec. 6.3, p. 10)
+- C16: Individual encoder heads learn to perform different tasks, and many show behaviour related to sentence structure, e.g. layer-5 heads following the long-distance dependency "making … more difficult" and sharp attention for anaphora ("its" → "Law") [A1, A2, A3, A4, A5, A7, A16, A17] (Sec. 4, p. 7, Fig. 3, Fig. 4, Fig. 5, pp. 13-15)
+- C17: The base model has 65M parameters and the big model 213M (N = 6, d_model = 1024, d_ff = 4096, h = 16, P_drop = 0.3 for EN-DE; the EN-FR big model used P_drop = 0.1), reaching dev PPL 4.33 and BLEU 26.4 [A1, A2, A3, A4, A5, A7, A8, A9, A12, A17] (Table 3, Sec. 6.1, p. 8, p. 9)
 
 ## Implementation notes
 
