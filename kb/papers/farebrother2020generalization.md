@@ -99,6 +99,7 @@ reused and refined, on small variations of a game, and whether supervised-learni
 
 - related [[delfosse2025intelligence]]: HackAtari tests the same within-game generalisation with RAM-edited variants instead of native modes, and finds the same sharp drops.
 - related [[derstroff2026relative]]: relative object representations aimed at robustness on HackAtari variants.
+- related [[delfosse2024ocatari]]: object lists extracted from RAM, the input whose effect on this paper's mode-transfer gap is an open question here.
 
 ## Experiments
 
