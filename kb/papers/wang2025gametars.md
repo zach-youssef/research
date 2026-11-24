@@ -148,6 +148,7 @@ computer-use domains (Sec. 1, pp. 3-4).
 - The Fig. 6 caption calls the context and the summary "long-term and short-term respectively",
   the reverse of the text; the text's reading is used here (source: Fig. 6 vs Sec. 3.4, p. 12).
 - The Minecraft system prompt asks for thoughts in Chinese (source: App. B.1, p. 31).
+- Open reference model UI-TARS-1.5-7B on a Mac (source: experiment 2026-11-24-uitars-mac-smoke, exploratory; not Game-TARS itself, which is unreleased): ByteDance-Seed/UI-TARS-1.5-7B (Apache-2.0) runs 4-bit through MLX (`mlx-community/UI-TARS-1.5-7B-4bit`, 4.87 GB, mlx-vlm 0.8.1) at about 11.8 s per step (about 1,143 prompt and 122 generated tokens, 23 tokens/s) and 5.6 GB peak MLX memory on an M4 with 16 GB. With the official COMPUTER_USE prompt (bytedance/UI-TARS, commit 582f3a7) it emits `Thought:`/`Action:` text that the unmodified official parser accepts on 90 of 90 steps, provided special tokens are skipped when decoding as the official deploy path does (mlx-vlm keeps them by default, which wraps coordinates in `<|box_start|>...<|box_end|>` and breaks the parser). It writes coordinates in the v1 `start_box='(x,y)'` form, not the template's `<point>` form. In a seeded, paused browser 2048 with one screenshot per step and no history, half of its steps were clicks on tiles (no effect in 2048), 15 of 90 steps changed the board, and it scored 36, 4 and 0 over 30 steps against 100-192 for random keys; it often repeats one non-moving action. The cause is not separated (history, template mismatch, no game-specific prompt, quantisation). This only shows the open stack runs (A17, A18 interface); no claim about Game-TARS.
 - Not stated: the vision tokenisation and frame rate fed to the model, the number of frames per
   context at inference, inference latency (games are paused, p. 17 footnote 3), number of runs
   for VizDoom and MiniWorld, the MiniWorld metric, the VizDoom and MiniWorld prompts, and model or data release (source: the paper
@@ -188,5 +189,5 @@ computer-use domains (Sec. 1, pp. 3-4).
 ## Experiments
 
 <!-- kb:begin experiments -->
-- none
+- [2026-11-24-uitars-mac-smoke](../../experiments/2026-11-24-uitars-mac-smoke/results.md): C8 inconclusive
 <!-- kb:end experiments -->

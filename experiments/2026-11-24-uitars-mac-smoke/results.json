@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "experiment": "2026-11-24-uitars-mac-smoke",
+  "date": "2026-11-24",
+  "commits": [
+    {
+      "repo": "research",
+      "sha": "14446b22e27c775ea76cb44195d46a8727f512e7",
+      "dirty": false
+    }
+  ],
+  "inputs": {
+    "src": "2db566d28b6389a58de1cde3a86dd995520cfd4a",
+    "run.sh": "2e28a10a586fd661db208bb4a2fe1115a029aa3b",
+    "requirements.txt": "6986ef53ac7a4fdff4e0eda991e9b69250831da4"
+  },
+  "exploratory": true,
+  "tests": [
+    "wang2025gametars#C8"
+  ],
+  "verdicts": {
+    "wang2025gametars#C8": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive; parse_rate 1.000, board_change_rate 0.167, mean_score_model 13.3 vs mean_score_random 156.0 (n=3 seeds, 90 steps); criterion on these values would be inconclusive"
+    }
+  },
+  "metrics": {
+    "parse_rate": {
+      "value": 1.0,
+      "unit": "1",
+      "n": 90
+    },
+    "board_change_rate": {
+      "value": 0.16666666666666666,
+      "unit": "1",
+      "n": 90
+    },
+    "arrow_action_rate": {
+      "value": 0.5,
+      "unit": "1",
+      "n": 90
+    },
+    "click_action_rate": {
+      "value": 0.5,
+      "unit": "1",
+      "n": 90
+    },
+    "parse_rate_after_box_token_strip": {
+      "value": 1.0,
+      "unit": "1",
+      "n": 90
+    },
+    "mean_score_model": {
+      "value": 13.333333333333334,
+      "unit": "1",
+      "n": 3
+    },
+    "mean_score_random": {
+      "value": 156,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_per_step_mean": {
+      "value": 11784.232457478842,
+      "unit": "ms",
+      "n": 90
+    },
+    "ms_per_step_median": {
+      "value": 11236.693978309631,
+      "unit": "ms",
+      "n": 90
+    },
+    "gen_tokens_per_step_mean": {
+      "value": 122.08888888888889,
+      "unit": "1",
+      "n": 90
+    },
+    "prompt_tokens_per_step_mean": {
+      "value": 1143,
+      "unit": "1",
+      "n": 90
+    },
+    "gen_tokens_per_second_mean": {
+      "value": 23.035452024237088,
+      "unit": "1",
+      "n": 90
+    },
+    "load_time_s": {
+      "value": 2.1510698795318604,
+      "unit": "s",
+      "n": 1
+    },
+    "peak_mem_mlx_gb": {
+      "value": 5.627841956,
+      "unit": "GB",
+      "n": 1
+    },
+    "peak_rss_gb": {
+      "value": 1.407107072,
+      "unit": "GB",
+      "n": 1
+    }
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "wall_clock_s": 1130.4470689296722,
+  "env": {
+    "python": "3.12.16",
+    "os": "macOS 26.6.2 arm64",
+    "packages": [
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.4",
+      "PyYAML==6.0.4",
+      "Pygments==2.21.0",
+      "annotated-doc==0.0.7",
+      "annotated-types==0.8.0",
+      "anyio==4.16.0",
+      "certifi==2026.11.20",
+      "cffi==2.1.1",
+      "charset-normalizer==3.5.3",
+      "click==8.5.1",
+      "cryptography==50.0.2",
+      "datasets==5.2.0",
+      "dill==0.4.1",
+      "fastapi==0.165.0",
+      "filelock==4.3.1",
+      "fsspec==2026.9.0",
+      "greenlet==3.5.6",
+      "h11==0.16.0",
+      "hf-xet==1.8.0",
+      "httpcore2==2.16.2",
+      "httpcore==1.0.9",
+      "httpx2==2.16.2",
+      "httpx==0.28.1",
+      "huggingface_hub==2.4.0",
+      "idna==3.20",
+      "llguidance==1.9.1",
+      "markdown-it-py==4.3.0",
+      "mdurl==0.1.2",
+      "miniaudio==1.73",
+      "mlx-audio==0.6.8",
+      "mlx-metal==0.32.4",
+      "mlx-vlm==0.8.1",
+      "mlx==0.32.4",
+      "multiprocess==0.70.19",
+      "numpy==2.5.5",
+      "opencv-python==5.1.0.95",
+      "opentelemetry-api==1.45.2",
+      "packaging==26.4",
+      "pandas==3.1.1",
+      "pillow==13.0.0",
+      "playwright==1.65.2",
+      "pyarrow==26.0.1",
+      "pycparser==3.12",
+      "pydantic==2.14.4",
+      "pydantic_core==2.50.5",
+      "python-dateutil==4.0.0",
+      "python-multipart==0.0.34",
+      "regex==2026.11.23",
+      "requests==2.34.2",
+      "rich==15.0.0",
+      "safetensors==0.8.0",
+      "scipy==1.18.1",
+      "sentencepiece==0.2.3",
+      "shellingham==1.5.4",
+      "sounddevice==0.5.6",
+      "starlette==1.10.0",
+      "tokenizers==0.23.3",
+      "tqdm==4.70.1",
+      "transformers==5.24.1",
+      "truststore==0.10.5",
+      "typer==0.29.2",
+      "typing-inspection==0.4.5",
+      "typing_extensions==4.16.0",
+      "tzdata==2026.6",
+      "urllib3==2.8.0",
+      "uvicorn==0.54.0",
+      "websockets==17.4",
+      "xxhash==4.1.0"
+    ],
+    "gpu": "Apple M4 (Metal via MLX), 16 GB unified memory"
+  },
+  "provenance": {
+    "model": "mlx-community/UI-TARS-1.5-7B-4bit",
+    "revision": "cca0e360e25322cdf480cf841e301b6d55bce9e0",
+    "weights_sha256": {
+      "model.safetensors": "75cc35783e9aca2f3a9b21594b01c402219d63978928718bfa16f175153d07d3",
+      "tokenizer.json": "9c5ae00e602b8860cbd784ba82a8aa14e8feecec692e7076590d014d7b7fdafa"
+    },
+    "episodes": [
+      {
+        "seed": 0,
+        "score": 36,
+        "max_tile": 8,
+        "over": false,
+        "steps": 30
+      },
+      {
+        "seed": 1,
+        "score": 4,
+        "max_tile": 4,
+        "over": false,
+        "steps": 30
+      },
+      {
+        "seed": 2,
+        "score": 0,
+        "max_tile": 2,
+        "over": false,
+        "steps": 30
+      }
+    ],
+    "random_scores": [
+      176,
+      192,
+      100
+    ]
+  }
+}

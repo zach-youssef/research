@@ -3,7 +3,7 @@ id: 2026-11-24-uitars-mac-smoke
 title: UI-TARS-1.5-7B (4-bit MLX) on an Apple-silicon Mac: closed-loop browser 2048 smoke test of the screenshot-to-key-action interface
 claims: [wang2025gametars#C8]
 assumptions: [wang2025gametars#A1, wang2025gametars#A2, wang2025gametars#A3, wang2025gametars#A4, wang2025gametars#A5, wang2025gametars#A6, wang2025gametars#A7, wang2025gametars#A8, wang2025gametars#A9, wang2025gametars#A10, wang2025gametars#A11, wang2025gametars#A12, wang2025gametars#A13, wang2025gametars#A14, wang2025gametars#A17, wang2025gametars#A18, wang2025gametars#A21, wang2025gametars#A26]
-status: approved
+status: done
 gpu: yes
 budget_wall_min: 150
 budget_downloads_mb: 6000
