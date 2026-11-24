@@ -406,7 +406,8 @@ def main():
     ap.add_argument("--hackatari-dir", required=True)
     ap.add_argument("--cache-dir", required=True)
     ap.add_argument("--smoke", action="store_true")
-    ap.add_argument("--mps", action="store_true")
+    ap.add_argument("--mps-only", action="store_true", help="only the MPS microbenchmark (needs the GPU slot)")
+    ap.add_argument("--finalize-only", action="store_true", help="rebuild results from saved episodes and benchmark")
     args = ap.parse_args()
     torch.set_num_threads(1)
     t_start = time.time()
@@ -415,25 +416,33 @@ def main():
     if args.smoke:
         return smoke(args, args.wrappers_dir)
     runs = Path(args.runs_dir)
-    ep_file = runs / "episodes.jsonl"
-    ep_file.unlink(missing_ok=True)
-    eps, load_ms = [], {}
-    for game, (conds, _) in GAMES.items():
-        for cond in conds:
-            for agent in AGENTS:
-                t0 = time.time()
-                es = run_cell(game, cond, agent, args.wrappers_dir, N_EPISODES, MAX_STEPS, runs, load_ms,
-                              keep_obs=(game == "Pong" and cond == "orig"))
-                with ep_file.open("a") as f:
-                    for e in es:
-                        f.write(json.dumps(e) + "\n")
-                eps += es
-                print(f"{game} {cond} {agent}: mean {np.mean([e['ret'] for e in es]):.1f} "
-                      f"steps {sum(e['steps'] for e in es)} trunc {sum(e['truncated'] for e in es)} "
-                      f"({time.time() - t0:.1f}s)", flush=True)
-    videos = write_videos(args.wrappers_dir, args.cache_dir)
-    mps = mps_bench(runs, args.wrappers_dir) if args.mps else None
-    finalize(args, eps, load_ms, weights, videos, time.time() - t_start, mps)
+    ep_file, state_file, mps_file = runs / "episodes.jsonl", runs / "eval_state.json", runs / "mps_bench.json"
+    if args.mps_only:
+        mps_bench(runs, args.wrappers_dir)
+        return
+    if not args.finalize_only:
+        ep_file.unlink(missing_ok=True)
+        mps_file.unlink(missing_ok=True)
+        eps, load_ms = [], {}
+        for game, (conds, _) in GAMES.items():
+            for cond in conds:
+                for agent in AGENTS:
+                    t0 = time.time()
+                    es = run_cell(game, cond, agent, args.wrappers_dir, N_EPISODES, MAX_STEPS, runs, load_ms,
+                                  keep_obs=(game == "Pong" and cond == "orig"))
+                    with ep_file.open("a") as f:
+                        for e in es:
+                            f.write(json.dumps(e) + "\n")
+                    eps += es
+                    print(f"{game} {cond} {agent}: mean {np.mean([e['ret'] for e in es]):.1f} "
+                          f"steps {sum(e['steps'] for e in es)} trunc {sum(e['truncated'] for e in es)} "
+                          f"({time.time() - t0:.1f}s)", flush=True)
+        videos = write_videos(args.wrappers_dir, args.cache_dir)
+        state_file.write_text(json.dumps(dict(load_ms=load_ms, videos=videos, wall=time.time() - t_start)))
+    eps = [json.loads(l) for l in ep_file.read_text().splitlines()]
+    st = json.loads(state_file.read_text())
+    mps = json.loads(mps_file.read_text()) if mps_file.exists() else None
+    finalize(args, eps, st["load_ms"], weights, st["videos"], st["wall"], mps)
     print("done")
 
 

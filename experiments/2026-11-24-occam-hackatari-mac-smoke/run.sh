@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# OCCAM/HackAtari Mac smoke test. Usage: run.sh [--smoke] [--mps]
-#   --mps  also run the MPS forward-pass microbenchmark (needs the supervisor's GPU slot)
+# OCCAM/HackAtari Mac smoke test. Usage: run.sh [--smoke | --mps-only | --finalize-only]
+#   (none)          CPU evaluation, videos, results (includes mps_bench.json if one exists)
+#   --mps-only      only the MPS forward-pass microbenchmark (needs the supervisor's GPU slot)
+#   --finalize-only rebuild results.json/results.md from the saved episodes and benchmark
 # Big things live under runs/<id>/ (git-ignored) or ~/.cache/occam-hackatari (outside the checkout).
 set -euo pipefail
 
@@ -14,8 +16,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 RUNS="$REPO/runs/$EXP_ID"
 CACHE="${OCCAM_CACHE:-$HOME/.cache/occam-hackatari}"
-SMOKE=0; MPS=0
-for a in "$@"; do case "$a" in --smoke) SMOKE=1;; --mps) MPS=1;; *) echo "unknown arg $a" >&2; exit 2;; esac; done
+EXTRA=()
+for a in "$@"; do case "$a" in --smoke|--mps-only|--finalize-only) EXTRA+=("$a");; *) echo "unknown arg $a" >&2; exit 2;; esac; done
 mkdir -p "$RUNS" "$CACHE"
 
 # 1. Environment: uv (pinned) bootstraps CPython 3.11 and the pinned requirements.
@@ -58,7 +60,6 @@ export OMP_NUM_THREADS=1
 mkdir -p "$RUNS/work" "$RUNS/logs"
 cd "$RUNS/work"
 ARGS=(--runs-dir "$RUNS" --exp-dir "$HERE" --wrappers-dir "$W" --hackatari-dir "$H" --cache-dir "$CACHE")
-[ "$SMOKE" = 1 ] && ARGS+=(--smoke)
-[ "$MPS" = 1 ] && ARGS+=(--mps)
+ARGS+=(${EXTRA[@]+"${EXTRA[@]}"})
 "$PY" "$HERE/src/run_agents.py" "${ARGS[@]}" 2>&1 | tee "$RUNS/logs/$(date +%Y%m%dT%H%M%S).log"
 exit "${PIPESTATUS[0]}"
