@@ -12,7 +12,7 @@ CLAIM = "wang2025gametars#C8"
 MODEL_REPO = "mlx-community/UI-TARS-1.5-7B-4bit"
 MODEL_REV = "cca0e360e25322cdf480cf841e301b6d55bce9e0"
 MODEL_SHA256 = "75cc35783e9aca2f3a9b21594b01c402219d63978928718bfa16f175153d07d3"
-VIEW = 728  # multiple of 28: screenshot pixels == model coordinates (smart_resize is the identity)
+VIEW_W, VIEW_H = 728, 812  # multiples of 28 (smart_resize is the identity); 812 px shows the whole page (board bottom at 774 px)
 KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]
 SEEDS = [0, 1, 2]
 MAX_STEPS = 30
@@ -35,7 +35,7 @@ def serve(directory, port=0):
 
 class Game:
     def __init__(self, browser, url, seed):
-        self.ctx = browser.new_context(viewport={"width": VIEW, "height": VIEW})
+        self.ctx = browser.new_context(viewport={"width": VIEW_W, "height": VIEW_H})
         self.ctx.route("**/*", lambda r: r.continue_() if r.request.url.startswith("http://127.0.0.1") else r.abort())
         self.ctx.add_init_script(SEED_JS % (seed + 1))
         self.page = self.ctx.new_page()
@@ -58,7 +58,7 @@ class Game:
         self.page.wait_for_timeout(300)
 
     def click(self, fx, fy):
-        self.page.mouse.click(fx * VIEW, fy * VIEW)
+        self.page.mouse.click(fx * VIEW_W, fy * VIEW_H)
         self.page.wait_for_timeout(300)
 
     def close(self):
@@ -91,6 +91,17 @@ def execute(game, act, known):
     if t == "finished":
         return True, "finished"
     return True, "noop"  # wait, scroll, type, drag
+
+
+def parses_patched(text, parse, known):
+    """Diagnostic only (never executed): would the output parse after removing the Qwen2.5-VL box tokens
+    (<|box_start|>, <|box_end|>) that mlx-vlm keeps in the text unless skip_special_tokens is set?"""
+    t = text.replace("<|box_start|>", "").replace("<|box_end|>", "")
+    try:
+        acts = parse(t, factor=1000, origin_resized_height=VIEW_H, origin_resized_width=VIEW_W, model_type="qwen25vl")
+        return acts[0]["action_type"] in known
+    except Exception:
+        return False
 
 
 def peak_mem_gb():
@@ -149,7 +160,7 @@ def main():
     import mlx.core as mx
     from mlx_vlm import load, generate, apply_chat_template
     from huggingface_hub import snapshot_download
-    assert smart_resize(VIEW, VIEW) == (VIEW, VIEW), "screenshot size must be a smart_resize fixed point"
+    assert smart_resize(VIEW_H, VIEW_W) == (VIEW_H, VIEW_W), "screenshot size must be a smart_resize fixed point"
     known = {"click", "left_double", "right_single", "drag", "hotkey", "type", "scroll", "wait", "finished"}
 
     # weights provenance (pinned revision; hash checked in full mode, size only in smoke)
@@ -184,22 +195,23 @@ def main():
                 formatted = apply_chat_template(processor, model.config, prompt, num_images=1)
                 t1 = time.time()
                 res = generate(model, processor, formatted, image=[str(img_path)], max_tokens=300,
-                               temperature=0.0, verbose=False)
+                               temperature=0.0, verbose=False, skip_special_tokens=True)  # as the official TGI deploy path decodes
                 infer_s = time.time() - t1
                 text = res.text if hasattr(res, "text") else str(res)
                 parsed, kind, err = False, None, None
                 try:
-                    acts = parse_action_to_structure_output(text, factor=1000, origin_resized_height=VIEW,
-                                                            origin_resized_width=VIEW, model_type="qwen25vl")
+                    acts = parse_action_to_structure_output(text, factor=1000, origin_resized_height=VIEW_H,
+                                                            origin_resized_width=VIEW_W, model_type="qwen25vl")
                     parsed, kind = execute(g, acts[0], known)
                     atype = acts[0]["action_type"]
                 except Exception as e:  # unparsable output counts as a parse failure
                     err, atype = repr(e)[:200], None
+                patched_ok = parses_patched(text, parse_action_to_structure_output, known)
                 s1 = g.state()
                 changed = bool(s0 and s1 and s0["cells"] != s1["cells"])
                 steps_log.append({"seed": seed, "step": step, "infer_s": infer_s, "prompt_tokens": res.prompt_tokens,
                                   "gen_tokens": res.generation_tokens, "prompt_tps": res.prompt_tps,
-                                  "gen_tps": res.generation_tps, "parsed": parsed, "action": atype, "kind": kind,
+                                  "gen_tps": res.generation_tps, "parsed": parsed, "parsed_patched": patched_ok, "action": atype, "kind": kind,
                                   "changed": changed, "score": s1["score"] if s1 else None, "text": text, "error": err})
                 print(f"seed {seed} step {step}: {infer_s:.1f}s {atype} {kind} changed={changed} score={s1 and s1['score']}", flush=True)
                 if kind == "finished":
@@ -226,10 +238,13 @@ def main():
     mean_rand = statistics.mean(rand_scores)
     parse_rate = sum(x["parsed"] for x in steps_log) / n
     change_rate = sum(x["changed"] for x in steps_log) / n
+    patched_rate = sum(x["parsed_patched"] for x in steps_log) / n
+    click_rate = sum(x["kind"] == "click" or (x["kind"] is None and "Action: click" in x["text"]) for x in steps_log) / n
     arrow_rate = sum(x["kind"] == "arrow" for x in steps_log) / n
     metrics = {
         "parse_rate": m(parse_rate, n), "board_change_rate": m(change_rate, n),
-        "arrow_action_rate": m(arrow_rate, n),
+        "arrow_action_rate": m(arrow_rate, n), "click_action_rate": m(click_rate, n),
+        "parse_rate_after_box_token_strip": m(patched_rate, n),
         "mean_score_model": m(mean_model, len(episodes)), "mean_score_random": m(mean_rand, len(rand_scores)),
         "ms_per_step_mean": m(1000 * statistics.mean(infer), n, "ms"),
         "ms_per_step_median": m(1000 * statistics.median(infer), n, "ms"),
@@ -250,7 +265,6 @@ def main():
     (out / "play_log.json").write_text(json.dumps(result, indent=1))
     print("METRICS", observed, "|", would, flush=True)
     if a.smoke:
-        assert n >= 1 and steps_log[0]["parsed"] or True
         print(f"smoke ok: wall {time.time() - t_start:.1f}s; first output: {steps_log[0]['text'][:200]!r}")
         return
 
