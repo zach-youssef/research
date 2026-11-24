@@ -15,6 +15,10 @@ Nothing in the upstream clone is edited. Patches, each with its reason:
    the causal-mask buffer that exists only on the non-FlashAttention path (the checkpoints were
    trained with flash-attn, so they lack it; the mask is the deterministic tril built at init).
    `load_checkpoint` is Agent.load's logic with those buffers skipped and reported.
+6. MPS empty slices: `Head.forward` slices the transformer output by token position; when the slice
+   is empty (heads that apply to no token of a short input) CPU runs the head on a zero-length
+   tensor, but MPS asserts ("Placeholder tensor is empty") inside relu. Run the head on one row and
+   cut the result back to zero length, which gives the same shape on every device.
 Everything else (agent, models, planning; the CUDA-only autocast is a disabled no-op without
 CUDA) is upstream code.
 """
@@ -44,6 +48,16 @@ def install(jowa_src: str):
     lp.models = types.SimpleNamespace(
         vgg16=lambda pretrained=True: torchvision.models.vgg16(weights=None))
     lp.LPIPS.load_from_pretrained = lambda self: None
+
+    import models.slicer as sl
+    orig_head_forward = sl.Head.forward
+
+    def head_forward(self, x, num_steps, prev_steps):
+        idx = self.compute_slice(num_steps, prev_steps)
+        if idx.numel() == 0 and x.device.type == "mps":
+            return self.head_module(x[:, :1])[..., :0, :]
+        return orig_head_forward(self, x, num_steps, prev_steps)
+    sl.Head.forward = head_forward
 
     import envs.atari_env_wrapper as aw
     state = {"seed": 0}

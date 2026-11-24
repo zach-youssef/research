@@ -67,7 +67,7 @@ def main():
     ap.add_argument("--exp-dir", required=True)
     ap.add_argument("--jowa-dir", required=True)
     ap.add_argument("--smoke", action="store_true")
-    ap.add_argument("--devices", default="cpu,mps")
+    ap.add_argument("--devices", default=None, help="comma list (default: cpu,mps; cpu in --smoke)")
     ap.add_argument("--sizes", default=",".join(SIZES))
     ap.add_argument("--no-write", action="store_true", help="dev run: skip results.json")
     args = ap.parse_args()
@@ -91,7 +91,8 @@ def main():
 
     smoke = args.smoke
     sizes = ["JOWA_40M"] if smoke else args.sizes.split(",")
-    devices = ["cpu"] if smoke else sorted(args.devices.split(","), key=lambda d: d != "mps")  # MPS first: frees the GPU slot early
+    devices = (args.devices or ("cpu" if smoke else "cpu,mps")).split(",")
+    devices = sorted(devices, key=lambda d: d != "mps")  # MPS first: frees the GPU slot early
     games = GAMES[:1] if smoke else GAMES
     seeds = SEEDS[:1] if smoke else SEEDS
     steps_noplan, steps_plan = (20, 5) if smoke else (STEPS_NOPLAN, STEPS_PLAN)
@@ -141,6 +142,10 @@ def main():
             m = models[size]
             m["tokenizer"].to(device)
             m["model"].to(device)
+            # plain tensor attributes (not buffers) that .to() does not move; created on CPU at init
+            for attr in ("atoms_support", "log_alpha"):
+                if hasattr(m["model"], attr):
+                    setattr(m["model"], attr, getattr(m["model"], attr).to(device))
             for game in games:
                 hp = plan_hp[size][game]
                 legal = set(LIMITED_ACTION_TO_FULL_ACTION[game].tolist())
@@ -148,7 +153,7 @@ def main():
                     for seed in seeds:
                         buf = int(hp["buffer_size"][0]) if planning else 8
                         bw, hz = int(hp["beam_width"]), int(hp["planning_horizon"])
-                        cap = steps_plan if planning else steps_noplan
+                        cap = (steps_plan // 2 if device == "mps" else steps_plan) if planning else steps_noplan  # MPS planning is slow: half cap
                         cell = dict(device=device, size=size, game=game, planning=planning, seed=seed,
                                     buffer_size=buf, beam_width=bw if planning else None,
                                     horizon=hz if planning else None, step_cap=cap)
