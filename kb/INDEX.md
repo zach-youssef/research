@@ -67,3 +67,4 @@
 | 2026-11-24-jat-mac-smoke | done | gallouedec2024jack#C12, gallouedec2024jack#C4 | gallouedec2024jack#C12 inconclusive, gallouedec2024jack#C4 inconclusive |
 | 2026-11-24-jowa-mac-smoke | done | cheng2025jointly#C16 | cheng2025jointly#C16 inconclusive |
 | 2026-11-24-occam-hackatari-mac-smoke | done | delfosse2025intelligence#C11, delfosse2025intelligence#C8, delfosse2025intelligence#C9 | delfosse2025intelligence#C11 inconclusive, delfosse2025intelligence#C8 inconclusive, delfosse2025intelligence#C9 inconclusive |
+| 2026-11-24-uitars-mac-smoke | done | wang2025gametars#C8 | wang2025gametars#C8 inconclusive |
