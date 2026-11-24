@@ -64,3 +64,4 @@
 | experiment | status | claims | verdicts |
 |---|---|---|---|
 | 2026-11-24-nitrogen-mac-smoke | done | magne2026nitrogen#C8 | magne2026nitrogen#C8 inconclusive |
+| 2026-11-24-jat-mac-smoke | done | gallouedec2024jack#C12, gallouedec2024jack#C4 | gallouedec2024jack#C12 inconclusive, gallouedec2024jack#C4 inconclusive |

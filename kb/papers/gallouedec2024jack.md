@@ -98,6 +98,28 @@ left by Decision Transformer and Gato of whether predicting observations helps a
 - Seeds, number of ablation runs, and whether kappa-ablation models were trained on the 6 tasks only or the full mix are not stated (source: assumption; Sec. 4.3, p. 8 says "trained the model on a subset of 6 dataset tasks").
 - Consumer GPU (RTX 3080, 10-12 GB): fp32 weights are about 0.77 GB, and a short 512-token context makes inference light; full fine-tuning with AdamW needs roughly 4x the weights in optimizer and gradient state, about 3 GB plus activations (source: assumption, arithmetic from the parameter count).
 - The Atari loss on observations is pixel MSE through a transposed CNN; whether the reward is also predicted is not stated (source: Sec. 3.1.3, p. 5; remainder is assumption).
+- Mac smoke test (exploratory run, experiments/2026-11-24-jat-mac-smoke): the released checkpoint
+  (`jat-project/jat` at 911dd74, safetensors sha256 5b66502d...) loads with `trust_remote_code=True` on
+  transformers 4.36.2 and torch 2.2.2, CPython 3.11, with no patch and no missing keys, and runs on CPU and
+  MPS at about 25 to 37 ms per Atari step (no MPS speed-up at batch 1). Atari needs gymnasium==0.29.1 with
+  ale-py 0.9.1 and `import ale_py` (0.8.1 doesn't register `ALE/*`) and opencv; BabyAI needs minigrid 2.3.1
+  (source: experiments/2026-11-24-jat-mac-smoke/results.md).
+- Token layout: every transformer call carries two sequence positions per timestep, and
+  `get_next_action` truncates its input to 512 // 2 = 256 timesteps. The KV cache is trimmed by
+  `context_window` counted in sequence positions, so upstream's eval settings (32 for Atari, 256 for others)
+  mean 16 and 128 timesteps of context at inference (source: modeling_jat.py:717 and :809-811, hub revision
+  911dd74; scripts/eval_jat.py at huggingface/jat 2e1ac33).
+- Reward is concatenated to continuous and discrete observations in `embed_rl` but not to image
+  observations (lines 445, 457; the image branch is lines 458-460), so Atari input has no reward channel in
+  the released code; this agrees with the image bullet on p. 4 of the paper, while the general sentence
+  there writes phi(s, r). Relevant to A6, whose wording may need narrowing (source: modeling_jat.py,
+  hub revision 911dd74; Sec. 3.1.1, p. 4).
+- Behaviour on 3 episodes per cell (anecdotal, not a test of C6): Pong reached 21 in 5 of 6 episodes across
+  CPU and MPS, Breakout a few points, BabyAI GoToObj solved in 3 to 7 steps (source: results.md of the
+  experiment above).
+- Licences: code Apache-2.0 (GitHub LICENSE); the model card says Apache 2.0, with no licence tag in the hub
+  metadata (source: GitHub and hub, 2026-11-24). Whole hub repo is 883 MB with `replay.mp4` (108 MB);
+  weights are 771 MB (source: hub file listing, 2026-11-24).
 
 ## Limitations / open questions
 
@@ -118,5 +140,5 @@ left by Decision Transformer and Gato of whether predicting observations helps a
 ## Experiments
 
 <!-- kb:begin experiments -->
-- none
+- [2026-11-24-jat-mac-smoke](../../experiments/2026-11-24-jat-mac-smoke/results.md): C4 inconclusive, C12 inconclusive
 <!-- kb:end experiments -->

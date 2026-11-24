@@ -3,7 +3,7 @@ id: 2026-11-24-jat-mac-smoke
 title: JAT released checkpoint on an Apple-silicon Mac: load, interleaved-token layout and Atari/BabyAI episodes
 claims: [gallouedec2024jack#C12, gallouedec2024jack#C4]
 assumptions: [gallouedec2024jack#A1, gallouedec2024jack#A2, gallouedec2024jack#A6]
-status: approved
+status: done
 gpu: yes
 budget_wall_min: 120
 budget_downloads_mb: 1500

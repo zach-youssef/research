@@ -1,0 +1,502 @@
+{
+  "schema": 1,
+  "experiment": "2026-11-24-jat-mac-smoke",
+  "date": "2026-11-24",
+  "commits": [
+    {
+      "repo": "research",
+      "sha": "cb70638edda5ecd07f580580cd79afc1461d8672",
+      "dirty": false
+    }
+  ],
+  "inputs": {
+    "src": "f13012d3a0e344adefeb1a91096d0a849106c223",
+    "run.sh": "7f53625e319754c0403392acb728365131e47a9f",
+    "requirements.txt": "949be4061d40aab1364154b7e48c057972b19c72"
+  },
+  "exploratory": true,
+  "tests": [
+    "gallouedec2024jack#C12",
+    "gallouedec2024jack#C4"
+  ],
+  "verdicts": {
+    "gallouedec2024jack#C12": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive. load_ok 1, weights_sha256_match 1, episodes_completed 9 of 9, nonfinite_count 0: the checkpoint loads with the hub's custom code and plays closed-loop episodes"
+    },
+    "gallouedec2024jack#C4": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive. tokens_per_timestep 2 (sequence positions per processed timestep, all calls: [2]), window_timesteps 256 (max_position_embeddings 512)"
+    }
+  },
+  "metrics": {
+    "load_ok": {
+      "value": 1,
+      "unit": "1",
+      "n": 1
+    },
+    "weights_sha256_match": {
+      "value": 1,
+      "unit": "1",
+      "n": 1
+    },
+    "episodes_completed": {
+      "value": 9,
+      "unit": "1",
+      "n": 9
+    },
+    "nonfinite_count": {
+      "value": 0,
+      "unit": "1",
+      "n": 4888
+    },
+    "tokens_per_timestep": {
+      "value": 2,
+      "unit": "1",
+      "n": 3
+    },
+    "window_timesteps": {
+      "value": 256,
+      "unit": "1",
+      "n": 1
+    },
+    "param_count": {
+      "value": 192701771,
+      "unit": "1",
+      "n": 1
+    },
+    "model_load_s_cpu": {
+      "value": 0.18939495086669922,
+      "unit": "s",
+      "n": 1
+    },
+    "nonfinite_count_cpu": {
+      "value": 0,
+      "unit": "1",
+      "n": 4888
+    },
+    "return_pong_cpu": {
+      "value": 7.333333333333333,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_pong_cpu": {
+      "value": 0.6724750813468343,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_pong_cpu": {
+      "value": 1384,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_pong_cpu": {
+      "value": 26.454793469201505,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_pong_cpu": {
+      "value": 0.6087834114694314,
+      "unit": "ms",
+      "n": 3
+    },
+    "return_breakout_cpu": {
+      "value": 4.0,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_breakout_cpu": {
+      "value": 0.0032797534639425175,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_breakout_cpu": {
+      "value": 240,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_breakout_cpu": {
+      "value": 32.072614181121864,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_breakout_cpu": {
+      "value": 0.7314376954647487,
+      "unit": "ms",
+      "n": 3
+    },
+    "return_gotoobj_cpu": {
+      "value": 0.925,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_gotoobj_cpu": {
+      "value": 0.9934802654843082,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_gotoobj_cpu": {
+      "value": 5.333333333333333,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_gotoobj_cpu": {
+      "value": 36.209464265358825,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_gotoobj_cpu": {
+      "value": 0.24598439238847247,
+      "unit": "ms",
+      "n": 3
+    },
+    "nonfinite_count_mps": {
+      "value": 0,
+      "unit": "1",
+      "n": 5969
+    },
+    "return_pong_mps": {
+      "value": 21.0,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_pong_mps": {
+      "value": 1.0003166786740663,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_pong_mps": {
+      "value": 1647.3333333333333,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_pong_mps": {
+      "value": 28.571393606538926,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_pong_mps": {
+      "value": 0.6804993309320633,
+      "unit": "ms",
+      "n": 3
+    },
+    "return_breakout_mps": {
+      "value": 6.333333333333333,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_breakout_mps": {
+      "value": 0.006607039586782753,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_breakout_mps": {
+      "value": 337,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_breakout_mps": {
+      "value": 31.703385712044533,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_breakout_mps": {
+      "value": 0.8276635457279544,
+      "unit": "ms",
+      "n": 3
+    },
+    "return_gotoobj_mps": {
+      "value": 0.925,
+      "unit": "1",
+      "n": 3
+    },
+    "norm_return_gotoobj_mps": {
+      "value": 0.9934802654843082,
+      "unit": "1",
+      "n": 3
+    },
+    "steps_gotoobj_mps": {
+      "value": 5.333333333333333,
+      "unit": "1",
+      "n": 3
+    },
+    "ms_model_gotoobj_mps": {
+      "value": 88.00856077984449,
+      "unit": "ms",
+      "n": 3
+    },
+    "ms_env_gotoobj_mps": {
+      "value": 0.24460160010863866,
+      "unit": "ms",
+      "n": 3
+    },
+    "model_load_s_mps": {
+      "value": 0.9733610153198242,
+      "unit": "s",
+      "n": 1
+    }
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "wall_clock_s": 324.6,
+  "env": {
+    "python": "3.11.18",
+    "os": "macOS 26.6.2 arm64",
+    "packages": [
+      "Farama-Notifications==0.0.6",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.4",
+      "PyYAML==6.0.4",
+      "ale-py==0.9.1",
+      "certifi==2026.11.20",
+      "charset-normalizer==3.5.3",
+      "cloudpickle==3.1.3",
+      "filelock==4.3.1",
+      "fsspec==2026.9.0",
+      "gymnasium==0.29.1",
+      "huggingface-hub==0.20.3",
+      "idna==3.20",
+      "minigrid==2.3.1",
+      "mpmath==1.3.0",
+      "networkx==3.6.1",
+      "numpy==1.26.4",
+      "opencv-python-headless==4.9.0.80",
+      "packaging==26.4",
+      "pillow==13.0.0",
+      "pygame==2.6.1",
+      "regex==2026.11.23",
+      "requests==2.34.2",
+      "safetensors==0.4.5",
+      "sympy==1.14.0",
+      "tokenizers==0.15.2",
+      "torch==2.2.2",
+      "torchvision==0.17.2",
+      "tqdm==4.70.1",
+      "transformers==4.36.2",
+      "typing_extensions==4.16.0",
+      "urllib3==2.8.0"
+    ],
+    "gpu": "Apple MPS (torch 2.2.2)"
+  },
+  "provenance": {
+    "jat_commit": "2e1ac33216adf48910bb6bc3bbb27bf9a94132aa",
+    "model": "jat-project/jat@911dd7447b1c56bece63424c888d2217828c981e",
+    "model_safetensors_sha256": "5b66502d0c5687998593d89582dc18697d3d144871b0905c345126e632c22508",
+    "remote_code_sha256": {
+      "modeling_jat.py": "0e488ceac5fd4b64bc8d56ddb6974ec0592a20e5b8498352094a21047c7aa58d",
+      "configuration_jat.py": "98f6fd4cb2eef67e55e73c04a0608c890e720d873ffd8d3165801a97245fe3c8",
+      "processing_jat.py": "da6e0a0d5d4fec1865f5475c35a26774bd2783822ee3adc1d8af8ec3716ab158",
+      "config.json": "d07b0e1b6e226be784bbb7ead6c1abba44087087bfeba876f31b7c9698c29959"
+    },
+    "download_s": 0.2,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "layout_first_calls": [
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "step_cap": {
+      "atari": 2000,
+      "babyai": 64
+    },
+    "episodes": {
+      "cpu": [
+        {
+          "task": "atari-pong",
+          "seed": 0,
+          "ret": -20.0,
+          "steps": 852,
+          "capped": false,
+          "model_ms": 25.31639591270419,
+          "env_ms": 0.5932192552065206,
+          "model_ms_median": 24.953249841928482
+        },
+        {
+          "task": "atari-pong",
+          "seed": 1,
+          "ret": 21.0,
+          "steps": 1652,
+          "capped": false,
+          "model_ms": 26.04774828801793,
+          "env_ms": 0.6060112103116282,
+          "model_ms_median": 25.550291873514652
+        },
+        {
+          "task": "atari-pong",
+          "seed": 2,
+          "ret": 21.0,
+          "steps": 1648,
+          "capped": false,
+          "model_ms": 28.000236206882388,
+          "env_ms": 0.6271197688901453,
+          "model_ms_median": 26.195104233920574
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 0,
+          "ret": 7.0,
+          "steps": 335,
+          "capped": false,
+          "model_ms": 27.52167844950263,
+          "env_ms": 0.6658282214358672,
+          "model_ms_median": 25.72904247790575
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 1,
+          "ret": 3.0,
+          "steps": 198,
+          "capped": false,
+          "model_ms": 31.514808770758336,
+          "env_ms": 0.6942613793518206,
+          "model_ms_median": 27.905416674911976
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 2,
+          "ret": 2.0,
+          "steps": 187,
+          "capped": false,
+          "model_ms": 37.18135532310462,
+          "env_ms": 0.8342234856065581,
+          "model_ms_median": 36.90024930983782
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 0,
+          "ret": 0.9578125,
+          "steps": 3,
+          "capped": false,
+          "model_ms": 45.22065290560325,
+          "env_ms": 0.2856804057955742,
+          "model_ms_median": 45.113916508853436
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 1,
+          "ret": 0.915625,
+          "steps": 6,
+          "capped": false,
+          "model_ms": 32.22768008708954,
+          "env_ms": 0.21578495701154074,
+          "model_ms_median": 32.56689524278045
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 2,
+          "ret": 0.9015625,
+          "steps": 7,
+          "capped": false,
+          "model_ms": 31.180059803383692,
+          "env_ms": 0.23648781435830252,
+          "model_ms_median": 31.010125763714314
+        }
+      ],
+      "mps": [
+        {
+          "task": "atari-pong",
+          "seed": 0,
+          "ret": 21.0,
+          "steps": 1642,
+          "capped": false,
+          "model_ms": 27.344497539506868,
+          "env_ms": 0.6089229352236811,
+          "model_ms_median": 22.03979156911373
+        },
+        {
+          "task": "atari-pong",
+          "seed": 1,
+          "ret": 21.0,
+          "steps": 1652,
+          "capped": false,
+          "model_ms": 26.37617416413767,
+          "env_ms": 0.6679145638440842,
+          "model_ms_median": 26.07393730431795
+        },
+        {
+          "task": "atari-pong",
+          "seed": 2,
+          "ret": 21.0,
+          "steps": 1648,
+          "capped": false,
+          "model_ms": 31.99350911597224,
+          "env_ms": 0.7646604937284245,
+          "model_ms_median": 31.09902096912265
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 0,
+          "ret": 3.0,
+          "steps": 202,
+          "capped": false,
+          "model_ms": 31.641573907973445,
+          "env_ms": 0.820803575881637,
+          "model_ms_median": 31.03910433128476
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 1,
+          "ret": 5.0,
+          "steps": 279,
+          "capped": false,
+          "model_ms": 30.795077669791425,
+          "env_ms": 0.8183324068624487,
+          "model_ms_median": 30.435540713369846
+        },
+        {
+          "task": "atari-breakout",
+          "seed": 2,
+          "ret": 11.0,
+          "steps": 530,
+          "capped": false,
+          "model_ms": 32.67350555836873,
+          "env_ms": 0.8438546544397777,
+          "model_ms_median": 31.859770882874727
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 0,
+          "ret": 0.9578125,
+          "steps": 3,
+          "capped": false,
+          "model_ms": 201.59398609151444,
+          "env_ms": 0.3442360709110896,
+          "model_ms_median": 271.8779584392905
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 1,
+          "ret": 0.915625,
+          "steps": 6,
+          "capped": false,
+          "model_ms": 29.713583023597796,
+          "env_ms": 0.18810449788967767,
+          "model_ms_median": 29.59018712863326
+        },
+        {
+          "task": "babyai-go-to-obj",
+          "seed": 2,
+          "ret": 0.9015625,
+          "steps": 7,
+          "capped": false,
+          "model_ms": 32.71811322442123,
+          "env_ms": 0.20146423152514867,
+          "model_ms_median": 32.987916842103004
+        }
+      ]
+    }
+  }
+}
