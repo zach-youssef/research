@@ -183,9 +183,10 @@ def main():
         if d == "mps":
             import torch
             assert torch.backends.mps.is_available(), "MPS not available"
+        t_dev = time.time()
         r = run_device(d, path, GAMES, SEEDS, STEP_CAP, args.jat_dir)
         r["meta"] = meta
-        r["wall_s"] = time.time() - t_start
+        r["wall_s"] = time.time() - t_dev  # this device's episodes plus model load
         (out / f"{d}.json").write_text(json.dumps(r, indent=1))
     if (out / "cpu.json").exists():
         finalize(runs, exp, Path(args.jat_dir))
@@ -254,7 +255,7 @@ def finalize(runs, exp, jat_dir):
         "inputs": inputs, "exploratory": True, "tests": CLAIMS,
         "verdicts": {c: {"verdict": "inconclusive", "evidence": ev[c]} for c in CLAIMS},
         "metrics": metrics, "seeds": SEEDS,
-        "wall_clock_s": round(max(r["wall_s"] for r in res.values()), 1),
+        "wall_clock_s": round(sum(r["wall_s"] for r in res.values()), 1),  # devices ran as separate invocations; excludes env setup
         "env": {"python": platform.python_version(),
                 "os": f"macOS {platform.mac_ver()[0]} {platform.machine()}", "packages": pk,
                 "gpu": ("Apple MPS (torch %s)" % torch.__version__) if "mps" in res else None},
