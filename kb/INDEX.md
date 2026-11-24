@@ -63,3 +63,4 @@
 
 | experiment | status | claims | verdicts |
 |---|---|---|---|
+| 2026-11-24-nitrogen-mac-smoke | done | magne2026nitrogen#C8 | magne2026nitrogen#C8 inconclusive |

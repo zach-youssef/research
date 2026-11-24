@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "experiment": "2026-11-24-nitrogen-mac-smoke",
+  "date": "2026-11-24",
+  "commits": [
+    {
+      "repo": "research",
+      "sha": "aa0ee37e2fc95c8eb4ace04a02450b945460494e",
+      "dirty": false
+    }
+  ],
+  "inputs": {
+    "src": "070d6fd211464c6f0a41eeb11081a41e823dbfd1",
+    "run.sh": "0ab308b49182dae688cfca3e0723727b02962c1b",
+    "requirements.txt": "03497e5e394152155183540775867ecebbdfdde2"
+  },
+  "exploratory": true,
+  "tests": [
+    "magne2026nitrogen#C8"
+  ],
+  "verdicts": {
+    "magne2026nitrogen#C8": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive. chunk_shape_ok 0: the released ng.pt outputs horizon 18 x dim 25 (21 buttons, BUTTON_ACTION_TOKENS in nitrogen/shared.py), while the paper states 16-step chunks over 16 buttons + 2 sticks; this paper-vs-release gap is unexplained and bears on A11's chunk length, not on C8's content. nonfinite_count 0, action_std_across_frames 0.0374"
+    }
+  },
+  "metrics": {
+    "chunk_shape_ok": {
+      "value": 0,
+      "unit": "1",
+      "n": 1
+    },
+    "nonfinite_count": {
+      "value": 0,
+      "unit": "1",
+      "n": 2250
+    },
+    "action_std_across_frames": {
+      "value": 0.03736095875501633,
+      "unit": "1",
+      "n": 5
+    },
+    "action_horizon_found": {
+      "value": 18,
+      "unit": "1",
+      "n": 1
+    },
+    "action_dim_found": {
+      "value": 25,
+      "unit": "1",
+      "n": 1
+    },
+    "button_width_found": {
+      "value": 21,
+      "unit": "1",
+      "n": 1
+    },
+    "button_on_fraction": {
+      "value": 0.015343915671110153,
+      "unit": "1",
+      "n": 5
+    },
+    "stick_abs_mean": {
+      "value": 0.11318296939134598,
+      "unit": "1",
+      "n": 5
+    },
+    "distinct_button_chunks": {
+      "value": 4,
+      "unit": "1",
+      "n": 5
+    },
+    "ms_per_chunk_cpu": {
+      "value": 949.2438837885857,
+      "unit": "ms",
+      "n": 5
+    },
+    "ms_per_chunk_mps": {
+      "value": 477.9067497700453,
+      "unit": "ms",
+      "n": 5
+    },
+    "mps_cpu_max_abs_diff": {
+      "value": 0.00011247396469116211,
+      "unit": "1",
+      "n": 5
+    },
+    "mps_nonfinite_count": {
+      "value": 0,
+      "unit": "1",
+      "n": 5
+    },
+    "ms_per_chunk_mps_bf16": {
+      "value": 470.2549248933792,
+      "unit": "ms",
+      "n": 5
+    }
+  },
+  "seeds": [
+    0
+  ],
+  "wall_clock_s": 46.3,
+  "env": {
+    "python": "3.12.16",
+    "os": "macOS 26.6.2 arm64",
+    "packages": [
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.3",
+      "PyYAML==6.0.3",
+      "annotated-types==0.7.0",
+      "anyio==4.12.1",
+      "av==16.1.0",
+      "certifi==2026.1.4",
+      "charset-normalizer==3.4.4",
+      "diffusers==0.36.0",
+      "einops==0.8.2",
+      "filelock==3.20.3",
+      "fsspec==2026.1.0",
+      "h11==0.16.0",
+      "hf-xet==1.2.0",
+      "httpcore==1.0.9",
+      "httpx==0.28.1",
+      "huggingface-hub==0.36.0",
+      "idna==3.11",
+      "importlib_metadata==8.7.1",
+      "mpmath==1.3.0",
+      "networkx==3.6.1",
+      "numpy==2.4.1",
+      "packaging==26.0",
+      "pillow==12.1.0",
+      "polars-runtime-32==1.37.1",
+      "polars==1.37.1",
+      "pydantic==2.12.5",
+      "pydantic_core==2.41.5",
+      "regex==2026.1.15",
+      "requests==2.32.5",
+      "safetensors==0.7.0",
+      "setuptools==80.10.2",
+      "sympy==1.14.0",
+      "tokenizers==0.22.2",
+      "torch==2.10.0",
+      "tqdm==4.67.1",
+      "transformers==4.57.6",
+      "typing-inspection==0.4.2",
+      "typing_extensions==4.15.0",
+      "urllib3==2.6.3",
+      "zipp==3.23.0"
+    ],
+    "gpu": "Apple MPS (torch 2.10.0)"
+  },
+  "provenance": {
+    "nitrogen_commit": "32608444660950ffda95e1e57c79632ad65bea10",
+    "ckpt": "nvidia/NitroGen@584c8dded734d032f07a4bcc0ccb330e703298c4",
+    "ckpt_sha256": "a266f5fb9c7dbdcdf97216558d2d82075a9a994b824cda69afa9fd3280260a81",
+    "vision_encoder_config": "google/siglip2-large-patch16-256@787800c8990e6f058423089178e718139608408c",
+    "video": "https://nitrogen.minedojo.org/assets/videos/rollouts.mp4",
+    "video_sha256": "a25c777c0d6ac7a699170edda20880507a9d59e94b807068b3beaf37df211d72",
+    "frame_indices": [
+      150,
+      450,
+      750,
+      1050,
+      1350
+    ],
+    "load_seconds": 3.4,
+    "params": 493631513,
+    "per_frame_ms": {
+      "cpu": [
+        [
+          950.2,
+          949.0,
+          950.0
+        ],
+        [
+          948.4,
+          947.8,
+          948.2
+        ],
+        [
+          948.2,
+          949.5,
+          949.9
+        ],
+        [
+          950.1,
+          950.7,
+          949.0
+        ],
+        [
+          953.7,
+          948.5,
+          947.9
+        ]
+      ],
+      "mps": [
+        [
+          475.6,
+          477.3,
+          476.9
+        ],
+        [
+          477.1,
+          477.9,
+          477.6
+        ],
+        [
+          478.3,
+          477.1,
+          478.0
+        ],
+        [
+          478.0,
+          478.4,
+          478.0
+        ],
+        [
+          479.0,
+          477.4,
+          479.1
+        ]
+      ]
+    }
+  }
+}

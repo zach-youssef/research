@@ -3,7 +3,7 @@ id: 2026-11-24-nitrogen-mac-smoke
 title: NitroGen released checkpoint on an Apple-silicon Mac: output shape, variation and latency smoke test
 claims: [magne2026nitrogen#C8]
 assumptions: [magne2026nitrogen#A3, magne2026nitrogen#A5, magne2026nitrogen#A6, magne2026nitrogen#A8, magne2026nitrogen#A10, magne2026nitrogen#A11, magne2026nitrogen#A13]
-status: approved
+status: done
 gpu: yes
 budget_wall_min: 90
 budget_downloads_mb: 3500

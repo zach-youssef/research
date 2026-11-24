@@ -132,6 +132,12 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
   Fig. 1, p. 2, Fig. 4, p. 6; the mapping to the benchmark is the reader's guess, an assumption).
 - Whether the 10 benchmark games are in the pre-training data isn't stated; C12's wording implies
   at least some are (source: Sec. 3, p. 8; assumption).
+- The released checkpoint differs from the paper's stated shape: its config has `action_horizon` 18
+  and `action_dim` 25 (21 buttons from `BUTTON_ACTION_TOKENS`, plus 4 stick dims), 16 Euler steps
+  (`num_inference_timesteps`), vision encoder `google/siglip2-large-patch16-256`, 493.6M parameters
+  (source: released ng.pt `ckpt_config` @ nvidia/NitroGen 584c8dd; NitroGen 3260844
+  `nitrogen/shared.py`; experiment 2026-11-24-nitrogen-mac-smoke). The paper says 16-step chunks
+  over 16 buttons + 2 sticks (Sec. 2.2-2.3), and App. A.1 writes `a ∈ R^{16×24}`.
 - The authors release the dataset, the evaluation suite and the weights at
   https://nitrogen.minedojo.org (source: p. 1; not fetched).
 
@@ -145,6 +151,10 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
 - No comparison with other generalist agents or with VPT-style IDM labelling on the same data
   (Sec. 3, pp. 8-9).
 - Synchronous play only: the game is paused while the model infers (Sec. 2.2, p. 5; App. B.1).
+- Open question: does the released model (18-step chunks, 25 dims) differ from the paper's (16 steps,
+  16 buttons + 2 sticks, or 16 x 24 in App. A.1), or is the paper's description simplified?
+  `play.py` executes all 18 actions of a chunk (source: MineDojo/NitroGen 3260844,
+  scripts/play.py; action_downsample_ratio 1 in nitrogen/inference_session.py).
 - Open question: one frame of context means no memory; how does this fail on tasks where the
   current frame is ambiguous (partial observability), which the benchmark selected against (p. 7)?
 - Open question: the same button means different things in different games and player mappings
@@ -166,5 +176,5 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
 ## Experiments
 
 <!-- kb:begin experiments -->
-- none
+- [2026-11-24-nitrogen-mac-smoke](../../experiments/2026-11-24-nitrogen-mac-smoke/results.md): C8 inconclusive
 <!-- kb:end experiments -->
