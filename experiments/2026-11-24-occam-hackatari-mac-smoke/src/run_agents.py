@@ -35,7 +35,7 @@ GAMES = {
 }
 MODIFS = {
     "orig": [], "lazy_enemy": ["lazy_enemy"], "hidden_enemy": ["hidden_enemy"],
-    "stop_all_cars": ["stop_all_cars"], "red": ["color_player_and_ball_red"],
+    "stop_all_cars": ["stop_all_cars_tunnel"]  # same function as the paper-era "stop_all_cars", "red": ["color_player_and_ball_red"],
 }
 # agent -> (file stem or None for the game's pixel agent, obs_mode, wrapper as scripts/eval.py pairs it)
 AGENTS = {

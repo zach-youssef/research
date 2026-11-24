@@ -62,11 +62,11 @@ game-score return over n = 10 episodes (seeds 0 to 9); agents are `pixel`, `bina
   live in the repo under `models/`) at commit `057afc4e53f66ae1c12eaa72c321575be05534f0`
   (2026-04-21), fetched blobless with a sparse checkout of the 18 weight files for Pong,
   Freeway and Breakout (about 134 MB; the whole repo is about 340 MB); and `k4ntz/HackAtari`
-  (MIT) at commit `3b5fc32` (2025-05-23, full hash recorded by run.sh), chosen because that is
-  the state at the paper's date and still uses the paper's modification names: at current
-  HEAD Freeway `stop_all_cars` was renamed `stop_all_cars_tunnel` (checked), and an unknown
-  modification name is silently ignored, so the driver asserts that every requested
-  modification registered hooks. OCAtari 2.1.0 from PyPI (MIT, as the upstream requirements pin).
+  (MIT) at commit `3b5fc3209c3ae7ff7d14a1338477963d4353b78b` (2025-05-23), the state at the paper's
+  date. Freeway's `stop_all_cars` was renamed `stop_all_cars_tunnel` on 2025-05-19 (same function
+  body, checked), so the run requests that name and reports it under the condition `stop_all_cars`
+  (a first run requesting the old name found it silently ignored: HackAtari ignores unknown
+  modification names, so the driver asserts that every requested modification registered hooks). OCAtari 2.1.0 from PyPI (MIT, as the upstream requirements pin).
   Both are put on `PYTHONPATH`, not installed. Weights are sha256-recorded in `results.json`
   (inputs of the `weights` field) and are loaded with `torch.load` (torch 2.7.1 default
   `weights_only=True`) from the official repo only.
