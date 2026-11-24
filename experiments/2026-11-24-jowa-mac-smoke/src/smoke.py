@@ -91,7 +91,7 @@ def main():
 
     smoke = args.smoke
     sizes = ["JOWA_40M"] if smoke else args.sizes.split(",")
-    devices = ["cpu"] if smoke else args.devices.split(",")
+    devices = ["cpu"] if smoke else sorted(args.devices.split(","), key=lambda d: d != "mps")  # MPS first: frees the GPU slot early
     games = GAMES[:1] if smoke else GAMES
     seeds = SEEDS[:1] if smoke else SEEDS
     steps_noplan, steps_plan = (20, 5) if smoke else (STEPS_NOPLAN, STEPS_PLAN)
