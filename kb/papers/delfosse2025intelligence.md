@@ -97,6 +97,9 @@ Sec. 3, p. 3). It defines "intelligence" narrowly, as adapting to structural sim
 - Checkpoints: DQN, MDQN, C51 from Gogianu et al. 2022 (atari-agents), i-DQN from Hugging Face TheoVincent/Atari_i-QN, IMPALA from Hugging Face cleanrl, OCCAM from VanillaWhey/OCAtariWrappers (source: App. B, p. 18).
 - Evaluation stack: Python 3.11, Gym 0.26.2, ale-py 0.8.1; IMPALA needed envpool, on Python 3.9 (source: App. C, p. 20).
 - Human interface "HackTari": Flask plus Socket.IO, Gym with HackAtari wrappers, on AWS, per-session CSV logs; £7 base pay (source: App. F.3-F.4, p. 29).
+- Released OCCAM/PPO agents: `VanillaWhey/OCAtariWrappers` (MIT, commit 057afc4e, 2026-04-21) holds seed-0 checkpoints under `models/<Game>/0/` for Boxing, Breakout, Freeway, Frostbite, MsPacman, Pong, Skiing: pixel PPO (`ppo` or `pixel_ppo`), `ppo_binary`, `ppo_classes`, `ppo_object`, `ppo_planes` and `obj_vector`, 6.8 to 10.7 MB each. They run on an Apple-silicon Mac on CPU with the repo's `load_agent` and wrappers, HackAtari `3b5fc32`, OCAtari 2.1.0, gymnasium 0.29.1, ale-py 0.9.1, torch 2.7.1, Python 3.11, no code patches, at about 0.7 ms per policy step and 0.8 ms per environment step (source: experiment 2026-11-24-occam-hackatari-mac-smoke).
+- HackAtari variant names are not stable: Freeway `stop_all_cars` is `stop_all_cars_tunnel` since 2025-05-19, and unknown names are silently ignored, so a misspelt variant plays the original game (source: HackAtari commit 1a9e4fd, experiment 2026-11-24-occam-hackatari-mac-smoke). The PyPI `hackatari` 0.0.6 is a stub; install from git.
+- First numbers from those checkpoints (10 episodes, seed 0 checkpoints, exploratory, not the paper's protocol): Pong `lazy_enemy` pixel PPO 12.2 -> -16.9, Planes 19.1 -> 12.1, Binary 17.9 -> 15.9 but Class masks 19.2 -> -10.6 and Object masks 17.9 -> 1.2; Breakout red paddle and ball pixel PPO 92.4 -> 7.6, while Binary, Class and Planes give identical episodes (by construction: the recolour changes no RAM-derived input, so it is not robustness evidence beyond that); Freeway `stop_all_cars` pixel PPO 32.2 -> 0.0 and Binary masks 33.4 -> 1.0, while Class (40.0, the time-limit ceiling of an always-UP policy), Object, Planes and object-vector agents stay at or above 32 (source: experiment 2026-11-24-occam-hackatari-mac-smoke, results.md).
 
 ## Limitations / open questions
 
@@ -117,5 +120,5 @@ Sec. 3, p. 3). It defines "intelligence" narrowly, as adapting to structural sim
 ## Experiments
 
 <!-- kb:begin experiments -->
-- none
+- [2026-11-24-occam-hackatari-mac-smoke](../../experiments/2026-11-24-occam-hackatari-mac-smoke/results.md): C11 inconclusive, C8 inconclusive, C9 inconclusive
 <!-- kb:end experiments -->

@@ -1,0 +1,829 @@
+{
+  "schema": 1,
+  "experiment": "2026-11-24-occam-hackatari-mac-smoke",
+  "date": "2026-11-24",
+  "commits": [
+    {
+      "repo": "research",
+      "sha": "29c249fbef820f3b7f8280132dc1b014c8f1ecc0",
+      "dirty": false
+    }
+  ],
+  "inputs": {
+    "src": "96b4a668f12a650b14e2ab062c570b344d6d991b",
+    "run.sh": "84527186293178e34229e867232b56871bc8d8ea",
+    "requirements.txt": "bd7808f2c1660b0bc9ce09c157c10950490eb650"
+  },
+  "exploratory": true,
+  "tests": [
+    "delfosse2025intelligence#C8",
+    "delfosse2025intelligence#C9",
+    "delfosse2025intelligence#C11"
+  ],
+  "verdicts": {
+    "delfosse2025intelligence#C8": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive; the criterion's branch is supports: pong pixel 12.2 -> lazy_enemy -16.9; planes 19.1 -> 12.1"
+    },
+    "delfosse2025intelligence#C9": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive; the criterion's branch is supports: breakout pixel 92.4 -> red 7.6; binary 158.0 -> 158.0; classes 226.2 -> 226.2; planes 284.5 -> 284.5"
+    },
+    "delfosse2025intelligence#C11": {
+      "verdict": "inconclusive",
+      "evidence": "exploratory run, capped at inconclusive; the criterion's branch is supports: freeway pixel 32.2 -> stop_all_cars 0.0"
+    }
+  },
+  "metrics": {
+    "pong_pixel_orig_mean": {
+      "value": 12.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 10.897500000000003,
+        "high": 13.502499999999998,
+        "level": 0.95
+      }
+    },
+    "pong_binary_orig_mean": {
+      "value": 17.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 16.8,
+        "high": 18.902499999999996,
+        "level": 0.95
+      }
+    },
+    "pong_classes_orig_mean": {
+      "value": 19.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 18.5,
+        "high": 19.9,
+        "level": 0.95
+      }
+    },
+    "pong_object_orig_mean": {
+      "value": 17.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 16.8,
+        "high": 19.1,
+        "level": 0.95
+      }
+    },
+    "pong_planes_orig_mean": {
+      "value": 19.1,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 18.6,
+        "high": 19.6,
+        "level": 0.95
+      }
+    },
+    "pong_objvec_orig_mean": {
+      "value": 17.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 15.6,
+        "high": 18.3,
+        "level": 0.95
+      }
+    },
+    "pong_pixel_lazy_enemy_mean": {
+      "value": -16.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": -18.6,
+        "high": -15.2,
+        "level": 0.95
+      }
+    },
+    "pong_binary_lazy_enemy_mean": {
+      "value": 15.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 14.697500000000002,
+        "high": 17.0,
+        "level": 0.95
+      }
+    },
+    "pong_classes_lazy_enemy_mean": {
+      "value": -10.6,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": -12.6,
+        "high": -8.4,
+        "level": 0.95
+      }
+    },
+    "pong_object_lazy_enemy_mean": {
+      "value": 1.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": -2.0,
+        "high": 4.4,
+        "level": 0.95
+      }
+    },
+    "pong_planes_lazy_enemy_mean": {
+      "value": 12.1,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 9.7,
+        "high": 14.0,
+        "level": 0.95
+      }
+    },
+    "pong_objvec_lazy_enemy_mean": {
+      "value": -14.3,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": -16.1,
+        "high": -12.5,
+        "level": 0.95
+      }
+    },
+    "pong_pixel_hidden_enemy_mean": {
+      "value": 12.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 10.897500000000003,
+        "high": 13.502499999999998,
+        "level": 0.95
+      }
+    },
+    "pong_binary_hidden_enemy_mean": {
+      "value": 18.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 16.6,
+        "high": 19.1,
+        "level": 0.95
+      }
+    },
+    "pong_classes_hidden_enemy_mean": {
+      "value": 18.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 16.8,
+        "high": 19.3,
+        "level": 0.95
+      }
+    },
+    "pong_object_hidden_enemy_mean": {
+      "value": 14.8,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 13.3,
+        "high": 16.2,
+        "level": 0.95
+      }
+    },
+    "pong_planes_hidden_enemy_mean": {
+      "value": 19.1,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 18.3,
+        "high": 20.0,
+        "level": 0.95
+      }
+    },
+    "pong_objvec_hidden_enemy_mean": {
+      "value": -20.5,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": -20.9,
+        "high": -20.1,
+        "level": 0.95
+      }
+    },
+    "freeway_pixel_orig_mean": {
+      "value": 32.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 31.7,
+        "high": 32.7,
+        "level": 0.95
+      }
+    },
+    "freeway_binary_orig_mean": {
+      "value": 33.4,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 33.0,
+        "high": 33.8,
+        "level": 0.95
+      }
+    },
+    "freeway_classes_orig_mean": {
+      "value": 32.6,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 32.3,
+        "high": 32.9,
+        "level": 0.95
+      }
+    },
+    "freeway_object_orig_mean": {
+      "value": 33.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 32.5,
+        "high": 33.5,
+        "level": 0.95
+      }
+    },
+    "freeway_planes_orig_mean": {
+      "value": 33.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 32.6,
+        "high": 33.4,
+        "level": 0.95
+      }
+    },
+    "freeway_objvec_orig_mean": {
+      "value": 31.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 31.5,
+        "high": 32.3,
+        "level": 0.95
+      }
+    },
+    "freeway_pixel_stop_all_cars_mean": {
+      "value": 0.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "level": 0.95
+      }
+    },
+    "freeway_binary_stop_all_cars_mean": {
+      "value": 1.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 0.4,
+        "high": 1.6,
+        "level": 0.95
+      }
+    },
+    "freeway_classes_stop_all_cars_mean": {
+      "value": 40.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 40.0,
+        "high": 40.0,
+        "level": 0.95
+      }
+    },
+    "freeway_object_stop_all_cars_mean": {
+      "value": 32.6,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 31.9,
+        "high": 33.2,
+        "level": 0.95
+      }
+    },
+    "freeway_planes_stop_all_cars_mean": {
+      "value": 38.9,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 38.7,
+        "high": 39.0,
+        "level": 0.95
+      }
+    },
+    "freeway_objvec_stop_all_cars_mean": {
+      "value": 33.6,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 33.3,
+        "high": 33.9,
+        "level": 0.95
+      }
+    },
+    "breakout_pixel_orig_mean": {
+      "value": 92.4,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 61.09250000000001,
+        "high": 137.21749999999997,
+        "level": 0.95
+      }
+    },
+    "breakout_binary_orig_mean": {
+      "value": 158.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 91.18750000000001,
+        "high": 232.52499999999998,
+        "level": 0.95
+      }
+    },
+    "breakout_classes_orig_mean": {
+      "value": 226.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 168.1875,
+        "high": 274.505,
+        "level": 0.95
+      }
+    },
+    "breakout_object_orig_mean": {
+      "value": 133.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 88.89750000000001,
+        "high": 188.005,
+        "level": 0.95
+      }
+    },
+    "breakout_planes_orig_mean": {
+      "value": 284.5,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 216.46750000000003,
+        "high": 341.72249999999997,
+        "level": 0.95
+      }
+    },
+    "breakout_objvec_orig_mean": {
+      "value": 32.5,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 25.7,
+        "high": 40.402499999999996,
+        "level": 0.95
+      }
+    },
+    "breakout_pixel_red_mean": {
+      "value": 7.6,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 4.7,
+        "high": 10.5,
+        "level": 0.95
+      }
+    },
+    "breakout_binary_red_mean": {
+      "value": 158.0,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 91.18750000000001,
+        "high": 232.52499999999998,
+        "level": 0.95
+      }
+    },
+    "breakout_classes_red_mean": {
+      "value": 226.2,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 168.1875,
+        "high": 274.505,
+        "level": 0.95
+      }
+    },
+    "breakout_object_red_mean": {
+      "value": 20.8,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 12.697500000000002,
+        "high": 29.7,
+        "level": 0.95
+      }
+    },
+    "breakout_planes_red_mean": {
+      "value": 284.5,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 216.46750000000003,
+        "high": 341.72249999999997,
+        "level": 0.95
+      }
+    },
+    "breakout_objvec_red_mean": {
+      "value": 32.5,
+      "unit": "1",
+      "n": 10,
+      "ci": {
+        "low": 25.7,
+        "high": 40.402499999999996,
+        "level": 0.95
+      }
+    },
+    "policy_ms_per_step_cpu": {
+      "value": 0.6999222107971612,
+      "unit": "ms",
+      "n": 969357
+    },
+    "env_ms_per_step": {
+      "value": 0.7795684595851602,
+      "unit": "ms",
+      "n": 969357
+    },
+    "truncated_episodes": {
+      "value": 9,
+      "unit": "1",
+      "n": 420
+    },
+    "load_ms_pong_pixel": {
+      "value": 68.27908288687468,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_pong_binary": {
+      "value": 81.96745812892914,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_pong_classes": {
+      "value": 75.59187524020672,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_pong_object": {
+      "value": 70.46587485820055,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_pong_planes": {
+      "value": 68.20512469857931,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_pong_objvec": {
+      "value": 121.55383266508579,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_pixel": {
+      "value": 43.886334635317326,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_binary": {
+      "value": 43.31241641193628,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_classes": {
+      "value": 43.24775002896786,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_object": {
+      "value": 41.2752078846097,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_planes": {
+      "value": 42.422499507665634,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_freeway_objvec": {
+      "value": 82.85562414675951,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_pixel": {
+      "value": 41.26879200339317,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_binary": {
+      "value": 39.066667668521404,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_classes": {
+      "value": 40.55516701191664,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_object": {
+      "value": 46.16937506943941,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_planes": {
+      "value": 40.17816670238972,
+      "unit": "ms",
+      "n": 1
+    },
+    "load_ms_breakout_objvec": {
+      "value": 103.27375028282404,
+      "unit": "ms",
+      "n": 1
+    }
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "wall_clock_s": 1468.2,
+  "env": {
+    "python": "3.11.18",
+    "os": "macOS 26.6.2 arm64",
+    "packages": [
+      "Farama-Notifications==0.0.6",
+      "ImageIO==2.38.2",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.4",
+      "ale-py==0.9.1",
+      "cloudpickle==3.1.3",
+      "contourpy==1.3.2",
+      "cycler==0.12.1",
+      "filelock==4.3.1",
+      "fonttools==4.68.0",
+      "fsspec==2026.9.0",
+      "gymnasium==0.29.1",
+      "joblib==1.6.0",
+      "keyboard==0.13.5",
+      "kiwisolver==1.5.1",
+      "lazy-loader==0.6",
+      "matplotlib==3.10.9",
+      "mpmath==1.3.0",
+      "narwhals==2.29.0",
+      "networkx==3.6.1",
+      "numpy==1.24.4",
+      "ocatari==2.1.0",
+      "opencv-python==4.10.0.84",
+      "packaging==26.4",
+      "pandas==2.3.3",
+      "pillow==13.0.0",
+      "pyfiglet==1.0.4",
+      "pygame==2.6.1",
+      "pyobjc-core==13.1",
+      "pyobjc-framework-ARKit==13.1",
+      "pyobjc-framework-AVFoundation==13.1",
+      "pyobjc-framework-AVKit==13.1",
+      "pyobjc-framework-AVRouting==13.1",
+      "pyobjc-framework-Accessibility==13.1",
+      "pyobjc-framework-Accounts==13.1",
+      "pyobjc-framework-AdServices==13.1",
+      "pyobjc-framework-AdSupport==13.1",
+      "pyobjc-framework-AddressBook==13.1",
+      "pyobjc-framework-AppTrackingTransparency==13.1",
+      "pyobjc-framework-AppleScriptKit==13.1",
+      "pyobjc-framework-AppleScriptObjC==13.1",
+      "pyobjc-framework-ApplicationServices==13.1",
+      "pyobjc-framework-AudioVideoBridging==13.1",
+      "pyobjc-framework-AuthenticationServices==13.1",
+      "pyobjc-framework-AutomaticAssessmentConfiguration==13.1",
+      "pyobjc-framework-Automator==13.1",
+      "pyobjc-framework-BackgroundAssets==13.1",
+      "pyobjc-framework-BrowserEngineKit==13.1",
+      "pyobjc-framework-BusinessChat==13.1",
+      "pyobjc-framework-CFNetwork==13.1",
+      "pyobjc-framework-CalendarStore==13.1",
+      "pyobjc-framework-CallKit==13.1",
+      "pyobjc-framework-Carbon==13.1",
+      "pyobjc-framework-Cinematic==13.1",
+      "pyobjc-framework-ClassKit==13.1",
+      "pyobjc-framework-CloudKit==13.1",
+      "pyobjc-framework-Cocoa==13.1",
+      "pyobjc-framework-Collaboration==13.1",
+      "pyobjc-framework-ColorSync==13.1",
+      "pyobjc-framework-CompositorServices==13.1",
+      "pyobjc-framework-Contacts==13.1",
+      "pyobjc-framework-ContactsUI==13.1",
+      "pyobjc-framework-CoreAudio==13.1",
+      "pyobjc-framework-CoreAudioKit==13.1",
+      "pyobjc-framework-CoreBluetooth==13.1",
+      "pyobjc-framework-CoreData==13.1",
+      "pyobjc-framework-CoreHaptics==13.1",
+      "pyobjc-framework-CoreLocation==13.1",
+      "pyobjc-framework-CoreMIDI==13.1",
+      "pyobjc-framework-CoreML==13.1",
+      "pyobjc-framework-CoreMedia==13.1",
+      "pyobjc-framework-CoreMediaIO==13.1",
+      "pyobjc-framework-CoreMotion==13.1",
+      "pyobjc-framework-CoreServices==13.1",
+      "pyobjc-framework-CoreSpotlight==13.1",
+      "pyobjc-framework-CoreText==13.1",
+      "pyobjc-framework-CoreWLAN==13.1",
+      "pyobjc-framework-CryptoTokenKit==13.1",
+      "pyobjc-framework-DVDPlayback==13.1",
+      "pyobjc-framework-DataDetection==13.1",
+      "pyobjc-framework-DeviceCheck==13.1",
+      "pyobjc-framework-DeviceDiscoveryExtension==13.1",
+      "pyobjc-framework-DictionaryServices==13.1",
+      "pyobjc-framework-DiscRecording==13.1",
+      "pyobjc-framework-DiscRecordingUI==13.1",
+      "pyobjc-framework-DiskArbitration==13.1",
+      "pyobjc-framework-EventKit==13.1",
+      "pyobjc-framework-ExceptionHandling==13.1",
+      "pyobjc-framework-ExecutionPolicy==13.1",
+      "pyobjc-framework-ExtensionKit==13.1",
+      "pyobjc-framework-ExternalAccessory==13.1",
+      "pyobjc-framework-FSEvents==13.1",
+      "pyobjc-framework-FSKit==13.1",
+      "pyobjc-framework-FileProvider==13.1",
+      "pyobjc-framework-FileProviderUI==13.1",
+      "pyobjc-framework-FinderSync==13.1",
+      "pyobjc-framework-GameCenter==13.1",
+      "pyobjc-framework-GameController==13.1",
+      "pyobjc-framework-GameKit==13.1",
+      "pyobjc-framework-GameSave==13.1",
+      "pyobjc-framework-GameplayKit==13.1",
+      "pyobjc-framework-HealthKit==13.1",
+      "pyobjc-framework-IOBluetooth==13.1",
+      "pyobjc-framework-IOBluetoothUI==13.1",
+      "pyobjc-framework-IOSurface==13.1",
+      "pyobjc-framework-ImageCaptureCore==13.1",
+      "pyobjc-framework-InputMethodKit==13.1",
+      "pyobjc-framework-InstallerPlugins==13.1",
+      "pyobjc-framework-InstantMessage==13.1",
+      "pyobjc-framework-Intents==13.1",
+      "pyobjc-framework-IntentsUI==13.1",
+      "pyobjc-framework-KernelManagement==13.1",
+      "pyobjc-framework-LatentSemanticMapping==13.1",
+      "pyobjc-framework-LaunchServices==13.1",
+      "pyobjc-framework-LinkPresentation==13.1",
+      "pyobjc-framework-LocalAuthentication==13.1",
+      "pyobjc-framework-LocalAuthenticationEmbeddedUI==13.1",
+      "pyobjc-framework-MLCompute==13.1",
+      "pyobjc-framework-MailKit==13.1",
+      "pyobjc-framework-MapKit==13.1",
+      "pyobjc-framework-MediaAccessibility==13.1",
+      "pyobjc-framework-MediaExtension==13.1",
+      "pyobjc-framework-MediaLibrary==13.1",
+      "pyobjc-framework-MediaPlayer==13.1",
+      "pyobjc-framework-MediaToolbox==13.1",
+      "pyobjc-framework-Metal==13.1",
+      "pyobjc-framework-MetalFX==13.1",
+      "pyobjc-framework-MetalKit==13.1",
+      "pyobjc-framework-MetalPerformanceShaders==13.1",
+      "pyobjc-framework-MetalPerformanceShadersGraph==13.1",
+      "pyobjc-framework-MetricKit==13.1",
+      "pyobjc-framework-ModelIO==13.1",
+      "pyobjc-framework-MultipeerConnectivity==13.1",
+      "pyobjc-framework-NaturalLanguage==13.1",
+      "pyobjc-framework-NetFS==13.1",
+      "pyobjc-framework-Network==13.1",
+      "pyobjc-framework-NetworkExtension==13.1",
+      "pyobjc-framework-NotificationCenter==13.1",
+      "pyobjc-framework-OSAKit==13.1",
+      "pyobjc-framework-OSLog==13.1",
+      "pyobjc-framework-OpenDirectory==13.1",
+      "pyobjc-framework-PHASE==13.1",
+      "pyobjc-framework-PassKit==13.1",
+      "pyobjc-framework-PencilKit==13.1",
+      "pyobjc-framework-Photos==13.1",
+      "pyobjc-framework-PhotosUI==13.1",
+      "pyobjc-framework-PreferencePanes==13.1",
+      "pyobjc-framework-PushKit==13.1",
+      "pyobjc-framework-Quartz==13.1",
+      "pyobjc-framework-QuickLookThumbnailing==13.1",
+      "pyobjc-framework-ReplayKit==13.1",
+      "pyobjc-framework-SafariServices==13.1",
+      "pyobjc-framework-SafetyKit==13.1",
+      "pyobjc-framework-SceneKit==13.1",
+      "pyobjc-framework-ScreenCaptureKit==13.1",
+      "pyobjc-framework-ScreenSaver==13.1",
+      "pyobjc-framework-ScreenTime==13.1",
+      "pyobjc-framework-ScriptingBridge==13.1",
+      "pyobjc-framework-SearchKit==13.1",
+      "pyobjc-framework-Security==13.1",
+      "pyobjc-framework-SecurityFoundation==13.1",
+      "pyobjc-framework-SecurityInterface==13.1",
+      "pyobjc-framework-SecurityUI==13.1",
+      "pyobjc-framework-SensitiveContentAnalysis==13.1",
+      "pyobjc-framework-ServiceManagement==13.1",
+      "pyobjc-framework-SharedWithYou==13.1",
+      "pyobjc-framework-SharedWithYouCore==13.1",
+      "pyobjc-framework-ShazamKit==13.1",
+      "pyobjc-framework-Social==13.1",
+      "pyobjc-framework-SoundAnalysis==13.1",
+      "pyobjc-framework-Speech==13.1",
+      "pyobjc-framework-SpriteKit==13.1",
+      "pyobjc-framework-StoreKit==13.1",
+      "pyobjc-framework-Symbols==13.1",
+      "pyobjc-framework-SyncServices==13.1",
+      "pyobjc-framework-SystemConfiguration==13.1",
+      "pyobjc-framework-SystemExtensions==13.1",
+      "pyobjc-framework-ThreadNetwork==13.1",
+      "pyobjc-framework-UniformTypeIdentifiers==13.1",
+      "pyobjc-framework-UserNotifications==13.1",
+      "pyobjc-framework-UserNotificationsUI==13.1",
+      "pyobjc-framework-VideoSubscriberAccount==13.1",
+      "pyobjc-framework-VideoToolbox==13.1",
+      "pyobjc-framework-Virtualization==13.1",
+      "pyobjc-framework-Vision==13.1",
+      "pyobjc-framework-WebKit==13.1",
+      "pyobjc-framework-iTunesLibrary==13.1",
+      "pyobjc-framework-libdispatch==13.1",
+      "pyobjc-framework-libxpc==13.1",
+      "pyobjc==13.1",
+      "pyparsing==3.3.3",
+      "python-dateutil==4.0.0",
+      "pytz==2026.6",
+      "scikit-image==0.26.0",
+      "scikit-learn==1.9.1",
+      "scipy==1.15.3",
+      "seaborn==0.13.2",
+      "sympy==1.14.0",
+      "termcolor==2.5.0",
+      "threadpoolctl==3.8.0",
+      "tifffile==2026.3.3",
+      "torch==2.7.1",
+      "tqdm==4.70.1",
+      "typing_extensions==4.16.0",
+      "tzdata==2026.6"
+    ],
+    "gpu": null
+  },
+  "provenance": {
+    "ocatariwrappers": {
+      "url": "https://github.com/VanillaWhey/OCAtariWrappers",
+      "commit": "057afc4e53f66ae1c12eaa72c321575be05534f0",
+      "license": "MIT"
+    },
+    "hackatari": {
+      "url": "https://github.com/k4ntz/HackAtari",
+      "commit": "3b5fc3209c3ae7ff7d14a1338477963d4353b78b",
+      "license": "MIT"
+    },
+    "weights_sha256": {
+      "models/Pong/0/ppo.cleanrl_model": "c1d13adfa415d33f4601a001f41ebb6d90e6999cd2c492f46209bde51808e484",
+      "models/Pong/0/ppo_binary.cleanrl_model": "cc4e72db536b387e656f1cd76af5d752dd99f73a1e3e1b3f1fc34a0278760bed",
+      "models/Pong/0/ppo_classes.cleanrl_model": "0a01f537b42da5d8ad12f70ddba81c746b56814bf38be69a6855298781c55de1",
+      "models/Pong/0/ppo_object.cleanrl_model": "e9bad93dfd7e6950238adab2fe4a366da6107fb5ca698b6694259ed9cfee3cf3",
+      "models/Pong/0/ppo_planes.cleanrl_model": "a61121a2cccdd71a6799277ca835bb1bf3e73646cbf4cf426d936b7e0aae55a4",
+      "models/Pong/0/obj_vector.cleanrl_model": "6c78f19e6c40b48568791a7e68c6393ad1ad1e554830620397d7ee063483f00c",
+      "models/Freeway/0/pixel_ppo.cleanrl_model": "667bb53d4de910ad4a2afda11d720cd63c61f0a066d21f479783ada7f9ea692c",
+      "models/Freeway/0/ppo_binary.cleanrl_model": "f444ab81ed560d266c06702b66674cbff9913baf0186583c0fe658377fdba51d",
+      "models/Freeway/0/ppo_classes.cleanrl_model": "08ce128c0332fce00d77aaf2fdb295adb9f4c3c3f95955a2b9562df65c866bfd",
+      "models/Freeway/0/ppo_object.cleanrl_model": "33fe141d9b937d48cfcbf1f6a6172cb6dbfd7e8302383c8ec869e0f786a2aec0",
+      "models/Freeway/0/ppo_planes.cleanrl_model": "ef66f7eec35dfd856b0dcea15bd2beaf1b4a985d3def6a04674293718fb2d8b3",
+      "models/Freeway/0/obj_vector.cleanrl_model": "c7fa643323537a48f02d5b1006551ed729c8fa17886a93e8f4cc713f2013e987",
+      "models/Breakout/0/ppo.cleanrl_model": "ee12b5e8ce11615bd8681edae0c640228da28e83c2d3e8c07e27c50462043243",
+      "models/Breakout/0/ppo_binary.cleanrl_model": "4fb8ab2a862c3eeaf8000123640c9982e295c1f9504602e2296b5a448081b0aa",
+      "models/Breakout/0/ppo_classes.cleanrl_model": "becc256c7662c07221f71c1e7f6fe5828796272817605f5cba89cd8c835d7f9a",
+      "models/Breakout/0/ppo_object.cleanrl_model": "657cc127fe108ae4a10c5715a08941a434ce6a727d05480d5572ad61491b7427",
+      "models/Breakout/0/ppo_planes.cleanrl_model": "1bce8265612ba0a1120e49b69ae11a937e6e5bb507f4ac812e1f0e81b46dccac",
+      "models/Breakout/0/obj_vector.cleanrl_model": "29a24debab15230f07ac9183e421a478c67ed11f03544e3b4dce7376709ca919"
+    },
+    "max_steps_per_episode": 10000,
+    "episodes_per_cell": 10,
+    "videos": [
+      "/Users/zyoussef/.cache/occam-hackatari/videos/Pong_pixel_orig_vs_lazy_enemy.mp4",
+      "/Users/zyoussef/.cache/occam-hackatari/videos/Freeway_pixel_orig_vs_stop_all_cars.mp4",
+      "/Users/zyoussef/.cache/occam-hackatari/videos/Breakout_pixel_orig_vs_red.mp4"
+    ],
+    "episodes_file": "runs/2026-11-24-occam-hackatari-mac-smoke/episodes.jsonl"
+  }
+}

@@ -3,7 +3,7 @@ id: 2026-11-24-occam-hackatari-mac-smoke
 title: OCCAM/HackAtari agents in the real ALE on a Mac: Pong, Freeway and Breakout, original vs modified
 claims: [delfosse2025intelligence#C8, delfosse2025intelligence#C9, delfosse2025intelligence#C11]
 assumptions: [delfosse2025intelligence#A2, delfosse2025intelligence#A3, delfosse2025intelligence#A5, delfosse2025intelligence#A6]
-status: approved
+status: done
 gpu: yes
 budget_wall_min: 120
 budget_downloads_mb: 500
