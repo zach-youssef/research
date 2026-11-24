@@ -1,0 +1,530 @@
+{
+  "torch_threads": 4,
+  "action_meanings": {
+    "Assault": {
+      "ale": [
+        "NOOP",
+        "FIRE",
+        "UP",
+        "RIGHT",
+        "LEFT",
+        "RIGHTFIRE",
+        "LEFTFIRE"
+      ],
+      "upstream": [
+        "NOOP",
+        "FIRE",
+        "UP",
+        "RIGHT",
+        "LEFT",
+        "RIGHTFIRE",
+        "LEFTFIRE"
+      ],
+      "equal": true
+    },
+    "Seaquest": {
+      "ale": [
+        "NOOP",
+        "FIRE",
+        "UP",
+        "RIGHT",
+        "LEFT",
+        "DOWN",
+        "UPRIGHT",
+        "UPLEFT",
+        "DOWNRIGHT",
+        "DOWNLEFT",
+        "UPFIRE",
+        "RIGHTFIRE",
+        "LEFTFIRE",
+        "DOWNFIRE",
+        "UPRIGHTFIRE",
+        "UPLEFTFIRE",
+        "DOWNRIGHTFIRE",
+        "DOWNLEFTFIRE"
+      ],
+      "upstream": [
+        "NOOP",
+        "FIRE",
+        "UP",
+        "RIGHT",
+        "LEFT",
+        "DOWN",
+        "UPRIGHT",
+        "UPLEFT",
+        "DOWNRIGHT",
+        "DOWNLEFT",
+        "UPFIRE",
+        "RIGHTFIRE",
+        "LEFTFIRE",
+        "DOWNFIRE",
+        "UPRIGHTFIRE",
+        "UPLEFTFIRE",
+        "DOWNRIGHTFIRE",
+        "DOWNLEFTFIRE"
+      ],
+      "equal": true
+    }
+  },
+  "params": {
+    "JOWA_40M": {
+      "model_total": 19109681,
+      "head_q_target": 1693590,
+      "model_inference": 17416091,
+      "tokenizer_total": 18763649,
+      "tokenizer_lpips": 14716160,
+      "tokenizer_encoder_decoder_etc": 4047489
+    },
+    "JOWA_150M": {
+      "model_total": 127778185,
+      "head_q_target": 18732738,
+      "model_inference": 109045447,
+      "tokenizer_total": 18763649,
+      "tokenizer_lpips": 14716160,
+      "tokenizer_encoder_decoder_etc": 4047489
+    }
+  },
+  "reconstruction": {
+    "Assault": {
+      "frames": [
+        {
+          "step": 20,
+          "recon_mse": 0.006403149571269751,
+          "frame_variance": 0.006935610435903072,
+          "frame_mean": 0.020130274817347527,
+          "frac_pixels_above_0p1": 0.0545634925365448,
+          "distinct_tokens": 30,
+          "alt_gray_recon_mse": 0.005476724356412888,
+          "alt_gray_frame_variance": 0.006256962660700083,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.30158730158730157
+        },
+        {
+          "step": 60,
+          "recon_mse": 0.00791068933904171,
+          "frame_variance": 0.008124617859721184,
+          "frame_mean": 0.023787295445799828,
+          "frac_pixels_above_0p1": 0.06632652878761292,
+          "distinct_tokens": 35,
+          "alt_gray_recon_mse": 0.0073224143125116825,
+          "alt_gray_frame_variance": 0.007347617298364639,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.439484126984127
+        },
+        {
+          "step": 100,
+          "recon_mse": 0.008033134043216705,
+          "frame_variance": 0.00846041925251484,
+          "frame_mean": 0.024889957159757614,
+          "frac_pixels_above_0p1": 0.06703514605760574,
+          "distinct_tokens": 30,
+          "alt_gray_recon_mse": 0.0074544488452374935,
+          "alt_gray_frame_variance": 0.00768795982003212,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.3449546485260771
+        },
+        {
+          "step": 150,
+          "recon_mse": 0.007142416201531887,
+          "frame_variance": 0.007069516461342573,
+          "frame_mean": 0.020902251824736595,
+          "frac_pixels_above_0p1": 0.05895691737532616,
+          "distinct_tokens": 34,
+          "alt_gray_recon_mse": 0.00667237862944603,
+          "alt_gray_frame_variance": 0.0061315856873989105,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.45649092970521543
+        },
+        {
+          "step": 200,
+          "recon_mse": 0.00660612341016531,
+          "frame_variance": 0.007888590916991234,
+          "frame_mean": 0.022904159501194954,
+          "frac_pixels_above_0p1": 0.06207482889294624,
+          "distinct_tokens": 33,
+          "alt_gray_recon_mse": 0.007136090192943811,
+          "alt_gray_frame_variance": 0.007041112519800663,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.3818027210884354
+        },
+        {
+          "step": 300,
+          "recon_mse": 0.006689548026770353,
+          "frame_variance": 0.006187583785504103,
+          "frame_mean": 0.019023722037672997,
+          "frac_pixels_above_0p1": 0.0545634925365448,
+          "distinct_tokens": 34,
+          "alt_gray_recon_mse": 0.006012026686221361,
+          "alt_gray_frame_variance": 0.005522819701582193,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.3197278911564626
+        },
+        {
+          "step": 400,
+          "recon_mse": 0.012840047478675842,
+          "frame_variance": 0.007921406999230385,
+          "frame_mean": 0.023125361651182175,
+          "frac_pixels_above_0p1": 0.06278344988822937,
+          "distinct_tokens": 31,
+          "alt_gray_recon_mse": 0.011640626937150955,
+          "alt_gray_frame_variance": 0.006853381637483835,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.576672335600907
+        },
+        {
+          "step": 500,
+          "recon_mse": 0.007084076292812824,
+          "frame_variance": 0.0073906658217310905,
+          "frame_mean": 0.02155362069606781,
+          "frac_pixels_above_0p1": 0.05598072707653046,
+          "distinct_tokens": 27,
+          "alt_gray_recon_mse": 0.0065766144543886185,
+          "alt_gray_frame_variance": 0.006642521359026432,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.3449546485260771
+        }
+      ],
+      "mean_recon_mse_over_variance": 1.0443379617597621,
+      "mean_alt_recon_mse_over_variance": 1.0900455420323845
+    },
+    "Seaquest": {
+      "frames": [
+        {
+          "step": 20,
+          "recon_mse": 1.619775139261037e-05,
+          "frame_variance": 0.02708347514271736,
+          "frame_mean": 0.185968279838562,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 23,
+          "alt_gray_recon_mse": 1.619775139261037e-05,
+          "alt_gray_frame_variance": 0.02708347514271736,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.0
+        },
+        {
+          "step": 60,
+          "recon_mse": 4.9305290303891525e-05,
+          "frame_variance": 0.02844424359500408,
+          "frame_mean": 0.18991819024085999,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 27,
+          "alt_gray_recon_mse": 4.9305290303891525e-05,
+          "alt_gray_frame_variance": 0.02844424359500408,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.0
+        },
+        {
+          "step": 100,
+          "recon_mse": 0.00026553854695521295,
+          "frame_variance": 0.028908012434840202,
+          "frame_mean": 0.19152383506298065,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 33,
+          "alt_gray_recon_mse": 0.00026189853087998927,
+          "alt_gray_frame_variance": 0.028822628781199455,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.049886621315192746
+        },
+        {
+          "step": 150,
+          "recon_mse": 0.00023879134096205235,
+          "frame_variance": 0.02857566811144352,
+          "frame_mean": 0.1921735256910324,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 31,
+          "alt_gray_recon_mse": 0.00021953338000457734,
+          "alt_gray_frame_variance": 0.028446000069379807,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.09608843537414966
+        },
+        {
+          "step": 200,
+          "recon_mse": 2.5247436497011222e-05,
+          "frame_variance": 0.027608783915638924,
+          "frame_mean": 0.18722544610500336,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 19,
+          "alt_gray_recon_mse": 2.5247436497011222e-05,
+          "alt_gray_frame_variance": 0.027608783915638924,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.0
+        },
+        {
+          "step": 300,
+          "recon_mse": 0.00020790666167158633,
+          "frame_variance": 0.028316190466284752,
+          "frame_mean": 0.19167669117450714,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 33,
+          "alt_gray_recon_mse": 0.00022138888016343117,
+          "alt_gray_frame_variance": 0.028180666267871857,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.116921768707483
+        },
+        {
+          "step": 400,
+          "recon_mse": 0.00010835535067599267,
+          "frame_variance": 0.027247073128819466,
+          "frame_mean": 0.18914343416690826,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 30,
+          "alt_gray_recon_mse": 0.00012898945715278387,
+          "alt_gray_frame_variance": 0.027184579521417618,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.07071995464852608
+        },
+        {
+          "step": 500,
+          "recon_mse": 2.1802979972562753e-05,
+          "frame_variance": 0.02476748637855053,
+          "frame_mean": 0.18444600701332092,
+          "frac_pixels_above_0p1": 0.8215702772140503,
+          "distinct_tokens": 26,
+          "alt_gray_recon_mse": 2.1802979972562753e-05,
+          "alt_gray_frame_variance": 0.02476748637855053,
+          "mean_abs_diff_ale_gray_vs_cv2_gray": 0.0
+        }
+      ],
+      "mean_recon_mse_over_variance": 0.004123429612059627,
+      "mean_alt_recon_mse_over_variance": 0.004191419950051629
+    }
+  },
+  "greedy": [
+    {
+      "size": "JOWA_40M",
+      "game": "Assault",
+      "context": 8,
+      "tuned": false,
+      "seed": 0,
+      "steps": 300,
+      "ret": 252.0,
+      "clipped_return": 12.0,
+      "action_histogram": {
+        "RIGHTFIRE": 53,
+        "UP": 86,
+        "LEFT": 107,
+        "RIGHT": 47,
+        "NOOP": 1,
+        "FIRE": 6
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Assault",
+      "context": 8,
+      "tuned": false,
+      "seed": 1,
+      "steps": 300,
+      "ret": 189.0,
+      "clipped_return": 9.0,
+      "action_histogram": {
+        "RIGHTFIRE": 52,
+        "FIRE": 1,
+        "UP": 65,
+        "LEFT": 157,
+        "RIGHT": 24,
+        "NOOP": 1
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Assault",
+      "context": 3,
+      "tuned": true,
+      "seed": 0,
+      "steps": 300,
+      "ret": 273.0,
+      "clipped_return": 13.0,
+      "action_histogram": {
+        "RIGHTFIRE": 39,
+        "UP": 90,
+        "LEFT": 73,
+        "RIGHT": 87,
+        "NOOP": 9,
+        "FIRE": 2
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Assault",
+      "context": 3,
+      "tuned": true,
+      "seed": 1,
+      "steps": 300,
+      "ret": 252.0,
+      "clipped_return": 12.0,
+      "action_histogram": {
+        "RIGHTFIRE": 32,
+        "FIRE": 1,
+        "UP": 192,
+        "RIGHT": 49,
+        "LEFTFIRE": 3,
+        "LEFT": 23
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Seaquest",
+      "context": 8,
+      "tuned": false,
+      "seed": 0,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPLEFT": 147,
+        "DOWNRIGHT": 153
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Seaquest",
+      "context": 8,
+      "tuned": false,
+      "seed": 1,
+      "steps": 300,
+      "ret": 40.0,
+      "clipped_return": 2.0,
+      "action_histogram": {
+        "UPRIGHT": 3,
+        "DOWN": 297
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Seaquest",
+      "context": 2,
+      "tuned": true,
+      "seed": 0,
+      "steps": 300,
+      "ret": 60.0,
+      "clipped_return": 3.0,
+      "action_histogram": {
+        "UPLEFT": 70,
+        "DOWNLEFTFIRE": 230
+      }
+    },
+    {
+      "size": "JOWA_40M",
+      "game": "Seaquest",
+      "context": 2,
+      "tuned": true,
+      "seed": 1,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPRIGHT": 205,
+        "UP": 95
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Assault",
+      "context": 8,
+      "tuned": false,
+      "seed": 0,
+      "steps": 300,
+      "ret": 252.0,
+      "clipped_return": 12.0,
+      "action_histogram": {
+        "RIGHTFIRE": 107,
+        "UP": 166,
+        "RIGHT": 14,
+        "LEFT": 12,
+        "FIRE": 1
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Assault",
+      "context": 8,
+      "tuned": false,
+      "seed": 1,
+      "steps": 300,
+      "ret": 315.0,
+      "clipped_return": 15.0,
+      "action_histogram": {
+        "RIGHTFIRE": 5,
+        "UP": 213,
+        "RIGHT": 22,
+        "LEFT": 56,
+        "NOOP": 4
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Assault",
+      "context": 4,
+      "tuned": true,
+      "seed": 0,
+      "steps": 300,
+      "ret": 273.0,
+      "clipped_return": 13.0,
+      "action_histogram": {
+        "RIGHTFIRE": 9,
+        "UP": 44,
+        "RIGHT": 131,
+        "LEFT": 53,
+        "FIRE": 62,
+        "NOOP": 1
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Assault",
+      "context": 4,
+      "tuned": true,
+      "seed": 1,
+      "steps": 300,
+      "ret": 336.0,
+      "clipped_return": 16.0,
+      "action_histogram": {
+        "RIGHTFIRE": 5,
+        "UP": 131,
+        "RIGHT": 86,
+        "LEFT": 65,
+        "FIRE": 5,
+        "NOOP": 8
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Seaquest",
+      "context": 8,
+      "tuned": false,
+      "seed": 0,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPRIGHT": 162,
+        "UPFIRE": 138
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Seaquest",
+      "context": 8,
+      "tuned": false,
+      "seed": 1,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPRIGHT": 300
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Seaquest",
+      "context": 6,
+      "tuned": true,
+      "seed": 0,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPRIGHT": 300
+      }
+    },
+    {
+      "size": "JOWA_150M",
+      "game": "Seaquest",
+      "context": 6,
+      "tuned": true,
+      "seed": 1,
+      "steps": 300,
+      "ret": 0.0,
+      "clipped_return": 0.0,
+      "action_histogram": {
+        "UPRIGHT": 300
+      }
+    }
+  ]
+}

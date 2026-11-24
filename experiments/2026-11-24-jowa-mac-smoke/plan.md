@@ -3,7 +3,7 @@ id: 2026-11-24-jowa-mac-smoke
 title: JOWA-40M and JOWA-150M released checkpoints on an Apple-silicon Mac: load, tokenize, plan and play Atari
 claims: [cheng2025jointly#C16]
 assumptions: [cheng2025jointly#A1, cheng2025jointly#A5, cheng2025jointly#A6]
-status: approved
+status: done
 gpu: yes
 budget_wall_min: 150
 budget_downloads_mb: 1500
