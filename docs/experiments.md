@@ -178,7 +178,7 @@ from the plan), and `## Notes`
   and exits non-zero on failure. CI runs it for plans with `ci_smoke: true`.
 - Figures are made by the run from its own data, as PNGs of at most 500 KB under `figures/`.
   Larger outputs stay in `runs/`.
-- Experiments that need domain code (ZGAL in vulkan_test, vulkan_splatting) get it on a working
+- Experiments that need domain code (ZGAL in zgal, vulkan_splatting) get it on a working
   branch in that repo, through that repo's normal review and merge. The experiment runs against
   the merged commit and records its sha in `commits`.
 
