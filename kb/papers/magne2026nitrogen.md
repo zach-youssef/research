@@ -128,7 +128,8 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
 - Not stated: the fine-tuning recipe (steps, learning rate, frozen parts) and the held-out games'
   titles (source: Sec. 3, p. 9 is silent).
 - The 10 benchmark titles aren't listed in the text; Fig. 1 and Fig. 4 show frames from titles
-  such as The Witcher 3, Cyberpunk 2077, Rocket League, Cuphead and The Binding of Isaac (source:
+  such as The Witcher 3, Cyberpunk 2077, Rocket League, Cuphead, The Binding of Isaac and
+  Blasphemous II (source:
   Fig. 1, p. 2, Fig. 4, p. 6; the mapping to the benchmark is the reader's guess, an assumption).
 - Whether the 10 benchmark games are in the pre-training data isn't stated; C12's wording implies
   at least some are (source: Sec. 3, p. 8; assumption).
@@ -140,6 +141,18 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
   over 16 buttons + 2 sticks (Sec. 2.2-2.3), and App. A.1 writes `a ∈ R^{16×24}`.
 - The authors release the dataset, the evaluation suite and the weights at
   https://nitrogen.minedojo.org (source: p. 1; not fetched).
+- `play.py` on Windows: `game_env.py` passes the window rect as (left, top, width, height) to
+  dxcam's `region`, which takes (left, top, right, bottom), so capture is right only with the
+  window at 0,0; elsewhere it either fails ("Invalid Region") or silently feeds the model a
+  cropped, offset area. It captures the primary display only. Our local patch converts the rect,
+  clamps it to the screen and sets DPI awareness (source:
+  https://github.com/MineDojo/NitroGen@3260844 `nitrogen/game_env.py`; our TheaterPC run
+  2026-11-25; informal, no experiment).
+- Speed on an RTX 3080 (10 GB): 0.33 s per 18-action chunk and 2.9 GB VRAM for inference alone,
+  but about 3.6 s per step in `play.py`, so 79 s of game took about 16 minutes; the suspected
+  overhead is its two libx264 debug-video encoders, per-step debug images and the GPU shared with
+  the game (source: our
+  TheaterPC run 2026-11-25; informal, not profiled).
 
 ## Limitations / open questions
 
@@ -155,6 +168,10 @@ of contractor and reasoning data instead (Sec. 5, p. 10).
   16 buttons + 2 sticks, or 16 x 24 in App. A.1), or is the paper's description simplified?
   `play.py` executes all 18 actions of a chunk (source: MineDojo/NitroGen 3260844,
   scripts/play.py; action_downsample_ratio 1 in nitrogen/inference_session.py).
+- Open question: how well does the released model play zero-shot outside the paper's reported tasks? In
+  one informal run of Blasphemous II on 2026-11-25 (a title in Fig. 1's simulator panel, p. 2, so
+  perhaps a benchmark game) it moved and attacked but often attacked walls and never worked out a
+  ladder; one run, judged by eye, so an anecdote, not evidence for or against any claim.
 - Open question: one frame of context means no memory; how does this fail on tasks where the
   current frame is ambiguous (partial observability), which the benchmark selected against (p. 7)?
 - Open question: the same button means different things in different games and player mappings
