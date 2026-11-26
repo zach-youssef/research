@@ -113,6 +113,7 @@ and little adopted (Sec. 1, p. 2).
 - Open question: the memory split is a partition of DMLab-30 levels, not a controlled sweep of memory length; Numpad is the only horizon sweep, and only by pad count, so how long a span GTrXL actually uses is not measured.
 - Open question: for a shmup policy, does the near-Markovian start (C10) matter when the policy is pretrained by behaviour cloning, as NitroGen is, rather than learnt online from scratch?
 - Open question: the tasks test recall of places and pad sequences rather than long-term strategy state (weapon level, economy, rank); a shmup memory test needs a task where an early decision changes a reward many seconds later.
+- Open question: [[pleines2025memorygym]] finds untuned GTrXL no better than its TrXL baseline on finite Memory Gym tasks and a GRU far ahead of a tuned TrXL on the endless ones, with PPO instead of V-MPO; which of tuning, algorithm or task explains the gap with this paper's LSTM comparison?
 
 ## Related
 

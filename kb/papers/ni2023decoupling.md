@@ -106,7 +106,7 @@ mix them, and "long-term" has no rigorous definition (Sec. 1, p. 2).
 - Only GPT-2 at small sizes, model-free online RL; other sequence architectures and history abstraction are future work (Sec. 6, p. 10).
 - Return-redistribution transformers and offline return-conditioned agents (Decision Transformer) are out of scope (Sec. 4, p. 7).
 - Open question: credit assignment here is TD learning from rewards; for a behaviour-cloned policy (NitroGen-style) credit assignment is absent during pretraining, so does the memory result transfer to BC while the credit-assignment failure only matters in RL fine-tuning?
-- Open question: Memory Gym's Mortar Mayhem is listed with memory up to its horizon of 135 and credit assignment at most 25, i.e. a mostly-memory task at short horizon; the endless versions in the Memory Gym JMLR paper (pleines2025memorygym, this batch) aren't analysed here.
+- Open question: Memory Gym's Mortar Mayhem is listed with memory up to its horizon of 135 and credit assignment at most 25, i.e. a mostly-memory task at short horizon; the endless versions in the Memory Gym JMLR paper ([[pleines2025memorygym]]) aren't analysed here.
 
 ## Related
 
