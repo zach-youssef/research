@@ -85,11 +85,12 @@ reconstruction.
 - Weight decay trades fine-tuning for linear-probe quality (Table 13, p. 15).
 - Open question: all evidence is on natural-image classification; nothing here tests small synthetic frames such as game screens, or whether tiny moving sprites survive the 0.15-0.2 block scale.
 - Open question: the target is the EMA encoder's output and the paper gives no collapse analysis; stability for non-ImageNet data is untested.
-- Open question: the representation is static; no temporal or action-conditioned prediction (the video extension, Assran et al. 2025, assran2025vjepa, is a sibling note not on main yet).
+- Open question: the representation is static; no temporal or action-conditioned prediction (the video extension is [[assran2025vjepa]]).
 
 ## Related
 
 - related [[he2021masked]]: the pixel-reconstruction baseline whose masked-ViT setup I-JEPA keeps but replaces the loss target with embeddings.
+- related [[assran2025vjepa]]: the video and action-conditioned successor from the same group.
 - related [[srinivas2020curl]]: a contrastive, augmentation-based RL encoder objective; I-JEPA is the augmentation-free, non-contrastive alternative.
 
 ## Experiments
