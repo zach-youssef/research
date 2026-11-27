@@ -173,6 +173,14 @@ from the plan), and `## Notes`
   reproduces when every criterion's verdict is the same as the recorded one and each
   toleranced metric is within its tolerance. Then `git restore` the outputs and `git clean --
   experiments/<id>/figures/` (a rerun's new untracked figures aren't removed by restore).
+- **Symlinked paths.** Call `run.sh` through a resolved path (`"$(cd <dir> && pwd -P)"/run.sh`),
+  and write `run.sh` to resolve its own directory with `pwd -P` and the aggregation step to use
+  `os.path.realpath`. `git rev-parse --show-toplevel` returns the real path, so a logical path
+  through a symlink (macOS `$TMPDIR` is under `/var` -> `/private/var`) makes the
+  experiment-relative path leave the repository, and `git rev-parse HEAD:<path>` fails. A
+  fingerprint that can't be computed must fail the run on a clean tree (a placeholder such as
+  forty zeros is allowed only when the tree is dirty and the run is exploratory). A zeroed
+  `inputs` on a clean tree is a bug: don't record it.
 - `./run.sh --smoke` finishes in under a minute on CPU with no downloads beyond the pinned
   requirements, writes only under `runs/<experiment>/smoke/` (never the committed results),
   and exits non-zero on failure. CI runs it for plans with `ci_smoke: true`.
