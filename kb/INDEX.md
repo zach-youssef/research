@@ -141,3 +141,4 @@
 | 2026-11-24-jowa-mac-smoke | done | cheng2025jointly#C16 | cheng2025jointly#C16 inconclusive |
 | 2026-11-24-occam-hackatari-mac-smoke | done | delfosse2025intelligence#C11, delfosse2025intelligence#C8, delfosse2025intelligence#C9 | delfosse2025intelligence#C11 inconclusive, delfosse2025intelligence#C8 inconclusive, delfosse2025intelligence#C9 inconclusive |
 | 2026-11-24-uitars-mac-smoke | done | wang2025gametars#C8 | wang2025gametars#C8 inconclusive |
+| 2026-11-27-memory-token-toys | proposed | cherepanov2026recurrent#C1, cherepanov2026recurrent#C8, cherepanov2026recurrent#C12, pleines2025memorygym#C4, pleines2025memorygym#C10 |  |
