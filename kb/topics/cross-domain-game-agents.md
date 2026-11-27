@@ -2,7 +2,7 @@
 id: cross-domain-game-agents
 title: "Cross-domain game agents: a visual state embedding, one transformer policy, unseen games"
 tags: [cross-domain, transfer, video-games, state-representation, segmentation, object-centric, object-detection, imitation-learning, robustness, world-model, domain-adaptation, transformer, ppo, generalist-agent, zero-shot]
-updated: 2026-11-22
+updated: 2026-11-27
 ---
 
 # Cross-domain game agents
@@ -803,6 +803,20 @@ Open questions without an experiment yet:
   ([[chen2021decision#C7]], [[magne2026nitrogen#C8]]).
 - Can an agent tell that no training game helps for a target? No method in the reviewed
   literature does [[serrano2024crossdomain#C5]].
+- How should a hardware sprite list be grouped into game objects? The emulator's sprite lists
+  can label every recorded frame for training an object encoder (labels only, never input), but
+  a sprite-list entry is a hardware sprite, not a game object: a large enemy is often several
+  sprites, and backgrounds are mostly tile layers, not sprites. Whether the grouping is per game,
+  per hardware or learned is open. OCAtari's RAM-derived objects show the same kind of gap from
+  the other side: they disagree with what is drawn for blinking, hidden and overlapping objects
+  [[delfosse2024ocatari#A4]] [[delfosse2024ocatari#C3]].
+- How do QueST's skill-token results carry over to a discrete action space? QueST compresses
+  chunks of continuous robot actions [[mete2024quest#A2]], with its best settings found there
+  (32-step chunks, 4× downsampling, a codebook of about 1024) [[mete2024quest#C8]]. A game pad is
+  an 8-way d-pad plus buttons, sampled per frame: whether a chunk of button presses needs a
+  learned codebook at all, what chunk length suits reaction-bound play at 60 fps, and whether
+  its state-independent decoder [[mete2024quest#C6]] still holds when dodging depends on the
+  screen are all untested.
 
 ## Papers that would close gaps
 
