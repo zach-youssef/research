@@ -837,6 +837,21 @@ tokens and QueST skill tokens; not a decision):
   with memory learned from the action loss alone [[cherepanov2026recurrent#A5]]; weapon levels,
   economy state and stage progress at once are untested.
 
+Open question across all stages, to keep in view when designing the visual-only experiments:
+- How should game audio enter as an input alongside frames, and which design choices made
+  without it would make adding it later harder? (Haptics in modern games is far lower priority
+  and may be out of scope.) The KB's one
+  game result with audio is weak: in a door puzzle audio at first slowed a video-only learner
+  [[omidshafiei2018crossmodal#C1]], learned attention made it help where the cue exists only in
+  sound [[omidshafiei2018crossmodal#C3]], and in Atari it helped where a sound marks an event
+  that is hard to see [[omidshafiei2018crossmodal#C6]], with no direct comparison against
+  video only [[omidshafiei2018crossmodal#C5]]. Choices that would bind a later audio input
+  include the policy's input interface (a token set that a new modality can join, or a fixed
+  visual embedding), the clock of the compression and memory segments (frame blocks, against
+  audio's own frame rate and the harness's frame skip), and losses or compression thresholds
+  defined only over frames or objects. The harness can keep a core's audio, and recordings
+  replay deterministically, so audio can be regenerated from recordings made now.
+
 ## Papers that would close gaps
 
 None fetched. Entries are in `~/code/.supervisor/plans/res/optional-papers.md` unless marked.
