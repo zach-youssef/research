@@ -9,7 +9,7 @@ arxiv: 2306.09459
 doi:
 pdf_sha256: b97c47e6688b460d833bcd472ed7cb606cb1fed5bbd88beefe595e514d32dbdd
 tags: [memory-tokens, offline-rl, decision-transformer, pomdp, recurrence, long-horizon, memory-gate]
-status: read
+status: verified
 read: 2026-11-25
 ---
 
@@ -113,5 +113,5 @@ can overwrite sparse long-range information as intermediate segments update the 
 ## Experiments
 
 <!-- kb:begin experiments -->
-- [2026-11-27-memory-token-toys](../../experiments/2026-11-27-memory-token-toys/plan.md) (approved): tests C1, C8, C12
+- [2026-11-27-memory-token-toys](../../experiments/2026-11-27-memory-token-toys/results.md): C1 inconclusive, C12 supports, C8 inconclusive
 <!-- kb:end experiments -->

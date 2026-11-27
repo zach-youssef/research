@@ -3,7 +3,7 @@ id: 2026-11-27-memory-token-toys
 title: Memory-token toys for the shmup stack (X7) - set-prefix compression, variable segments, several facts
 claims: [cherepanov2026recurrent#C1, cherepanov2026recurrent#C8, cherepanov2026recurrent#C12]
 assumptions: [cherepanov2026recurrent#A1, cherepanov2026recurrent#A2, cherepanov2026recurrent#A3, cherepanov2026recurrent#A4, cherepanov2026recurrent#A5, cherepanov2026recurrent#A7, pleines2025memorygym#A1, pleines2025memorygym#A2, pleines2025memorygym#A3, pleines2025memorygym#A6, pleines2025memorygym#A7, yan2025elastictok#A2, yan2025elastictok#A6]
-status: approved
+status: done
 gpu: no
 budget_wall_min: 360
 budget_downloads_mb: 250
