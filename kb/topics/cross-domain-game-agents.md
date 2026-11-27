@@ -818,6 +818,25 @@ Open questions without an experiment yet:
   its state-independent decoder [[mete2024quest#C6]] still holds when dodging depends on the
   screen are all untested.
 
+Open questions for one candidate stack the user is considering (an object encoder, ElasticTok-style
+variable-rate compression of its output over a play session, and a policy with recurrent memory
+tokens and QueST skill tokens; not a decision):
+- Can the compression learn which objects the policy can summarise (most bullets of a pattern)?
+  ElasticTok picks the fewest tokens meeting a reconstruction threshold [[yan2025elastictok#A3]],
+  so a reconstruction loss over object states keeps every object; dropping what play doesn't
+  need would take a signal tied to the task, which neither ElasticTok nor the object encoder has.
+- How does prefix masking apply to an unordered set? ElasticTok keeps the first ℓ of an ordered
+  token list [[yan2025elastictok#A2]], while objects are exchangeable; per-object truncation of
+  each embedding, or a few ordered summary tokens over the set, are the obvious readings, and
+  neither is tested.
+- Does a memory-token policy work on segments whose token count varies? RATE splits trajectories
+  into segments of a fixed number of timesteps and its results depend on that split
+  [[cherepanov2026recurrent#C12]]; ElasticTok's output varies in tokens per block by design.
+- Can memory tokens hold several facts over a whole stage? RATE's long-horizon results keep one
+  sparse cue in memory puzzles [[cherepanov2026recurrent#A3]] [[cherepanov2026recurrent#C1]],
+  with memory learned from the action loss alone [[cherepanov2026recurrent#A5]]; weapon levels,
+  economy state and stage progress at once are untested.
+
 ## Papers that would close gaps
 
 None fetched. Entries are in `~/code/.supervisor/plans/res/optional-papers.md` unless marked.
