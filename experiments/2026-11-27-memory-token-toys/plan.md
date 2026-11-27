@@ -1,14 +1,14 @@
 ---
 id: 2026-11-27-memory-token-toys
 title: Memory-token toys for the shmup stack (X7) - set-prefix compression, variable segments, several facts
-claims: [cherepanov2026recurrent#C1, cherepanov2026recurrent#C8, cherepanov2026recurrent#C12, pleines2025memorygym#C4, pleines2025memorygym#C10]
+claims: [cherepanov2026recurrent#C1, cherepanov2026recurrent#C8, cherepanov2026recurrent#C12]
 assumptions: [cherepanov2026recurrent#A1, cherepanov2026recurrent#A2, cherepanov2026recurrent#A3, cherepanov2026recurrent#A4, cherepanov2026recurrent#A5, cherepanov2026recurrent#A7, pleines2025memorygym#A1, pleines2025memorygym#A2, pleines2025memorygym#A3, pleines2025memorygym#A6, pleines2025memorygym#A7, yan2025elastictok#A2, yan2025elastictok#A6]
-status: proposed
+status: approved
 gpu: no
 budget_wall_min: 360
 budget_downloads_mb: 250
 ci_smoke: true
-approved:
+approved: zach-youssef 2026-11-27
 ---
 
 # Memory-token toys for the shmup stack (X7) - set-prefix compression, variable segments, several facts
@@ -22,8 +22,9 @@ before X8 and X9 spend emulator time:
   small scale, then with per-step token counts and segment lengths that vary.
   Claims cherepanov2026recurrent#C1, #C8, #C12.
 - **X7c (several facts):** a multi-cue T-Maze, memory size m against fact count k, with an
-  action-loss-only arm, an auxiliary cue-reconstruction arm and a GRU baseline. Claims
-  pleines2025memorygym#C4, #C10, plus a design readout (the m needed per k).
+  action-loss-only arm, an auxiliary cue-reconstruction arm and a GRU baseline. Design
+  readouts only, no claim tested (the user's change at approval): the questions of
+  pleines2025memorygym#C4 and #C10 in transfer form, and the m needed per k.
 
 ## Hypothesis
 
@@ -36,7 +37,7 @@ before X8 and X9 spend emulator time:
   agent still reaches the junction (#C8). For the stack (design readout): we expect the memory
   read/write to tolerate per-step token counts and segment lengths that vary, since nothing in
   Eq. 1-3 depends on the segment's token count.
-- X7c: on a task where k facts are shown once and queried later, an auxiliary head that
+- X7c (readouts only, no claim tested): on a task where k facts are shown once and queried later, an auxiliary head that
   reconstructs the cues from the memory tokens (labels as targets only) raises recall at
   k >= 4 over the action loss alone, as pleines2025memorygym#C10's ground-truth head lifted
   TrXL; and a GRU holds more facts than the action-loss transformer memory
@@ -62,8 +63,6 @@ best action-only RATE arm's (best m) at k = 8.
 - cherepanov2026recurrent#C1: supports if rate_fixed_success_in >= 0.95 and rate_fixed_success_t900 >= 0.7 and dt_success_t900 <= 0.6; contradicts if rate_fixed_success_in < 0.8 or rate_fixed_success_t900 < dt_success_t900 + 0.1; otherwise inconclusive.
 - cherepanov2026recurrent#C8: supports if rate_fixed_success_t90 >= 0.9 and rate_fixed_noise_success_t90 <= 0.65 and rate_fixed_noise_junction_t90 >= 0.9; contradicts if rate_fixed_success_t90 >= 0.9 and rate_fixed_noise_success_t90 >= rate_fixed_success_t90 - 0.1; otherwise inconclusive.
 - cherepanov2026recurrent#C12: supports if rate_fixed_success_t900 - rate_n1k90_success_t900 >= 0.3 and rate_n1k90_success_t900 <= 0.55; contradicts if rate_fixed_success_t900 - rate_n1k90_success_t900 <= 0.1; otherwise inconclusive.
-- pleines2025memorygym#C4: supports if gru_minus_rate_k8 >= 0.1; contradicts if gru_minus_rate_k8 <= -0.1; otherwise inconclusive.
-- pleines2025memorygym#C10: supports if aux_gain_k4plus >= 0.05 and aux_gain_k4plus_min_seed > 0; contradicts if aux_gain_k4plus <= 0; otherwise inconclusive.
 - tolerance rate_fixed_success_in: 0.05
 - tolerance rate_fixed_success_t900: 0.08
 - tolerance dt_success_t900: 0.08
@@ -71,9 +70,6 @@ best action-only RATE arm's (best m) at k = 8.
 - tolerance rate_fixed_noise_success_t90: 0.08
 - tolerance rate_fixed_noise_junction_t90: 0.05
 - tolerance rate_n1k90_success_t900: 0.08
-- tolerance gru_minus_rate_k8: 0.08
-- tolerance aux_gain_k4plus: 0.04
-- tolerance aux_gain_k4plus_min_seed: 0.05
 
 The tolerances are wide enough for a rerun on another Mac (thread scheduling and BLAS can change
 float sums even with fixed seeds and thread counts) and narrow against the criteria's margins.
@@ -197,7 +193,7 @@ no claim, so they are not compared when reproducing.
   #C1 / #C12 / #C8 confirm at small scale that the memory mechanism the stack relies on works
   as the paper says before it is built on.
 
-### X7c: several facts over a long episode (#C4, #C10)
+### X7c: several facts over a long episode (readouts; the questions of pleines2025memorygym #C4, #C10)
 
 - **Task:** a multi-cue T-Maze (mine, after zhang2024beacon#C5's multi-needle test): episodes
   of 150 steps; k ~ U{1, 2, 4, 8} cues at steps 0..k-1, cue j showing (cue flag, index j
@@ -224,15 +220,23 @@ no claim, so they are not compared when reproducing.
   Seed-bootstrap 95% CIs; n = 3 seeds x 500 episodes per k.
 - **How the Memory Gym assumptions are met or broken:** #A1 (PPO) is broken on purpose: this is
   behaviour cloning, since PPO to 800M steps (#A6, also broken) is far outside a CPU budget;
-  the claims are tested in transfer form, as "an extra supervised signal on what memory should
+  the claims' questions are asked in transfer form, as "an extra supervised signal on what memory should
   hold helps a transformer memory" (#C10) and "a GRU holds accumulated once-shown facts better
   than a transformer memory" (#C4). #A2 is met for the GRU (one layer, 512, full-length
   sequences); the transformer is RATE with memory tokens, not TrXL with a cached window, so
   #A2's TrXL setting is not met. #A3 is met in part (3 seeds, not 5; many evaluation
   episodes). #A7 (Memory Gym's 84x84 RGB environments) is broken: the toy keeps only the
-  structure of Endless Mortar Mayhem (facts shown once, queried later). A supports or
-  contradicts verdict therefore says the claim's mechanism carries over to this setting, and
-  `results.md` says so next to it.
+  structure of Endless Mortar Mayhem (facts shown once, queried later). At approval the user
+  made #C4 and #C10 readouts only: X7c records no verdict on them and cannot change
+  pleines2025memorygym's status; its assumptions stay listed because the GRU arm and the
+  auxiliary coefficient are borrowed from that paper's setup.
+- **Readouts from the Memory Gym questions (fixed now, no claim; the rules the criteria had at
+  proposal):** (1) `gru_minus_rate_k8` >= 0.1: a GRU holds more facts than the action-only
+  memory tokens, so X8 keeps the GRU as the baseline the memory tokens must beat; <= -0.1: the
+  memory tokens hold more, and the GRU is only a reference; otherwise unclear. (2)
+  `aux_gain_k4plus` >= 0.05 and `aux_gain_k4plus_min_seed` > 0: X8 adds the auxiliary
+  reconstruction head on offline RAM labels (targets only); `aux_gain_k4plus` <= 0: X8 trains on
+  the action loss only; otherwise X8 runs both.
 - **Readout (fixed now, no claim):** `m_needed_<arm>_k<k>` = the smallest m in {1, 5, 20} with
   `facts_recalled` >= 0.9 (or "none"), for act and aux; reported as a table, and used to size
   X8's memory per fact count.

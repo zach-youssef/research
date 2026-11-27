@@ -117,5 +117,5 @@ they are compared on sample efficiency rather than on how much they can remember
 ## Experiments
 
 <!-- kb:begin experiments -->
-- [2026-11-27-memory-token-toys](../../experiments/2026-11-27-memory-token-toys/plan.md) (proposed): tests C4, C10
+- none
 <!-- kb:end experiments -->

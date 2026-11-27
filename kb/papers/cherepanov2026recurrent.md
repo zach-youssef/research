@@ -113,5 +113,5 @@ can overwrite sparse long-range information as intermediate segments update the 
 ## Experiments
 
 <!-- kb:begin experiments -->
-- [2026-11-27-memory-token-toys](../../experiments/2026-11-27-memory-token-toys/plan.md) (proposed): tests C1, C8, C12
+- [2026-11-27-memory-token-toys](../../experiments/2026-11-27-memory-token-toys/plan.md) (approved): tests C1, C8, C12
 <!-- kb:end experiments -->
