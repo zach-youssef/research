@@ -10,7 +10,7 @@
   "exploratory": false,
   "tests": ["cheng2025jointly#C4"],
   "verdicts": {
-    "cheng2025jointly#C4": {"verdict": "inconclusive", "evidence": "iqm_dns_jowa2025 0.497 (our model, one run per game, no interval) vs JOWA-150M (planning unstated) 0.647; <the criterion>"}
+    "cheng2025jointly#C4": {"verdict": "inconclusive", "evidence": "iqm_dns_jowa2025 0.497 (our model, one run per game, no interval) vs JOWA-150M (planning) 0.647; <the criterion>"}
   },
   "metrics": {
     "iqm_hns_ours_v1": {"value": 0.2341, "unit": "1", "n": 6, "ci": {"low": 0.1987, "high": 0.2702, "level": 0.95}},
@@ -139,7 +139,7 @@
         }
       },
       "published": [
-        {"claim": "cheng2025jointly#C4", "model": "JOWA-150M planning unstated", "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f", "normalisation": "dns", "aggregate": "iqm", "score": 0.647, "kind": "baseline", "arm": "model", "compare": "iqm_dns_jowa2025"}
+        {"claim": "cheng2025jointly#C4", "model": "JOWA-150M planning", "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f", "normalisation": "dns", "aggregate": "iqm", "score": 0.647, "kind": "baseline", "arm": "model", "compare": "iqm_dns_jowa2025"}
       ]
     }
   }

@@ -246,6 +246,8 @@ goes through the harness's protocol presets (`game-transformer-harness/docs/eval
   the claim (`- lee2022multigame#C4: supports if iqm_hns_mgdt2022 >= 0.72; ...`), and the
   block's `published` copies the table's row (`claim`, `model`, `preset_sha1` as
   `protocol_sha1`, `normalisation`, `aggregate`, `score`) with `kind`, `arm` and `compare`.
+- **Approximate numbers.** A row whose `note` says "about" (read off a figure) is context or a
+  baseline in `results.md`, never a criterion's threshold.
 - **Guessed settings.** A preset approximates the paper's settings: the fields its file marks
   `# guessed:` are ours, and `results.md` names those that could move the comparison.
 - **Reference tables.** Normalised numbers compare only when both sides used the same
@@ -261,14 +263,14 @@ reference data) has one row per published number, with these columns:
 | Column | Meaning |
 |---|---|
 | `paper`, `claim` | The paper id and the full claim id that states the number. The number appears in the claim's text (as a fraction or a percentage); a number no claim states isn't added until a re-read of the paper adds the claim. |
-| `model` | The model as the claim names it, with the variant the claim states: `JOWA-150M planning`, `JOWA-150M no planning`, or `planning unstated` when the claim doesn't say; a retrain by other authors says so. |
+| `model` | The model as the claim names it, with the variant the claim states: `JOWA-150M planning`, `JOWA-150M no planning`, or `planning unstated` when neither the claim nor a second claim cited in `note` states it (`planning per cheng2025jointly#C17`; the source paper's claim, when the number is quoted from another paper); a retrain by other authors says so in `model` (`MGDT-200M JOWA retrain`). |
 | `preset` | The harness preset that approximates the paper's settings for these games, or empty when none exists. |
 | `preset_sha1`, `harness` | The preset's canonical SHA-1 (`EvalProtocol.expand`, pinned in the harness's `tests/test_protocol.py`) and the full `game-transformer-harness` commit it was read at; empty without a preset. A changed preset gets a new name in the harness, so a row stays bound to the settings it was matched with. |
 | `split` | `train` (games the model was trained on) or `held-out` (games held out of pretraining, fine-tuned as the claim says). |
-| `n_games` | How many games the aggregate covers. |
+| `n_games` | How many games the aggregate covers; 1 on a per-game row. |
 | `game` | The harness's game id (`ms-pacman`) for a per-game score; empty for an aggregate. |
 | `normalisation` | `hns`, `dns` or `raw`. Normalised scores are fractions: 1 is the reference's `high` (126% HNS is `1.26`). |
-| `reference` | The `low`/`high` table's claim id, or `unknown` when the note doesn't say which. |
+| `reference` | The `low`/`high` table's claim id, or `unknown` when the note doesn't say which; empty on a `raw` (per-game) row. |
 | `aggregate` | `iqm`, `median` or `mean`; empty for a per-game score. |
 | `score` | The number. |
 | `ci_low`, `ci_high`, `ci_level` | The paper's interval, when the claim gives one; empty otherwise (a `+/-` over seeds isn't an interval). |
