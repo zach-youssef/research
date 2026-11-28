@@ -10,7 +10,7 @@ doi:
 pdf_sha256: 38a8e65a4bfaab6f42ab588c0ee681af8d3d36d36f83b0c2e3d6335dfca60edb
 tags: [reinforcement-learning, offline-rl, decision-transformer, multi-game, atari, scaling, transfer-learning, sequence-modeling]
 status: read
-read: 2026-11-21
+read: 2026-11-27
 ---
 
 # Multi-Game Decision Transformers
@@ -107,6 +107,9 @@ inference (Sec. 2, p. 3).
 - C18: Picking the best of N = 128 sampled returns (inverse temperature 0.75, then top-50% action logits) works about as well as κ-weighted return sampling and needs no κ [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A13] (App. B.3, p. 18)
 - C19: Of the augmentations tried, random cropping (pad 4, crop 84×84) and random rotations work best [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11] (App. B.5, pp. 18-19)
 - C20: Attention heads consistently attend to patches holding meaningful entities: the player, free movement space, non-player objects and environment features [A1, A2, A4, A7, A8] (Fig. 16, App. H, p. 23)
+- C21: The paper gives no per-game raw scores for the 5 held-out games (Alien, MsPacman, Pong, SpaceInvaders, StarGunner): the fine-tuning results are bars of DQN-normalized score per game in Fig. 6 with no printed values, and the raw-score table in App. I (Table 2) covers the 41 training games only [A5, A12] (Fig. 6, p. 8, App. I, Table 2, p. 24)
+- C22: DT-200M's held-out IQM is not stated in the text or a table; the Fig. 5b label for the 200M point reads "91%" at high zoom, but the second digit is overlapped by the data marker and a grid line, so it is a read-off of a figure label (91% or possibly 94%), and the fine-tuning aggregate is IQM of HNS over the 5 games [A1, A5, A9, A12] (Fig. 5b, p. 7)
+- C23: Normalisation tables: HNS is (score - random)/(human - random), cited to Mnih et al. (2015), and DQN-normalized scores use the best DQN score seen in the training dataset; the paper prints neither the random and human scores nor those DQN scores for any game (the only raw tables are App. I, Table 2, for training games), so the reference table behind its HNS percentages is not given [A9] (Sec. 4.1, p. 6, App. I, p. 24)
 
 ## Implementation notes
 
