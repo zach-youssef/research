@@ -3,6 +3,7 @@
 # is what every commit that touches lib/gthbaselines runs, from a clean tree:
 #
 #   lib/gthbaselines/check.sh            set up (first run: ~10 min, ~1.5 GB) and run the tests
+#   lib/gthbaselines/check.sh --mps      also the testcore smoke on MPS (needs the Mac GPU slot)
 #   lib/gthbaselines/check.sh --setup    set up only
 #
 # Everything it builds lives in runs/gthbaselines/ (git-ignored): a pinned uv, the Python 3.12
@@ -27,7 +28,8 @@ MODE=test
 case "${1:-}" in
   "") ;;
   --setup) MODE=setup ;;
-  *) echo "usage: $0 [--setup]" >&2; exit 2 ;;
+  --mps) MODE=mps ;;
+  *) echo "usage: $0 [--setup | --mps]" >&2; exit 2 ;;
 esac
 
 # 1. uv, pinned, bootstrapped with the system Python.
@@ -88,7 +90,16 @@ export PYTHONPATH="$REPO/lib"
 
 [ "$MODE" = setup ] && exit 0
 
-# 6. The tests (CPU).
+# 6. The tests (CPU). Each runner process loads its own copy of the model.
 export GTHB_JOWA_DIR="$RUNS/JOWA" GTHB_JOWA_WEIGHTS="$WEIGHTS" GTHB_TESTCORE="$TESTCORE"
 export PYTHONDONTWRITEBYTECODE=1
 "$PY" -m pytest -q -p no:cacheprovider "$HERE/tests"
+
+# 7. The MPS smoke in both precisions, under the GPU slot the caller holds.
+if [ "$MODE" = mps ]; then
+  for precision in float32 bfloat16_autocast; do
+    "$PY" -m gthbaselines.jowa_smoke --out "$RUNS/smoke-mps-$precision-$(date +%Y%m%dT%H%M%S)" \
+      --jowa-dir "$RUNS/JOWA" --weights-dir "$WEIGHTS" --core-path "$TESTCORE" \
+      --size JOWA_40M --device mps --precision "$precision" --steps 200 --threads 1
+  done
+fi
