@@ -14,6 +14,9 @@ Read the docs for the area you touch:
 - [docs/experiments.md](docs/experiments.md): before proposing, running or reviewing an
   experiment. Layout, `plan.md`, `results.json` (and its `eval` block), comparisons with
   published numbers, reproducibility, budgets, the GPU slot.
+- [lib/gthbaselines/README.md](lib/gthbaselines/README.md): before changing the baseline
+  policies for the harness's evaluation runner (GPL adapters such as JOWA), their pinned venv or
+  `check.sh`, the check every commit touching them runs.
 
 Templates for new notes, plans and results are in `templates/`; `kb/papers/_example.md` is a
 filled-in note.
@@ -28,7 +31,7 @@ Rules that apply everywhere:
   once on `main`.
 - Branches: `paper-<id>` (or `papers-<topic>`) for notes, `exp-<slug>` for experiments.
 - Tools target Python 3.9 (the system `python3`) with the standard library only; experiments
-  pin their own dependencies.
+  and `lib/gthbaselines` pin their own dependencies.
 
 Open items: `tools/kb`, `tools/fetch_paper.py`, `tools/pdf_pages.swift`, `tools/lab` and CI are
 not written yet. Until they are, follow the formats by hand.

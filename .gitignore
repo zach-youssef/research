@@ -4,3 +4,4 @@
 /runs/
 .venv*/
 .kb-cache/
+__pycache__/
