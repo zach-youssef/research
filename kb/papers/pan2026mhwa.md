@@ -10,7 +10,7 @@ doi:
 pdf_sha256: a5aa632c56c75bb7ca958a0d7cf8efc779bf4d9773e50651f840eeb89e1367a8
 tags: [world-model, hierarchical, multi-timescale, mixture-of-experts, offline-rl, atari, transformer, slow-fast-context, vq-tokens]
 status: read
-read: 2026-11-25
+read: 2026-11-27
 ---
 
 # MHWA: Multi-timescale Hierarchical World-Action Model
@@ -69,6 +69,10 @@ Scaling (JOWA-150M) is the usual remedy and is costly (Sec. 1, p. 2).
 - C10: Retraining with context-refresh interval r = 2 (k = 4) gives IQM 0.558 and median 0.484, versus 0.564 and 0.463 for r = 4; evaluating the default checkpoint at r = 2 gives 0.568, at r = 1 0.533 [A1, A2, A3, A4, A6, A7] (Table 14, p. 20, App. F.3, pp. 19-20).
 - C11: Top-2 of 4 experts is best (IQM 0.564) among tested expert configurations; 4 experts Top-1 gets 0.542 and 8 experts Top-2 0.511 [A1, A2, A3, A4, A6, A7] (Table 12, p. 19, App. F.2, p. 19).
 - C12: Under Lipschitz dynamics with slow context drift rho, the strided model's one-step error bound is at most the flat model's when beta_H + (k-1) rho <= beta_F [A5] (App. C, Eq. 27, p. 16).
+- C13: The held-out per-game raw scores are in Table 9 (Random / DQN reference, then JOWA-70M, JOWA-150M, MHWA mean of 3 seeds): Gravitar 173.0 / 473.0, 387.4, 273.3, 310.5; MsPacman 307.3 / 3085.6, 908.0, 2016.7, 1804.9; Pong -20.7 / 19.5, 14.6, 17.7, 17.7; Robotank 2.2 / 63.9, 13.8, 25.0, 11.0; YarsRevenge 3092.9 / 18089.9, 16339.2, 17506.2, 17699.0. The JOWA-70M and JOWA-150M columns are not said to be retrained; the 150M column equals JOWA's Table 18 [A1, A2, A7] (Table 9, p. 18)
+- C14: The 0.643 +/- 0.007 is the mean and sample standard deviation of 3 seed-level IQM DNS values, 0.648, 0.635 and 0.645 (mean DNS 0.614 +/- 0.010, median 0.628 +/- 0.040); no confidence interval is given for the held-out score, and the +/- covers 3 seeds only [A1, A2, A7] (Table 9, App. E, p. 18)
+- C15: The 14-game Table 1 gives MHWA's seed-level IQM HNS as 0.867 +/- 0.047 (seeds 0.837, 0.922, 0.844; sample SD), the figure beside the 0.884 [0.736, 1.031] of C1 that comes from RLiable's aggregate over the 3-by-14 seed-by-game matrix [A1, A2, A7] (Table 1, p. 8, App. D, Table 7, p. 17, Sec. 4.2, p. 7)
+- C16: Normalisation: HNS is (score - random)/(human - random) and the held-out scores are DQN-normalised, with the Random, Human (Table 1) and DQN (Table 9) values printed in the tables and equal to JOWA's printed ones; the paper cites no source for these tables, and it says it follows JOWA's Atari evaluation procedure without saying whether actions are chosen with beam-search planning (no mention of planning in the evaluation text, Sec. 4.1) [A1, A2, A7] (Sec. 4.1, p. 7, Table 1, p. 8, Table 9, p. 18)
 
 ## Implementation notes
 
