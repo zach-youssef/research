@@ -1,0 +1,29 @@
+paper,claim,model,preset,preset_sha1,harness,split,n_games,game,normalisation,reference,aggregate,score,ci_low,ci_high,ci_level,note
+lee2022multigame,lee2022multigame#C1,DT-200M,,,,train,41,,hns,unknown,iqm,1.26,,,,
+lee2022multigame,lee2022multigame#C3,DT-10M,,,,train,41,,hns,unknown,iqm,0.56,,,,about (read off Fig. 5a)
+lee2022multigame,lee2022multigame#C3,DT-40M,,,,train,41,,hns,unknown,iqm,0.93,,,,about (read off Fig. 5a)
+lee2022multigame,lee2022multigame#C13,DT,,,,train,41,,hns,unknown,median,0.85,,,,model size not stated
+lee2022multigame,lee2022multigame#C4,DT-10M,mgdt2022,9770da92b87c2a9a8fbf5b44c6d40516c2cb1097,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,hns,unknown,iqm,0.72,,,,
+cheng2025jointly,cheng2025jointly#C1,JOWA-150M planning unstated,,,,train,15,,hns,unknown,median,0.456,,,,
+cheng2025jointly,cheng2025jointly#C1,MGDT-200M,,,,train,15,,hns,unknown,iqm,0.498,,,,MGDT as reported by JOWA's authors
+cheng2025jointly,cheng2025jointly#C10,JOWA-150M planning,,,,train,15,,hns,unknown,iqm,0.789,,,,
+cheng2025jointly,cheng2025jointly#C10,JOWA-70M planning,,,,train,15,,hns,unknown,iqm,0.476,,,,
+cheng2025jointly,cheng2025jointly#C10,JOWA-40M planning,,,,train,15,,hns,unknown,iqm,0.371,,,,
+cheng2025jointly,cheng2025jointly#C10,JOWA-150M no planning,,,,train,15,,hns,unknown,iqm,0.508,,,,
+cheng2025jointly,cheng2025jointly#C10,JOWA-70M no planning,,,,train,15,,hns,unknown,iqm,0.451,,,,
+cheng2025jointly,cheng2025jointly#C10,JOWA-40M no planning,,,,train,15,,hns,unknown,iqm,0.271,,,,
+cheng2025jointly,cheng2025jointly#C4,JOWA-150M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.647,,,,
+cheng2025jointly,cheng2025jointly#C4,JOWA-150M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,mean,0.647,,,,
+cheng2025jointly,cheng2025jointly#C4,JOWA-150M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,median,0.615,,,,
+cheng2025jointly,cheng2025jointly#C5,JOWA-40M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.498,,,,
+cheng2025jointly,cheng2025jointly#C5,JOWA-40M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,median,0.512,,,,
+cheng2025jointly,cheng2025jointly#C5,JOWA-70M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.603,,,,
+cheng2025jointly,cheng2025jointly#C5,JOWA-70M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,median,0.715,,,,
+pan2026mhwa,pan2026mhwa#C1,MHWA-77M,,,,train,14,,hns,unknown,iqm,0.884,0.736,1.031,0.95,3 seeds
+pan2026mhwa,pan2026mhwa#C1,JOWA-70M MHWA retrain planning unstated,,,,train,14,,hns,unknown,iqm,0.529,0.459,0.602,0.95,retrained by MHWA's authors on the same data
+pan2026mhwa,pan2026mhwa#C1,JOWA-150M planning unstated,,,,train,14,,hns,unknown,iqm,0.833,,,,JOWA's published model over MHWA's 14 games
+pan2026mhwa,pan2026mhwa#C3,MHWA-77M,,,,train,14,,hns,unknown,median,0.676,,,,
+pan2026mhwa,pan2026mhwa#C3,JOWA-150M planning unstated,,,,train,14,,hns,unknown,median,0.582,,,,
+pan2026mhwa,pan2026mhwa#C5,MHWA-77M,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.643,,,,+/- 0.007 (not an interval)
+pan2026mhwa,pan2026mhwa#C5,JOWA-150M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.647,,,,JOWA's number as MHWA's authors cite it
+pan2026mhwa,pan2026mhwa#C5,JOWA-70M planning unstated,jowa2025,d5067c237d3715ecf61cf9a10a21a739fed0588f,cef296a0c588cf33f8c6e7075e2ff8af286f47ce,held-out,5,,dns,unknown,iqm,0.603,,,,JOWA's number as MHWA's authors cite it

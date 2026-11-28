@@ -12,7 +12,8 @@ Read the docs for the area you touch:
 - [docs/recent-work-scan.md](docs/recent-work-scan.md): before checking for new papers the KB
   doesn't cover. The saved searches and arXiv queries, and the scan log.
 - [docs/experiments.md](docs/experiments.md): before proposing, running or reviewing an
-  experiment. Layout, `plan.md`, `results.json`, reproducibility, budgets, the GPU slot.
+  experiment. Layout, `plan.md`, `results.json` (and its `eval` block), comparisons with
+  published numbers, reproducibility, budgets, the GPU slot.
 
 Templates for new notes, plans and results are in `templates/`; `kb/papers/_example.md` is a
 filled-in note.

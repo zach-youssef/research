@@ -37,6 +37,7 @@ experiments/<YYYY-MM-DD>-<slug>/
   figures/           PNGs made by the run, at most 500 KB each
   eval/              gth evaluate's outputs the results rest on (below, "The eval block")
 runs/<experiment>/   git-ignored: .venv/, logs/, smoke/, large outputs
+experiments/_reference/  reference data shared by experiments, such as published scores (below)
 ```
 
 The experiment id is the directory name: the date the plan was proposed, then a lowercase
@@ -205,7 +206,73 @@ whose `low` or `high` differ from their source (an arm's mean, or a reference fi
 `high_statistic`, whose `protocol.sha1` must be the block's `protocol_sha1`); whose
 `normalised` scores differ from the table's rescale; or whose `published` entries cite a
 claim that doesn't exist, name another `protocol_sha1`, or, for a `reproduction`, an arm
-whose `variant` isn't the entry's `model`.
+whose `variant` isn't the entry's `model`. It also rejects an entry that doesn't match a row
+of the published-numbers table ("Comparisons with published numbers" below), as its rules
+say.
+
+## Comparisons with published numbers
+
+A comparison with a paper's number holds only under the paper's evaluation settings, so it
+goes through the harness's protocol presets (`game-transformer-harness/docs/evaluation.md`,
+"Presets") and the `eval` block:
+
+- **When the `eval` block is required.** In every `results.json` with a result from
+  `gth evaluate`, and always when a criterion, a verdict or `results.md` compares a score with
+  a published number or with another experiment's.
+- **Between experiments.** Raw scores compare only when the blocks' `protocol_sha1` match.
+  Normalised scores also need the same `normalisation` (`name`, sources, `sha256` and every
+  game's `low` and `high`): under `ours-v1` each experiment's `low` is its own random arm, so
+  otherwise normalise one side's `raw` scores with the other's table first.
+- **One protocol per comparison.** A published number is compared only with an aggregate of
+  the block whose `protocol_sha1` is the number's `preset_sha1` in the table below (the
+  preset's SHA-1 at the pinned harness commit, not its name, so an edited copy doesn't
+  match), with the same `normalisation` and `aggregate`. Numbers under different presets,
+  splits or normalisations are never combined into one aggregate or averaged together, and
+  an aggregate is always over all of its protocol's games (the paper's set). A row with no
+  `preset` (the papers' training-game sets have none yet) is context in `results.md`'s
+  `## Notes`, never in a criterion, until a preset for its games exists.
+- **Reproduction or baseline.** A comparison is one of two kinds, the `published` entry's
+  `kind`:
+  - `reproduction`: the arm claims to be the published model (a fidelity check: JOWA's
+    weights played under `jowa2025`). Its `variant` must equal the row's `model`, so a row
+    whose `model` says `planning unstated` can't be a reproduction target until a re-read
+    states the variant.
+  - `baseline`: our arm is set against the published number (our model's
+    `iqm_dns_jowa2025` against JOWA's). Any row under the same preset SHA-1, normalisation
+    and aggregate qualifies, whatever its model; `results.md` reports the row's `model`
+    (planning status included, or that it is unstated) next to the comparison.
+- **Citing.** A published number is cited by its claim id, never by page alone: the plan
+  lists the claim in `claims` when the experiment tests it, its criterion names our metric and
+  the claim (`- lee2022multigame#C4: supports if iqm_hns_mgdt2022 >= 0.72; ...`), and the
+  block's `published` copies the table's row (`claim`, `model`, `preset_sha1` as
+  `protocol_sha1`, `normalisation`, `aggregate`, `score`) with `kind`, `arm` and `compare`.
+- **Guessed settings.** A preset approximates the paper's settings: the fields its file marks
+  `# guessed:` are ours, and `results.md` names those that could move the comparison.
+- **Reference tables.** Normalised numbers compare only when both sides used the same
+  `low`/`high` table; human tables differ between papers (`mnih2015human#C8` against
+  `badia2020agent57#C10`). Where the paper's table is `unknown`, `results.md` says the
+  comparison is approximate for that reason.
+
+### The published-numbers table
+
+`experiments/_reference/published-atari.csv` (not an experiment: `_reference` holds
+reference data) has one row per published number, with these columns:
+
+| Column | Meaning |
+|---|---|
+| `paper`, `claim` | The paper id and the full claim id that states the number. The number appears in the claim's text (as a fraction or a percentage); a number no claim states isn't added until a re-read of the paper adds the claim. |
+| `model` | The model as the claim names it, with the variant the claim states: `JOWA-150M planning`, `JOWA-150M no planning`, or `planning unstated` when the claim doesn't say; a retrain by other authors says so. |
+| `preset` | The harness preset that approximates the paper's settings for these games, or empty when none exists. |
+| `preset_sha1`, `harness` | The preset's canonical SHA-1 (`EvalProtocol.expand`, pinned in the harness's `tests/test_protocol.py`) and the full `game-transformer-harness` commit it was read at; empty without a preset. A changed preset gets a new name in the harness, so a row stays bound to the settings it was matched with. |
+| `split` | `train` (games the model was trained on) or `held-out` (games held out of pretraining, fine-tuned as the claim says). |
+| `n_games` | How many games the aggregate covers. |
+| `game` | The harness's game id (`ms-pacman`) for a per-game score; empty for an aggregate. |
+| `normalisation` | `hns`, `dns` or `raw`. Normalised scores are fractions: 1 is the reference's `high` (126% HNS is `1.26`). |
+| `reference` | The `low`/`high` table's claim id, or `unknown` when the note doesn't say which. |
+| `aggregate` | `iqm`, `median` or `mean`; empty for a per-game score. |
+| `score` | The number. |
+| `ci_low`, `ci_high`, `ci_level` | The paper's interval, when the claim gives one; empty otherwise (a `+/-` over seeds isn't an interval). |
+| `note` | What a reader needs about the number: approximate ("about", read off a figure), a `+/-` that isn't an interval; empty otherwise. |
 
 ## results.md
 
