@@ -265,10 +265,10 @@ reference data) has one row per published number, with these columns:
 | `paper`, `claim` | The paper id and the full claim id that states the number. The number appears in the claim's text (as a fraction or a percentage); a number no claim states isn't added until a re-read of the paper adds the claim. |
 | `model` | The model as the claim names it, with the variant the claim states: `JOWA-150M planning`, `JOWA-150M no planning`, or `planning unstated` when neither the claim nor a second claim cited in `note` states it (`planning per cheng2025jointly#C17`; the source paper's claim, when the number is quoted from another paper); a retrain by other authors says so in `model` (`MGDT-200M JOWA retrain`). |
 | `preset` | The harness preset that approximates the paper's settings for these games, or empty when none exists. |
-| `preset_sha1`, `harness` | The preset's canonical SHA-1 (`EvalProtocol.expand`, pinned in the harness's `tests/test_protocol.py`) and the full `game-transformer-harness` commit it was read at; empty without a preset. A changed preset gets a new name in the harness, so a row stays bound to the settings it was matched with. |
+| `preset_sha1`, `harness` | The preset's canonical SHA-1 (`EvalProtocol.expand`, pinned in the harness's `tests/test_protocol.py`) and the full `game-transformer-harness` commit it was read at; empty without a preset. A changed preset gets a new name in the harness, so a row stays bound to the settings it was matched with. (One exception: at harness 75de845 the Atari presets kept their names when their game ids gained the `atari-` prefix, because the old ids named no game config; this table's rows were repinned to harness 0cc2c56.) |
 | `split` | `train` (games the model was trained on) or `held-out` (games held out of pretraining, fine-tuned as the claim says). |
 | `n_games` | How many games the aggregate covers; 1 on a per-game row. |
-| `game` | The harness's game id (`ms-pacman`) for a per-game score; empty for an aggregate. |
+| `game` | The harness's game id (`atari-ms-pacman`) for a per-game score; empty for an aggregate. |
 | `normalisation` | `hns`, `dns` or `raw`. Normalised scores are fractions: 1 is the reference's `high` (126% HNS is `1.26`). |
 | `reference` | The `low`/`high` table's claim id, or `unknown` when the note doesn't say which; empty on a `raw` (per-game) row. |
 | `aggregate` | `iqm`, `median` or `mean`; empty for a per-game score. |

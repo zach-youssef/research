@@ -94,7 +94,7 @@
       "published": []
     },
     "jowa2025": {
-      "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f",
+      "protocol_sha1": "30ae1499c179d449a394a7b5e8da1f9de9c00b78",
       "runs": {
         "model": {
           "dir": "eval/jowa2025/model",
@@ -110,11 +110,11 @@
           "harness": {"git_dirty": "false", "git_sha": "<40 hex>", "profile": "release", "rustc": "<rustc version>", "target": "aarch64-apple-darwin", "version": "<version>"},
           "seeds_are": "independent_runs",
           "games": {
-            "gravitar": {"episodes": 16, "truncated": 0, "raw": [410.0], "normalised": [0.2289]},
-            "ms-pacman": {"episodes": 16, "truncated": 0, "raw": [2870.0], "normalised": [0.6813]},
-            "pong": {"episodes": 16, "truncated": 0, "raw": [14.6], "normalised": [0.8673]},
-            "robotank": {"episodes": 16, "truncated": 0, "raw": [9.8], "normalised": [0.1271]},
-            "yars-revenge": {"episodes": 16, "truncated": 0, "raw": [17300.0], "normalised": [0.582]}
+            "atari-gravitar": {"episodes": 16, "truncated": 0, "raw": [410.0], "normalised": [0.2289]},
+            "atari-ms-pacman": {"episodes": 16, "truncated": 0, "raw": [2870.0], "normalised": [0.6813]},
+            "atari-pong": {"episodes": 16, "truncated": 0, "raw": [14.6], "normalised": [0.8673]},
+            "atari-robotank": {"episodes": 16, "truncated": 0, "raw": [9.8], "normalised": [0.1271]},
+            "atari-yars-revenge": {"episodes": 16, "truncated": 0, "raw": [17300.0], "normalised": [0.582]}
           }
         }
       },
@@ -125,11 +125,11 @@
         "high_statistic": null,
         "sha256": {},
         "games": {
-          "gravitar": {"low": 220.0, "high": 1050.0},
-          "ms-pacman": {"low": 240.0, "high": 4100.0},
-          "pong": {"low": -20.7, "high": 20.0},
-          "robotank": {"low": 2.2, "high": 62.0},
-          "yars-revenge": {"low": 3100.0, "high": 27500.0}
+          "atari-gravitar": {"low": 220.0, "high": 1050.0},
+          "atari-ms-pacman": {"low": 240.0, "high": 4100.0},
+          "atari-pong": {"low": -20.7, "high": 20.0},
+          "atari-robotank": {"low": 2.2, "high": 62.0},
+          "atari-yars-revenge": {"low": 3100.0, "high": 27500.0}
         }
       },
       "aggregates": {
@@ -139,7 +139,7 @@
         }
       },
       "published": [
-        {"claim": "cheng2025jointly#C4", "model": "JOWA-150M planning", "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f", "normalisation": "dns", "aggregate": "iqm", "score": 0.647, "kind": "baseline", "arm": "model", "compare": "iqm_dns_jowa2025"}
+        {"claim": "cheng2025jointly#C4", "model": "JOWA-150M planning", "protocol_sha1": "30ae1499c179d449a394a7b5e8da1f9de9c00b78", "normalisation": "dns", "aggregate": "iqm", "score": 0.647, "kind": "baseline", "arm": "model", "compare": "iqm_dns_jowa2025"}
       ]
     }
   }
