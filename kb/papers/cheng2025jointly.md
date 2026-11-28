@@ -10,7 +10,7 @@ doi:
 pdf_sha256: 2de5781c1bb2f389d662d0ea82989e63498cebe34e841f53bd82147e1e1b394d
 tags: [reinforcement-learning, offline-rl, world-model, model-based-rl, atari, multi-game, scaling, transfer-learning, vq-vae, planning]
 status: read
-read: 2026-11-24
+read: 2026-11-27
 ---
 
 # Scaling Offline Model-Based RL via Jointly-Optimized World-Action Model Pretraining
@@ -106,6 +106,11 @@ unseen games.
 - C14: Theorem 4.1: the search-based Q-value's error is bounded as in Eq. 12, below Q-hat's error under the condition in Eq. 13 (reward and transition errors small enough relative to the Q error); the proof assumes the optimal search policy lies in the top-K-restricted policy class [A6] (Sec. 4.2, p. 6, Eq. 12-13, App. B, pp. 15-16, App. C, pp. 16-17)
 - C15: Pretraining uses about 6B tokens (K = 36, L = 8), 1.75M steps in two stages, about 12 days on A100s; the full Atari 2600 suite would take about 2 months, so was not tried [A5, A7] (Sec. 5.1, p. 7, Sec. 3.3, p. 3, Sec. 6, p. 10)
 - C16: Training, evaluation code and model weights are released; Table 1 marks train, eval and checkpoints as open for JOWA; Multi-Game DT lacks only training code, FICC only released world-model pretraining code, Scaled-QL released preliminary code (footnotes p. 3); the abstract and conclusion say "will be released" while the intro says "We release" [] (p. 1, Table 1, p. 3)
+- C17: The paper states planning is on in evaluation: "During evaluation, we enable planning for JOWA" (Sec. 5.1, p. 7), with horizon H = 2 for every game and beam width K = 2 when the valid action space is under 10, else 3 or 4, per game in Table 17 (15 training games only, no entries for the held-out games). The tables that report JOWA at 0.789 IQM HNS (Table 2) and 0.647 DNS (Table 3) don't repeat it, and for the fine-tuned models Sec. 5.1 is the only statement: App. E.2 gives planning only for the training batches (horizon and width 2) and no evaluation widths for held-out games, so "planning on in the held-out evaluation" is the Sec. 5.1 sentence applied, not a per-table statement; the beam width of the 18-action held-out games (Gravitar, Robotank, YarsRevenge) is therefore unstated within 3 or 4, while MsPacman (9 actions) and Pong (6) get 2 by the width rule [A1, A3, A6] (Sec. 5.1, p. 7, App. E.3, Table 17, p. 21, App. E.2, p. 20)
+- C18: The per-game raw scores behind Table 3 are in Table 18 (5 held-out games, raw / DQN reference): Gravitar 173.0 / 473.0, MsPacman 307.3 / 3085.6, Pong -20.7 / 19.5, Robotank 2.2 / 63.9, YarsRevenge 3092.9 / 18089.9 (random / DQN). JOWA-150M scores 273.3, 2016.7, 17.7, 25.0, 17506.2; MGDT-200M 250.0, 1290.3, 9.7, 16.0, 10886.3; EDT 253.3, 1210.7, 11.3, 15.5, 11276.9; MTBC-120M 35.7, 905.0, 5.8, 6.8, 7987.5; Scaled-QL-80M 137.5, 1040.2, 13.7, 19.7, 10838.5; scratch JOWA-150M 83.3, 786.7, 8.8, 11.0, 6507.0 (Gravitar, MsPacman, Pong, Robotank, YarsRevenge in order). Per-game raw scores for JOWA-40M and JOWA-70M, and per-game scores for any held-out evaluation without planning, aren't in the paper [A1, A3, A9, A10] (Table 18, p. 22)
+- C19: The planning ablation covers training games only: Table 4 (15 games, IQM HNS) and Table 5 and 19 (7 games, JOWA-150M); no held-out-game score without planning is reported, and Table 4's JOWA-70M "with planning" IQM 47.6% differs from the 0.485 IQM printed for JOWA-70M in Table 2 (the text uses 47.6%) [A1, A2, A9] (Table 4, p. 9, Table 2, p. 8, Sec. 5.3, p. 7, Table 19, p. 22)
+- C20: Reference tables: HNS is (score - random)/(human - random), cited to Mnih et al. (2015), with the Random and Human columns printed in Table 2 (15 training games, e.g. Assault 222.4 / 742.0, Atlantis 12850 / 29028.1, Seaquest 68.4 / 42054.7) and DNS "following Lee et al. (2022)" uses the Random and DQN columns printed in Table 18 (e.g. Gravitar 173.0 / 473.0, Pong -20.7 / 19.5). The paper gives no source for the printed values themselves, and its DQN column is not described as the best DQN score in the dataset (MGDT's definition) [A1, A3] (Sec. 5.1, p. 7, Table 2, p. 8, Table 18, p. 22, Table 3, p. 8)
+- C21: The aggregates in C4's comparison are of different kinds: Table 3 gives MGDT-200M mean 0.422, median 0.354 and IQM 0.377 DNS, so the 0.422 is the mean (JOWA-150M 0.647 is mean and IQM, median 0.615). MGDT-40M's 33% in C2 is not stated in the text or a table: only MGDT-200M 49.8% (Table 2) is, and the 40M value is read off Fig. 2, as are MTBC's 34M and 65M [A1, A2, A3, A9] (Table 3, p. 8, Fig. 2, p. 8, Table 2, p. 8)
 
 ## Implementation notes
 
@@ -127,6 +132,7 @@ unseen games.
 
 ## Limitations / open questions
 
+- Reader: the paper never reports held-out scores without planning, and does not state the planning settings of the fine-tuned evaluation beyond Sec. 5.1's general sentence (C17, C19).
 - Could not train on the full Atari 2600 set with complete datasets (about 2 months) (Sec. 6, p. 10).
 - Synthetic data in pretraining was harmful and untested at scale; how to use it is left open (Sec. 6, p. 10).
 - Raw scores in some games decrease with size, which the authors attribute to offline RL (Sec. 6, p. 10).
