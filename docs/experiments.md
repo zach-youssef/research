@@ -35,6 +35,7 @@ experiments/<YYYY-MM-DD>-<slug>/
   results.json       machine-readable results (schema below)
   results.md         the human summary of results.json
   figures/           PNGs made by the run, at most 500 KB each
+  eval/              gth evaluate's outputs the results rest on (below, "The eval block")
 runs/<experiment>/   git-ignored: .venv/, logs/, smoke/, large outputs
 ```
 
@@ -136,12 +137,75 @@ Written by the run (never by hand-copying numbers), and validated by `kb.py chec
 | `seeds` | Every seed used, as a list. |
 | `wall_clock_s` | Total wall clock of the full run, in seconds. |
 | `env` | `python` version; `os` (name, version, architecture); `packages`, the venv's `pip freeze` lines; `gpu`, the device and driver when the plan says `gpu: yes` (from `vulkaninfo --summary` when present), otherwise `null`. |
+| `eval` | Present when any result comes from `gth evaluate` runs: one block per evaluation protocol (below, "The eval block"). Absent otherwise. |
 
 `kb.py check` rejects a `results.json` that cites a claim that doesn't exist, lacks a verdict
 for a tested claim, has a dirty commit without `exploratory: true`, belongs to a plan
 without `approved:`, or, unless `exploratory: true`, whose `inputs` differ from the current
 commit's (`git rev-parse HEAD:experiments/<id>/<path>`): code changed after the run, so the
 results must be rerun.
+
+### The eval block
+
+`templates/results.json` is the starting point for an experiment that evaluates policies with
+the harness (`game-transformer-harness`). Its `eval` block records where every score came
+from, so a number can be recomputed and compared. It mirrors the harness's outputs and
+doesn't redefine them: the run directory (`protocol.toml`, `run.json`, `episodes.jsonl`) is in
+`game-transformer-harness/docs/evaluation.md`, "Results"; normalisation, the aggregates,
+`run_scores` and its `seeds_are`, and the stratified bootstrap are in
+`game-transformer-harness/docs/metrics.md`; the human reference file is in
+`docs/evaluation.md`, "Human reference". The numbers in the template are illustrative.
+
+`eval` maps a protocol key to one block. The key is the preset's name (`jowa2025`) when the
+runs used `gth evaluate --protocol <preset>`, and `file:<stem>` for a protocol file of the
+experiment's own, so a modified copy of a preset can't pass for it. A block holds only runs
+under that protocol, so its aggregates can't mix protocols:
+
+| Field | Meaning |
+|---|---|
+| `protocol_sha1` | The protocol's SHA-1 (`run.json`'s `protocol_sha1`). Every run of the block has it. Under a preset key, it is the preset's canonical SHA-1 at the runs' `harness.git_sha`. |
+| `runs` | By arm name (the policy evaluated: `model`, `random-v1`, a baseline's name): one `gth evaluate` run each, below. |
+| `normalisation` | How the block's `normalised` scores were made, or `null` when it reports raw scores only (below). One table per block. |
+| `aggregates` | By metric name: `statistic` (a `gtharness.metrics` function: `iqm`, `median`, `mean`, `optimality_gap`, `probability_of_improvement`), `params` (its required keyword arguments, such as `{"threshold": 1}` for the optimality gap; `{}` when none), `runs` (the arms it reads: one, or two for `probability_of_improvement`, first arm compared against the second), `scores` (`normalised` or `raw`), `point`, and `ci`. Every aggregate is over all of the protocol's games. |
+| `ci` | The interval on `point`: `method` (`stratified_bootstrap_percentile`, `stratified_bootstrap_ci`'s), `low`, `high`, `confidence`, `resamples`, and `rng_seed`, the seed of the `numpy.random.default_rng(rng_seed)` made fresh for this interval alone, so it reproduces. `null` when the bootstrap is refused: one run per game (a single checkpoint), which `results.md` then says. |
+| `published` | The published numbers this block's aggregates are set against, or `[]`. Per number: `claim` (the claim id that states it), `model` (the paper's model as the claim names it), `protocol_sha1` (the protocol the number is matched with: the block's), `normalisation`, `aggregate` and `score` (the paper's), `kind` (`reproduction` when the arm claims to be the published model, `baseline` when our arm is set against it), `arm` (the run set against it) and `compare` (the block's aggregate, one that reads `arm`). |
+
+A run (`runs.<arm>`):
+
+| Field | Meaning |
+|---|---|
+| `dir` | The run's directory, relative to the experiment, as `gth evaluate --out` wrote it: `eval/<key>/<arm>` (`eval/file-<stem>/<arm>` for a `file:` key). Committed, so the scores can be recomputed from `episodes.jsonl` with `gtharness.evaluate.check_results` and `run_scores`, without rerunning; its three files are small (a few MB at most). The scored run is made without `--record` (`run.json`'s `recorded` is `false`), since `check_results` refuses a recorded run whose recordings are missing; recordings, when wanted, come from a separate run under `runs/`. |
+| `sha256` | The SHA-256 of `protocol.toml`, `run.json` and `episodes.jsonl`. |
+| `variant` | What was played: the model and the settings that change its play (planning, beam width, sampling), such as `JOWA-150M no planning`, or our model's name and settings. Required, since those settings live in the policy's kwargs, not in the protocol. |
+| `policy` | `run.json`'s `policy`, verbatim: `spec`, `kwargs`, and `seeds`, per policy seed, its `id` and `checkpoint_sha256`. Paths in `kwargs` are relative to the checkout's root (`runs/<experiment>/checkpoints/seed0.pt`), which assumes `gth evaluate` ran from there (the policy gets its kwargs as given); never absolute, which `kb.py check` refuses. |
+| `harness` | `run.json`'s `harness` (the build: `git_sha`, `git_dirty`, `profile`, `rustc`, `target`, `version`), verbatim. Its `git_sha` is the `game-transformer-harness` entry of `commits`, and `git_dirty` is `"false"` unless the run is exploratory. |
+| `seeds_are` | The `seeds_are` passed to `run_scores`: `independent_runs` or `sampling_seeds`. With `sampling_seeds`, intervals cover the evaluation's randomness for one model only, and `results.md` says so. |
+| `games` | Per game of the protocol: `episodes` (played), `truncated` (how many hit the cap, which `results.md` flags when not 0), `raw` (`run_scores`' per-run scores, in the protocol's policy-seed order) and `normalised` (the same runs normalised with the block's table; omitted when `normalisation` is `null`). |
+
+The normalisation (`normalisation`):
+
+| Field | Meaning |
+|---|---|
+| `name` | `hns` for human-normalised (the HNS analogue on our games), `dns` for DQN-normalised, another name for another pair. |
+| `low_source`, `high_source` | Where each reference comes from: a claim id for a published table (`mnih2015human#C8` and `badia2020agent57#C10` differ for some games), an arm of the block (`runs.random-v1`: the reference is the mean of that arm's `raw` runs), or a `gth reference-scores` output committed in the block's directory (`eval/<key>/human-reference.json`). |
+| `high_statistic` | With a `gth reference-scores` source, which of its per-game values is `high`: `mean` or `median`. Required then, `null` otherwise. |
+| `sha256` | By path, the SHA-256 of every source that is a file in the experiment; `{}` when none is. |
+| `games` | Per game of the protocol, `low` and `high`. |
+
+A metric that a criterion names, taken from an aggregate, also appears in `metrics` under the
+same name, with `value` the aggregate's `point`, `n` the number of scores it reads summed over
+its arms (runs times games per arm: 12 for a probability of improvement between two arms of 3
+runs on 2 games), and `ci` the aggregate's `low`, `high` and `confidence` as `level`.
+
+`kb.py check` (once written) also rejects an `eval` block whose files don't match their
+`sha256`; whose `run.json` has another `protocol_sha1` or `harness`, has `recorded: true`, or
+has an absolute path in `kwargs`; whose `protocol_sha1`, under a preset key, isn't the
+preset's at `harness.git_sha`; whose `raw` scores differ from `run_scores` over the run;
+whose `low` or `high` differ from their source (an arm's mean, or a reference file's
+`high_statistic`, whose `protocol.sha1` must be the block's `protocol_sha1`); whose
+`normalised` scores differ from the table's rescale; or whose `published` entries cite a
+claim that doesn't exist, name another `protocol_sha1`, or, for a `reproduction`, an arm
+whose `variant` isn't the entry's `model`.
 
 ## results.md
 
@@ -161,7 +225,8 @@ from the plan), and `## Notes`
 - The full run is from a clean, committed tree; `record_env` (in `tools/lab`, not written yet)
   captures the commits, the dirty flags, the `inputs` fingerprint and the environment. A tree
   is `dirty` when `git status --porcelain` lists anything outside the experiment's own outputs
-  (`results.json`, `results.md`, `figures/`), so a rerun over committed results is still clean.
+  (`results.json`, `results.md`, `figures/`, `eval/`), so a rerun over committed results is
+  still clean.
 - **Branch rewrites.** The working branch is rebased onto `main` and fixups are folded in before
   merge, so the recorded `research` sha may be unreachable afterwards. What binds the results to
   the code is `inputs`: a rewrite that leaves `src/`, `run.sh` and `requirements.txt` unchanged

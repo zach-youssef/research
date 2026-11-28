@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "experiment": "<YYYY-MM-DD>-<slug>",
+  "date": "<YYYY-MM-DD>",
+  "commits": [
+    {"repo": "research", "sha": "<40 hex>", "dirty": false},
+    {"repo": "game-transformer-harness", "sha": "<40 hex>", "dirty": false}
+  ],
+  "inputs": {"src": "<40 hex>", "run.sh": "<40 hex>", "requirements.txt": "<40 hex>"},
+  "exploratory": false,
+  "tests": ["cheng2025jointly#C4"],
+  "verdicts": {
+    "cheng2025jointly#C4": {"verdict": "inconclusive", "evidence": "iqm_dns_jowa2025 0.497 (our model, one run per game, no interval) vs JOWA-150M (planning unstated) 0.647; <the criterion>"}
+  },
+  "metrics": {
+    "iqm_hns_ours_v1": {"value": 0.2341, "unit": "1", "n": 6, "ci": {"low": 0.1987, "high": 0.2702, "level": 0.95}},
+    "poi_model_vs_random_ours_v1": {"value": 1.0, "unit": "1", "n": 12, "ci": {"low": 1.0, "high": 1.0, "level": 0.95}},
+    "iqm_dns_jowa2025": {"value": 0.4974, "unit": "1", "n": 5}
+  },
+  "seeds": [0, 1, 2],
+  "wall_clock_s": 5400.0,
+  "env": {
+    "python": "<python version>",
+    "os": "<name version arch>",
+    "packages": ["<name>==<version>"],
+    "gpu": null
+  },
+  "eval": {
+    "ours-v1": {
+      "protocol_sha1": "7c4e3f02dd52cb41daa736f7d91227f9cc178851",
+      "runs": {
+        "model": {
+          "dir": "eval/ours-v1/model",
+          "sha256": {"protocol.toml": "<64 hex>", "run.json": "<64 hex>", "episodes.jsonl": "<64 hex>"},
+          "variant": "<our model and its settings>",
+          "policy": {
+            "spec": "<MODULE:NAME>",
+            "kwargs": {"checkpoints": {"0": "runs/<experiment>/checkpoints/seed0.pt", "1": "runs/<experiment>/checkpoints/seed1.pt", "2": "runs/<experiment>/checkpoints/seed2.pt"}},
+            "seeds": {
+              "0": {"id": "<policy id>", "checkpoint_sha256": "<64 hex>"},
+              "1": {"id": "<policy id>", "checkpoint_sha256": "<64 hex>"},
+              "2": {"id": "<policy id>", "checkpoint_sha256": "<64 hex>"}
+            }
+          },
+          "harness": {"git_dirty": "false", "git_sha": "<40 hex>", "profile": "release", "rustc": "<rustc version>", "target": "aarch64-apple-darwin", "version": "<version>"},
+          "seeds_are": "independent_runs",
+          "games": {
+            "gunhed": {"episodes": 30, "truncated": 0, "raw": [41200.0, 38650.0, 45900.0], "normalised": [0.2614, 0.2444, 0.2926]},
+            "zanac": {"episodes": 30, "truncated": 2, "raw": [12840.0, 15310.0, 11020.0], "normalised": [0.1949, 0.2355, 0.1649]}
+          }
+        },
+        "random-v1": {
+          "dir": "eval/ours-v1/random-v1",
+          "sha256": {"protocol.toml": "<64 hex>", "run.json": "<64 hex>", "episodes.jsonl": "<64 hex>"},
+          "variant": "random-v1",
+          "policy": {
+            "spec": "gtharness.policies.random:RandomPolicy",
+            "kwargs": {},
+            "seeds": {
+              "0": {"id": "random-v1", "checkpoint_sha256": null},
+              "1": {"id": "random-v1", "checkpoint_sha256": null},
+              "2": {"id": "random-v1", "checkpoint_sha256": null}
+            }
+          },
+          "harness": {"git_dirty": "false", "git_sha": "<40 hex>", "profile": "release", "rustc": "<rustc version>", "target": "aarch64-apple-darwin", "version": "<version>"},
+          "seeds_are": "independent_runs",
+          "games": {
+            "gunhed": {"episodes": 30, "truncated": 0, "raw": [1830.0, 2010.0, 1710.0], "normalised": [-0.0001, 0.0011, -0.0009]},
+            "zanac": {"episodes": 30, "truncated": 0, "raw": [960.0, 1110.0, 900.0], "normalised": [-0.0005, 0.002, -0.0015]}
+          }
+        }
+      },
+      "normalisation": {
+        "name": "hns",
+        "low_source": "runs.random-v1",
+        "high_source": "eval/ours-v1/human-reference.json",
+        "high_statistic": "mean",
+        "sha256": {"eval/ours-v1/human-reference.json": "<64 hex>"},
+        "games": {
+          "gunhed": {"low": 1850.0, "high": 152400.0},
+          "zanac": {"low": 990.0, "high": 61800.0}
+        }
+      },
+      "aggregates": {
+        "iqm_hns_ours_v1": {
+          "statistic": "iqm", "params": {}, "runs": ["model"], "scores": "normalised", "point": 0.2341,
+          "ci": {"method": "stratified_bootstrap_percentile", "low": 0.1987, "high": 0.2702, "confidence": 0.95, "resamples": 50000, "rng_seed": 0}
+        },
+        "poi_model_vs_random_ours_v1": {
+          "statistic": "probability_of_improvement", "params": {}, "runs": ["model", "random-v1"], "scores": "normalised", "point": 1.0,
+          "ci": {"method": "stratified_bootstrap_percentile", "low": 1.0, "high": 1.0, "confidence": 0.95, "resamples": 2000, "rng_seed": 0}
+        }
+      },
+      "published": []
+    },
+    "jowa2025": {
+      "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f",
+      "runs": {
+        "model": {
+          "dir": "eval/jowa2025/model",
+          "sha256": {"protocol.toml": "<64 hex>", "run.json": "<64 hex>", "episodes.jsonl": "<64 hex>"},
+          "variant": "<our model and its settings>",
+          "policy": {
+            "spec": "<MODULE:NAME>",
+            "kwargs": {"checkpoint": "runs/<experiment>/checkpoints/<name>.pt"},
+            "seeds": {
+              "0": {"id": "<policy id>", "checkpoint_sha256": "<64 hex>"}
+            }
+          },
+          "harness": {"git_dirty": "false", "git_sha": "<40 hex>", "profile": "release", "rustc": "<rustc version>", "target": "aarch64-apple-darwin", "version": "<version>"},
+          "seeds_are": "independent_runs",
+          "games": {
+            "gravitar": {"episodes": 16, "truncated": 0, "raw": [410.0], "normalised": [0.2289]},
+            "ms-pacman": {"episodes": 16, "truncated": 0, "raw": [2870.0], "normalised": [0.6813]},
+            "pong": {"episodes": 16, "truncated": 0, "raw": [14.6], "normalised": [0.8673]},
+            "robotank": {"episodes": 16, "truncated": 0, "raw": [9.8], "normalised": [0.1271]},
+            "yars-revenge": {"episodes": 16, "truncated": 0, "raw": [17300.0], "normalised": [0.582]}
+          }
+        }
+      },
+      "normalisation": {
+        "name": "dns",
+        "low_source": "<claim id, or a file in the experiment>",
+        "high_source": "<claim id, or a file in the experiment>",
+        "high_statistic": null,
+        "sha256": {},
+        "games": {
+          "gravitar": {"low": 220.0, "high": 1050.0},
+          "ms-pacman": {"low": 240.0, "high": 4100.0},
+          "pong": {"low": -20.7, "high": 20.0},
+          "robotank": {"low": 2.2, "high": 62.0},
+          "yars-revenge": {"low": 3100.0, "high": 27500.0}
+        }
+      },
+      "aggregates": {
+        "iqm_dns_jowa2025": {
+          "statistic": "iqm", "params": {}, "runs": ["model"], "scores": "normalised", "point": 0.4974,
+          "ci": null
+        }
+      },
+      "published": [
+        {"claim": "cheng2025jointly#C4", "model": "JOWA-150M planning unstated", "protocol_sha1": "d5067c237d3715ecf61cf9a10a21a739fed0588f", "normalisation": "dns", "aggregate": "iqm", "score": 0.647, "kind": "baseline", "arm": "model", "compare": "iqm_dns_jowa2025"}
+      ]
+    }
+  }
+}
